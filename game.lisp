@@ -41,8 +41,8 @@
 
 (defclass test-window (kit.sdl2:gl-window)
   ((start-time :initform (get-internal-real-time))
+   (one-frame-time :initform (get-internal-real-time))
    (frames :initform 0)
-   (frameskip-frames :initform 0)
    (rotation :initform 0.0)))
 
 ;;; All of these methods are OPTIONAL.  However, without a render
@@ -65,28 +65,21 @@
   (gl:viewport 0 0 800 600))
 
 
-(defparameter *frames-per-second* 60)
+(defparameter *frames-per-second* 60 "Used by FRAMELIMIT to set the FPS")
 
-;; TODO: this is not working
 (defun framelimit (window)
-  (with-slots (start-time frameskip-frames frames) window
-    (when (>= frameskip-frames *frames-per-second*)
-      (let* ((current-time (get-internal-real-time))
-	     (elapsed-time (- current-time start-time))
-	     (sleep-time (- elapsed-time
-			    1000)))
-
-	(unless (< sleep-time 0)
-	  (print sleep-time)
-	  (sdl2:delay sleep-time))
-
-	(setf frameskip-frames 0.0)))))
+  "SDL2:DELAY to get desired FPS set in the *frames-per-second* variable."
+  (with-slots (one-frame-time) window
+    (let ((elapsed-time (- (get-internal-real-time) one-frame-time))
+	  (time-per-frame (/ 1000.0 *frames-per-second*)))
+      (when (< elapsed-time time-per-frame)
+	(sdl2:delay (floor (- time-per-frame elapsed-time))))
+      (setf one-frame-time (get-internal-real-time)))))
 
 (defmethod render ((window test-window))
     ;; Your GL context is automatically active.  FLUSH and
     ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
     ;; after RENDER.
-
     (with-slots (rotation) window
       (gl:load-identity)
       (gl:rotate rotation 0 0 1)
@@ -101,16 +94,16 @@
 
   
     ;;display fps
-    (with-slots (start-time frames frameskip-frames) window
+    (with-slots (start-time frames) window
       (incf frames)
-      (incf frameskip-frames)
-;      (framelimit window)
       (let* ((current-time (get-internal-real-time))
 	     (seconds (/ (- current-time start-time) internal-time-units-per-second)))
 	(when (> seconds 5)
 	  (format t "FPS: ~A~%" (float (/ frames seconds)))
 	  (setf frames 0)
-	  (setf start-time (get-internal-real-time))))))
+	  (setf start-time (get-internal-real-time)))))
+
+    (framelimit window))
 
 (defmethod close-window ((window test-window))
   (format t "Bye!~%")
