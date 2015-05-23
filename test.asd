@@ -9,5 +9,5 @@
   :components ((:file "game")))
 
 ;; load system immediately
-;(asdf:load-system "picking-sticks")
+(asdf:load-system "picking-sticks")
 

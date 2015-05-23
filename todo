@@ -1,0 +1,4 @@
+;; cpu text rendering approach utilizing:
+https://github.com/rpav/texatl
+author: "will let you make an easy font atlas and extract the necessary metrics (…) not GPU"
+

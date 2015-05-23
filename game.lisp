@@ -1,3 +1,5 @@
+(declaim (optimize (speed 0) (safety 3) (debug 3)))
+
 (defpackage :test
   ;; :use inherits all the exported symbols from the package given
   (:use :cl
@@ -8,13 +10,13 @@
 
 (in-package :test)
 
-(declaim (optimize (speed 0) (safety 3) (debug 3)))
 
 ;;; HOW TO USE:
 ;;;
 ;;; First, run this.  It is SAFE to run repeatedly:
 ;;;
-;;;   (sdl2.kit:start)
+   (sdl2.kit:start)
+
 ;;;
 ;;; Then, make a window.
 ;;;
@@ -38,9 +40,10 @@
 ;;; threadsafety and other expectations).
 
 (defclass test-window (kit.sdl2:gl-window)
-  ((rotation :initform 0.0)
-   (start-time :initform (get-internal-real-time))
-   (frames :initform 0)))
+  ((start-time :initform (get-internal-real-time))
+   (frames :initform 0)
+   (frameskip-frames :initform 0)
+   (rotation :initform 0.0)))
 
 ;;; All of these methods are OPTIONAL.  However, without a render
 ;;; method, your window will not look like much!
@@ -52,36 +55,62 @@
 (defmethod initialize-instance :after ((w test-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
   ;; and this is done in the main thread.
+
+
+  ;; if you (setf (idle-render window) t) it'll call RENDER as fast as
+  ;; possible when not processing other events; suitable for games
   (setf (idle-render w) t)
-  (gl:viewport 0 0 800 600)
-  (gl:matrix-mode :projection)
-  (gl:ortho -2 2 -2 2 -2 2)
-  (gl:matrix-mode :modelview)
-  (gl:load-identity))
+  (gl:clear-color 0 0 1 1)
+  (gl:clear :color-buffer-bit)
+  (gl:viewport 0 0 800 600))
+
+
+(defparameter *frames-per-second* 60)
+
+;; TODO: this is not working
+(defun framelimit (window)
+  (with-slots (start-time frameskip-frames frames) window
+    (when (>= frameskip-frames *frames-per-second*)
+      (let* ((current-time (get-internal-real-time))
+	     (elapsed-time (- current-time start-time))
+	     (sleep-time (- elapsed-time
+			    1000)))
+
+	(unless (< sleep-time 0)
+	  (print sleep-time)
+	  (sdl2:delay sleep-time))
+
+	(setf frameskip-frames 0.0)))))
 
 (defmethod render ((window test-window))
-  ;; Your GL context is automatically active.  FLUSH and
-  ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW
-  ;; after RENDER.
-  (with-slots (rotation) window
-    (gl:load-identity)
-    (gl:rotate rotation 0 0 1)
-    (gl:clear-color 0.0 0.0 1.0 1.0)
-    (gl:clear :color-buffer)
-    (gl:begin :triangles)
-    (gl:color 1.0 0.0 0.0)
-    (gl:vertex 0.0 1.0)
-    (gl:vertex -1.0 -1.0)
-    (gl:vertex 1.0 -1.0)
-    (gl:end))
-  (with-slots (start-time frames) window
-    (incf frames)
-    (let* ((current-time (get-internal-real-time))
-           (seconds (/ (- current-time start-time) internal-time-units-per-second)))
-      (when (> seconds 5)
-        (format t "FPS: ~A~%" (float (/ frames seconds)))
-        (setf frames 0)
-        (setf start-time (get-internal-real-time))))))
+    ;; Your GL context is automatically active.  FLUSH and
+    ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
+    ;; after RENDER.
+
+    (with-slots (rotation) window
+      (gl:load-identity)
+      (gl:rotate rotation 0 0 1)
+      (gl:clear-color 0.0 0.0 1.0 1.0)
+      (gl:clear :color-buffer)
+      (gl:begin :triangles)
+      (gl:color 1.0 0.0 0.0)
+      (gl:vertex 0.0 1.0)
+      (gl:vertex -1.0 -1.0)
+      (gl:vertex 1.0 -1.0)
+      (gl:end))
+
+  
+    ;;display fps
+    (with-slots (start-time frames frameskip-frames) window
+      (incf frames)
+      (incf frameskip-frames)
+;      (framelimit window)
+      (let* ((current-time (get-internal-real-time))
+	     (seconds (/ (- current-time start-time) internal-time-units-per-second)))
+	(when (> seconds 5)
+	  (format t "FPS: ~A~%" (float (/ frames seconds)))
+	  (setf frames 0)
+	  (setf start-time (get-internal-real-time))))))
 
 (defmethod close-window ((window test-window))
   (format t "Bye!~%")
@@ -93,17 +122,22 @@
 (defmethod mousewheel-event ((window test-window) ts x y)
   (with-slots (rotation) window
     (incf rotation (* 12 y))
-    (render window)))
+    (render window))
+  ;; (format t "Mousewheel-event issued ts:~a x:~x y:~y" ts x y)
+  )
 
-(defmethod textinput-event ((window test-window) ts text)
-  (format t "You typed: ~S~%" text)
-  (when (string= "Q" (string-upcase text))
-    (close-window window)))
+(defmethod textinput-event ((window test-window) ts text) ;
+  ;; (format t "You typed: ~S~%" text)
+  ;; (when (string= "Q" (string-upcase text))
+  ;;   (close-window window))
+  )
 
 (defmethod keyboard-event ((window test-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
     (unless repeat-p
       (format t "~A ~S~%" state scancode))
+    (when (eq :scancode-space scancode)
+      (print "Space-key pushed"))
     (when (eq :scancode-escape scancode)
       (close-window window))))
 
