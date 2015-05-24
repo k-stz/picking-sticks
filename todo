@@ -2,3 +2,5 @@
 https://github.com/rpav/texatl
 author: "will let you make an easy font atlas and extract the necessary metrics (…) not GPU"
 
+;; test with stumpwm live-editing
+v-sync can be had by (sdl2:gl-set-swap-interval 1) or -1

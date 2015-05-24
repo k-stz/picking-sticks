@@ -6,9 +6,11 @@
 	;; this one's important, as all the defclass lambda lists
 	;; and the the implicitly created generic functions
 	;; appear in the example unqualified, as they're interned
-	:sdl2.kit))
+	:sdl2.kit
+	:kit.gl.shader))
 
 (in-package :test)
+
 
 
 ;;; HOW TO USE:
@@ -54,25 +56,65 @@
 					  0.5 -0.5 0.0 1.0)))
 
 
-(defparameter *vertex-shader* "
-// simple passthrough shader
-#version 330
-layout(location = 0) in vec4 position;
-void main () {
-    gl_Position = position;
-}")
+;; TODO: remove these, or put improved versions in other file
+(defun fill-gl-array (gl-array data-array)
+  "Fills gl-array <gl-array> with <data-array> of type cl:array, <data-array>'s contents
+will be COERCEd to SINGLE-FLOAT"
+  (if (and (typep gl-array 'gl:gl-array)
+	   (arrayp data-array)
+           (= (gl::gl-array-size gl-array) ;wow, this important function's an internal?
+	      (length data-array)))
+      (dotimes (i (length data-array))
+	(setf
+	 (gl:glaref gl-array i)
+	 (coerce (aref data-array i) 'single-float)))
+      (progn
+	(print "couldn't fill gl-array, either size of gl-array and data-array don't")
+      (print "match or they aren't of proper type"))))
 
-(defparameter *fragment-shader* "
-#version 330
-// simple fragment shader assigning the same outputColor on all fragments
-out vec4 outputColor;
-void main() {
-outputColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
-}"
-)
+(defun create-gl-array-from-vector (vector-of-floats)
+  (let* ((array-length (length vector-of-floats))
+	 (gl-array (gl:alloc-gl-array :float array-length)))
+    (fill-gl-array gl-array vector-of-floats)
+    gl-array))
+
+(defvar *vertex-positions* (create-gl-array-from-vector
+				  (vector -0.5 -0.5 0.0 1.0
+					0.0 0.5 0.0 1.0
+					0.5 -0.5 0.0 1.0)))
+
+;;Shader------------------------------------------------------------------------
 
 
-(defun initialize-program ())
+;; the returns dictioary with the program can be used like so:
+;; (1) get the program directly (find-program <compiled-dictionary> <program-name>
+;; (2) or just use it directily (use-program <compiled-dictionary> <program-name>
+;;     also (use-program 0) works
+(defun load-shaders ()
+  (defdict shaders (:shader-path
+		    ;; TODO: check out tradewarz' GET-PATH
+		    (merge-pathnames
+		     #p "shaders/" (asdf/system:system-source-directory :picking-sticks)))
+    (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
+    (shader same-color-f :fragment-shader (:file "same-color.frag"))
+    ;; TODO: what means :mvp?
+    (program :basic (:mvp)
+	     (:vertex-shader pass-through-v)
+	     (:fragment-shader same-color-f)))
+  ;; funciton may only run when a gl-context exists, as it's documentation
+  ;; mentions
+  (compile-shader-dictionary 'shaders))
+
+(defvar *programs-dict*)
+
+(defun initialize-program ()
+  (setf *programs-dict* (load-shaders)))
+
+
+;;..............................................................................
+
+
+(defvar *position-buffer-object*)
 
 (defmethod initialize-instance :after ((w test-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
@@ -85,10 +127,19 @@ outputColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
   (gl:clear :color-buffer-bit)
   (gl:viewport 0 0 800 600)
 
+  ;; shader stuff
+  (initialize-program)
+
+
+  
+  ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
+  ;; if tearing disappears, or if it is an os issue
+  ;; (sdl2:gl-set-swap-interval 1) 
+
   ;; setup buffer-data
-  (let ((position-buffer-object (first (gl:gen-buffers 1))))
-    (gl:bind-buffer :array-buffer position-buffer-object)
-    (%gl:buffer-data :array-buffer 12 *triangle-data* :static-draw))
+  (setf *position-buffer-object* (first (gl:gen-buffers 1)))
+  (gl:bind-buffer :array-buffer *position-buffer-object*)
+  (gl:buffer-data :array-buffer :static-draw *vertex-positions*)
   (initialize-program)
   (gl:enable-vertex-attrib-array 0))
 
@@ -115,13 +166,21 @@ outputColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
 
 
 
+(defun draw-triangle ()
+  (use-program *programs-dict* :basic)
+  (gl:bind-buffer :array-buffer *position-buffer-object*)
+  (%gl:enable-vertex-attrib-array 0)
+  (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)
+
+  (gl:draw-arrays :triangles 0 3))
 
 
 (defmethod render ((window test-window))
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
-  
+
+  (draw-triangle)
 
   (display-fps window)
   (framelimit window 60))
