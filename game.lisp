@@ -9,7 +9,8 @@
 	;; and the the implicitly created generic functions
 	;; appear in the example unqualified, as they're interned
 	:sdl2.kit
-	:kit.gl.shader))
+	:kit.gl.shader
+	:kit.math))
 
 (in-package :test)
 
@@ -71,9 +72,13 @@
 		    (merge-pathnames
 		     #p "shaders/" (asdf/system:system-source-directory :picking-sticks)))
     (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
+    (shader one-transform-v :vertex-shader (:file "one-transform.vert"))
     (shader same-color-f :fragment-shader (:file "same-color.frag"))
     (program :basic (:color) ;; <- UNIFORMS!
 	     (:vertex-shader pass-through-v)
+	     (:fragment-shader same-color-f))
+    (program :basic-transform (:model-to-clip :color)
+	     (:vertex-shader one-transform-v)
 	     (:fragment-shader same-color-f)))
   ;; funciton may only run when a gl-context exists, as it's documentation
   ;; mentions
@@ -85,11 +90,16 @@
   (setf *programs-dict* (load-shaders)))
 
 ;; to be understood while reading LOAD-SHADER function
+;; example: (uniform :vec :<name-of-uniform> <new-value>)
 (defmethod uniform ((type (eql :vec)) key value)
-  ;; TODO: abstract me (find-program .. >:basic<)
   (uniformfv *programs-dict* key value))
 
 
+(defmethod uniform ((type (eql :mat)) key value)
+  ;; nice, transpose is NIL by default!
+  (uniform-matrix *programs-dict* key 4 value NIL))
+
+;; TODO: why specialize on SHADE
 
 
 ;;..............................................................................
@@ -147,8 +157,10 @@
 
 
 (defun draw-triangle ()
-  (use-program *programs-dict* :basic)
+  (use-program *programs-dict* :basic-transform)
   (uniform :vec :color #(1.0 0.0 0.0 1.0))
+  (uniform :mat :model-to-clip
+	   (vector (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))))
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
   (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)
@@ -160,6 +172,7 @@
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
+  (gl:clear :color-buffer)
 
   (draw-triangle)
 
