@@ -1,3 +1,5 @@
+;; sbcl 2.6% mem
+
 (declaim (optimize (speed 0) (safety 3) (debug 3)))
 
 (defpackage :test
@@ -56,33 +58,6 @@
 					  0.5 -0.5 0.0 1.0)))
 
 
-;; TODO: remove these, or put improved versions in other file
-(defun fill-gl-array (gl-array data-array)
-  "Fills gl-array <gl-array> with <data-array> of type cl:array, <data-array>'s contents
-will be COERCEd to SINGLE-FLOAT"
-  (if (and (typep gl-array 'gl:gl-array)
-	   (arrayp data-array)
-           (= (gl::gl-array-size gl-array) ;wow, this important function's an internal?
-	      (length data-array)))
-      (dotimes (i (length data-array))
-	(setf
-	 (gl:glaref gl-array i)
-	 (coerce (aref data-array i) 'single-float)))
-      (progn
-	(print "couldn't fill gl-array, either size of gl-array and data-array don't")
-      (print "match or they aren't of proper type"))))
-
-(defun create-gl-array-from-vector (vector-of-floats)
-  (let* ((array-length (length vector-of-floats))
-	 (gl-array (gl:alloc-gl-array :float array-length)))
-    (fill-gl-array gl-array vector-of-floats)
-    gl-array))
-
-(defvar *vertex-positions* (create-gl-array-from-vector
-				  (vector -0.5 -0.5 0.0 1.0
-					0.0 0.5 0.0 1.0
-					0.5 -0.5 0.0 1.0)))
-
 ;;Shader------------------------------------------------------------------------
 
 
@@ -97,8 +72,7 @@ will be COERCEd to SINGLE-FLOAT"
 		     #p "shaders/" (asdf/system:system-source-directory :picking-sticks)))
     (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
     (shader same-color-f :fragment-shader (:file "same-color.frag"))
-    ;; TODO: what means :mvp?
-    (program :basic (:mvp)
+    (program :basic (:color) ;; <- UNIFORMS!
 	     (:vertex-shader pass-through-v)
 	     (:fragment-shader same-color-f)))
   ;; funciton may only run when a gl-context exists, as it's documentation
@@ -109,6 +83,13 @@ will be COERCEd to SINGLE-FLOAT"
 
 (defun initialize-program ()
   (setf *programs-dict* (load-shaders)))
+
+;; to be understood while reading LOAD-SHADER function
+(defmethod uniform ((type (eql :vec)) key value)
+  ;; TODO: abstract me (find-program .. >:basic<)
+  (uniformfv *programs-dict* key value))
+
+
 
 
 ;;..............................................................................
@@ -130,7 +111,6 @@ will be COERCEd to SINGLE-FLOAT"
   ;; shader stuff
   (initialize-program)
 
-
   
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an os issue
@@ -139,7 +119,7 @@ will be COERCEd to SINGLE-FLOAT"
   ;; setup buffer-data
   (setf *position-buffer-object* (first (gl:gen-buffers 1)))
   (gl:bind-buffer :array-buffer *position-buffer-object*)
-  (gl:buffer-data :array-buffer :static-draw *vertex-positions*)
+  (%gl:buffer-data :array-buffer 48 *triangle-data* :static-draw)
   (initialize-program)
   (gl:enable-vertex-attrib-array 0))
 
@@ -168,6 +148,7 @@ will be COERCEd to SINGLE-FLOAT"
 
 (defun draw-triangle ()
   (use-program *programs-dict* :basic)
+  (uniform :vec :color #(1.0 0.0 0.0 1.0))
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
   (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)

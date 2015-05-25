@@ -3,6 +3,8 @@
 // simple fragment shader assigning the same outputColor on all fragments
 out vec4 outputColor;
 
+uniform vec4 color; // TODO try if _ -> - lispification take place
+
 void main() {
-  outputColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
+  outputColor = color;
 }
