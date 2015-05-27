@@ -18,7 +18,7 @@
 
 ;;; HOW TO USE:
 ;;;
-;;; First, run this.  It is SAFE to run repeatedly:
+;;; First, run this. It is SAFE to run repeatedly:
 ;;;
    (sdl2.kit:start)
 
@@ -73,12 +73,16 @@
 		     #p "shaders/" (asdf/system:system-source-directory :picking-sticks)))
     (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
     (shader one-transform-v :vertex-shader (:file "one-transform.vert"))
+    (shader matrix-perspective-v :vertex-shader (:file "transform-and-project.vert"))
     (shader same-color-f :fragment-shader (:file "same-color.frag"))
     (program :basic (:color) ;; <- UNIFORMS!
 	     (:vertex-shader pass-through-v)
 	     (:fragment-shader same-color-f))
     (program :basic-transform (:model-to-clip :color)
 	     (:vertex-shader one-transform-v)
+	     (:fragment-shader same-color-f))
+    (program :basic-projection (:model-to-clip :perspective-matrix :color)
+	     (:vertex-shader matrix-perspective-v)
 	     (:fragment-shader same-color-f)))
   ;; funciton may only run when a gl-context exists, as it's documentation
   ;; mentions
@@ -89,6 +93,7 @@
 (defun initialize-program ()
   (setf *programs-dict* (load-shaders)))
 
+
 ;; to be understood while reading LOAD-SHADER function
 ;; example: (uniform :vec :<name-of-uniform> <new-value>)
 (defmethod uniform ((type (eql :vec)) key value)
@@ -98,6 +103,7 @@
 (defmethod uniform ((type (eql :mat)) key value)
   ;; nice, transpose is NIL by default!
   (uniform-matrix *programs-dict* key 4 value NIL))
+
 
 ;; TODO: why specialize on SHADE
 
@@ -157,10 +163,15 @@
 
 
 (defun draw-triangle ()
-  (use-program *programs-dict* :basic-transform)
+  (use-program *programs-dict* :basic-projection)
   (uniform :vec :color #(1.0 0.0 0.0 1.0))
   (uniform :mat :model-to-clip
-	   (vector (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))))
+	   (vector
+	    (sb-cga:matrix*
+	     (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))
+	     (sb-cga:translate (vec3 0.0 0.0 -1.0)))))
+  (uniform :mat :perspective-matrix
+  	   (vector (perspective-matrix 90.0 3/4 1.0 1000.0)))
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
   (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)
