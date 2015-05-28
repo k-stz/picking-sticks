@@ -110,15 +110,16 @@
     (shader one-transform-v :vertex-shader (:file "one-transform.vert"))
     (shader matrix-perspective-v :vertex-shader (:file "transform-and-project.vert"))
     (shader same-color-f :fragment-shader (:file "same-color.frag"))
+    (shader color-pass-through-f :fragment-shader (:file "color-pass-through.frag"))
     (program :basic (:color) ;; <- UNIFORMS!
 	     (:vertex-shader pass-through-v)
 	     (:fragment-shader same-color-f))
     (program :basic-transform (:model-to-clip :color)
 	     (:vertex-shader one-transform-v)
 	     (:fragment-shader same-color-f))
-    (program :basic-projection (:model-to-clip :perspective-matrix :color)
+    (program :basic-projection (:model-to-clip :perspective-matrix)
 	     (:vertex-shader matrix-perspective-v)
-	     (:fragment-shader same-color-f)))
+	     (:fragment-shader color-pass-through-f)))
   ;; funciton may only run when a gl-context exists, as it's documentation
   ;; mentions
   (compile-shader-dictionary 'shaders))
@@ -227,28 +228,25 @@
 
 
 (defun draw-triangle ()
-  (use-program *programs-dict* :basic-projection)
+  (use-program *programs-dict* :basic-transform)
   (uniform :vec :color #(1.0 0.0 0.0 1.0))
   (uniform :mat :model-to-clip
 	   (vector
 	    (sb-cga:matrix*
 	     (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))
-	     (sb-cga:translate (vec3 0.0 0.0 -1.0)))))
-
-  (uniform :mat :perspective-matrix
-	   (vector (sb-cga:identity-matrix)))  
+	     (sb-cga:translate (vec3 1.0 0.0 -1.0)))))  
   
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
   (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)
 
-  (gl:draw-arrays :triangles 0 3))
+  (gl:draw-arrays :triangles 0 3)
+  (gl:use-program 0))
 
 
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
   (use-program *programs-dict* :basic-projection)
-  (uniform :vec :color #(1.0 0.0 0.0 .1))
   (uniform :mat :model-to-clip
 	   (vector
 	    (sb-cga:matrix*
@@ -259,7 +257,8 @@
     (uniform :mat :perspective-matrix
 	   (vector (perspective-matrix 90.0 3/4 1.0 1000.0)))  
 
-  (%gl:draw-elements :triangles  (* 36 2) :unsigned-short 0))
+  (%gl:draw-elements :triangles  (* 36 2) :unsigned-short 0)
+  (gl:bind-vertex-array 0))
 
 
 (defmethod render ((window test-window))
