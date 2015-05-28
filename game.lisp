@@ -62,30 +62,14 @@
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(0.5 0.5 0.5
-     0.5 -0.5 0.5
-     -0.5 -0.5 0.5
-     -0.5 0.5 0.5
-     0.5 0.5 0.5
-     -0.5 0.5 0.5
-     -0.5 0.5 -0.5
-     0.5 0.5 -0.5
-     0.5 0.5 0.5
-     0.5 0.5 -0.5
-     0.5 -0.5 -0.5
-     0.5 -0.5 0.5
-     0.5 0.5 -0.5
-     -0.5 0.5 -0.5
-     -0.5 -0.5 -0.5
-     0.5 -0.5 -0.5
-     0.5 -0.5 0.5
-     0.5 -0.5 -0.5
-     -0.5 -0.5 -0.5
-     -0.5 -0.5 0.5
-     -0.5 0.5 0.5
-     -0.5 -0.5 0.5
-     -0.5 -0.5 -0.5
-     -0.5 0.5 -0.5)))
+   '(0.5 0.5 0.5			;0
+     0.5 -0.5 0.5			;1
+     -0.5 -0.5 0.5			;2
+     -0.5 0.5 0.5			;3
+     0.5 0.5 -0.5			;4
+     0.5 -0.5 -0.5			;5
+     -0.5 -0.5 -0.5			;6
+     -0.5 0.5 -0.5)))			;7
 
 (defvar *cube-indices*
   (cffi:foreign-alloc
@@ -93,16 +77,21 @@
    :initial-contents
    '(0 1 2
      2 3 0
-     4 5 6
-     6 7 4
-     8 9 10
-     10 11 8
-     12 13 14
-     14 15 12
-     16 17 18
-     18 19 16
-     20 21 22
-     22 23 20)))
+
+     4 5 1  
+     1 0 4
+
+     7 6 5
+     5 4 7
+
+     3 2 6
+     6 7 3
+
+     4 0 3
+     3 7 4
+
+     1 5 6
+     6 2 1)))
 
 
 ;;Shader------------------------------------------------------------------------
@@ -164,7 +153,7 @@
     (gl:bind-vertex-array vao)
     ;;VBO
     (gl:bind-buffer :array-buffer vbo)
-    (%gl:buffer-data :array-buffer (* 24 4) *cube-data* :static-draw)
+    (%gl:buffer-data :array-buffer (* 24 4 3) *cube-data* :static-draw)
     (%gl:enable-vertex-attrib-array 0)
     ;;                           v-TODO this means 3 floats make up a vertex, right?
     (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
@@ -192,6 +181,10 @@
   (gl:clear-color 0 0 1 1)
   (gl:clear :color-buffer-bit)
   (gl:viewport 0 0 800 600)
+
+  (gl:enable :cull-face)
+  (gl:cull-face :back)
+  (gl:front-face :cw)
 
   ;; shader stuff
   (initialize-program)
@@ -241,6 +234,9 @@
 	    (sb-cga:matrix*
 	     (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))
 	     (sb-cga:translate (vec3 0.0 0.0 -1.0)))))
+
+  (uniform :mat :perspective-matrix
+	   (vector (sb-cga:identity-matrix)))  
   
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
@@ -252,12 +248,18 @@
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
   (use-program *programs-dict* :basic-projection)
-  (uniform :vec :color #(1.0 0.0 0.0 1.0))
+  (uniform :vec :color #(1.0 0.0 0.0 .1))
   (uniform :mat :model-to-clip
 	   (vector
-	    (sb-cga:translate (vec3 0.0 0.0 1.0))))
-  (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
-  )
+	    (sb-cga:matrix*
+	     (sb-cga:translate (vec3 0.0 0.0 -2.0))
+	     (sb-cga:rotate (vec3 1.0 0.0 0.0))
+	     (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0)))))
+
+    (uniform :mat :perspective-matrix
+	   (vector (perspective-matrix 90.0 3/4 1.0 1000.0)))  
+
+  (%gl:draw-elements :triangles  (* 36 2) :unsigned-short 0))
 
 
 (defmethod render ((window test-window))
@@ -266,7 +268,7 @@
   ;; after RENDER.
   (gl:clear :color-buffer)
 
-  ;(draw-triangle)
+;  (draw-triangle)
   (draw-cube)
 
   (display-fps window)
