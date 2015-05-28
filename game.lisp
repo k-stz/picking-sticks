@@ -58,6 +58,52 @@
 					  0.0 0.5 0.0 1.0
 					  0.5 -0.5 0.0 1.0)))
 
+(defvar *cube-data*
+  (cffi:foreign-alloc
+   :float
+   :initial-contents
+   '(0.5 0.5 0.5
+     0.5 -0.5 0.5
+     -0.5 -0.5 0.5
+     -0.5 0.5 0.5
+     0.5 0.5 0.5
+     -0.5 0.5 0.5
+     -0.5 0.5 -0.5
+     0.5 0.5 -0.5
+     0.5 0.5 0.5
+     0.5 0.5 -0.5
+     0.5 -0.5 -0.5
+     0.5 -0.5 0.5
+     0.5 0.5 -0.5
+     -0.5 0.5 -0.5
+     -0.5 -0.5 -0.5
+     0.5 -0.5 -0.5
+     0.5 -0.5 0.5
+     0.5 -0.5 -0.5
+     -0.5 -0.5 -0.5
+     -0.5 -0.5 0.5
+     -0.5 0.5 0.5
+     -0.5 -0.5 0.5
+     -0.5 -0.5 -0.5
+     -0.5 0.5 -0.5)))
+
+(defvar *cube-indices*
+  (cffi:foreign-alloc
+   :unsigned-short
+   :initial-contents
+   '(0 1 2
+     2 3 0
+     4 5 6
+     6 7 4
+     8 9 10
+     10 11 8
+     12 13 14
+     14 15 12
+     16 17 18
+     18 19 16
+     20 21 22
+     22 23 20)))
+
 
 ;;Shader------------------------------------------------------------------------
 
@@ -110,8 +156,31 @@
 
 ;;..............................................................................
 
+(defvar *vao* 0)
+(defun initialize-vao ()
+  (let ((vao (first (gl:gen-vertex-arrays 1)))
+	(vbo (first (gl:gen-buffers 1)))
+	(ibo (first (gl:gen-buffers 1))))
+    (gl:bind-vertex-array vao)
+    ;;VBO
+    (gl:bind-buffer :array-buffer vbo)
+    (%gl:buffer-data :array-buffer (* 24 4) *cube-data* :static-draw)
+    (%gl:enable-vertex-attrib-array 0)
+    ;;                           v-TODO this means 3 floats make up a vertex, right?
+    (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
+    ;;IBO
+    (gl:bind-buffer :element-array-buffer ibo)
+    (%gl:buffer-data :element-array-buffer (* 36 2) *cube-indices* :static-draw)
+
+    ;;TODO: do you need to fill the arrays into gl first and _then_ bind them
+    ;;after the vao implicitly?
+    (gl:bind-vertex-array 0)
+    (setf *vao* vao)))
+
 
 (defvar *position-buffer-object*)
+
+
 
 (defmethod initialize-instance :after ((w test-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
@@ -127,6 +196,8 @@
   ;; shader stuff
   (initialize-program)
 
+  ;; vao
+  (initialize-vao)
   
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an os issue
@@ -170,13 +241,23 @@
 	    (sb-cga:matrix*
 	     (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))
 	     (sb-cga:translate (vec3 0.0 0.0 -1.0)))))
-  (uniform :mat :perspective-matrix
-  	   (vector (perspective-matrix 90.0 3/4 1.0 1000.0)))
+  
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
   (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)
 
   (gl:draw-arrays :triangles 0 3))
+
+
+(defun draw-cube ()
+  (gl:bind-vertex-array *vao*)
+  (use-program *programs-dict* :basic-projection)
+  (uniform :vec :color #(1.0 0.0 0.0 1.0))
+  (uniform :mat :model-to-clip
+	   (vector
+	    (sb-cga:translate (vec3 0.0 0.0 1.0))))
+  (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
+  )
 
 
 (defmethod render ((window test-window))
@@ -185,7 +266,8 @@
   ;; after RENDER.
   (gl:clear :color-buffer)
 
-  (draw-triangle)
+  ;(draw-triangle)
+  (draw-cube)
 
   (display-fps window)
   (framelimit window 60))
