@@ -69,7 +69,29 @@
      0.5 0.5 -0.5			;4
      0.5 -0.5 -0.5			;5
      -0.5 -0.5 -0.5			;6
-     -0.5 0.5 -0.5)))			;7
+     -0.5 0.5 -0.5                      ;7
+     ;;color data
+     0.1 0.1 0.1			;8
+     0.2 0.2 0.2			;9
+     0.3 0.3 0.3			;10
+     0.4 0.4 0.4			;11
+     0.5 0.5 0.5			;12
+     0.6 0.6 0.6 			;13
+     0.7 0.7 0.7			;14
+     0.8 0.8 0.8)))	         	;15
+
+(defvar *cube-colors*
+  (cffi:foreign-alloc
+   :float
+   :initial-contents
+   '(0.1 0.1 0.1
+     0.2 0.2 0.2
+     0.3 0.3 0.3
+     0.4 0.4 0.4
+     0.5 0.5 0.5
+     0.6 0.6 0.6
+     0.7 0.7 0.7
+     0.8 0.8 0.8)))
 
 (defvar *cube-indices*
   (cffi:foreign-alloc
@@ -154,10 +176,15 @@
     (gl:bind-vertex-array vao)
     ;;VBO
     (gl:bind-buffer :array-buffer vbo)
-    (%gl:buffer-data :array-buffer (* 24 4 3) *cube-data* :static-draw)
+    ;;VBO - positions
+    (%gl:buffer-data :array-buffer (* 24 4 3 2) *cube-data* :static-draw)
     (%gl:enable-vertex-attrib-array 0)
-    ;;                           v-TODO this means 3 floats make up a vertex, right?
     (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
+    ;;VBO - colors
+    (%gl:buffer-sub-data :array-buffer (* 24 4 3) (* 24 4 3) *cube-colors*)
+    (%gl:enable-vertex-attrib-array 1)
+    (%gl:vertex-attrib-pointer 1 3 :float :false 0 0)
+    
     ;;IBO
     (gl:bind-buffer :element-array-buffer ibo)
     (%gl:buffer-data :element-array-buffer (* 36 2) *cube-indices* :static-draw)
@@ -244,6 +271,8 @@
   (gl:use-program 0))
 
 
+(defparameter *rotate-x* -1.0)
+
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
   (use-program *programs-dict* :basic-projection)
@@ -251,7 +280,7 @@
 	   (vector
 	    (sb-cga:matrix*
 	     (sb-cga:translate (vec3 0.0 0.0 -2.0))
-	     (sb-cga:rotate (vec3 1.0 0.0 0.0))
+	     (sb-cga:rotate (vec3 *rotate-x* 0.0 0.0))
 	     (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0)))))
 
     (uniform :mat :perspective-matrix
@@ -282,7 +311,8 @@
 
 (defmethod mousewheel-event ((window test-window) ts x y)
   (with-slots (rotation) window
-    (incf rotation (* 12 y))
+    (incf *rotate-x* 0.2)
+    (print (list x y))
     (render window))
   ;; (format t "Mousewheel-event issued ts:~a x:~x y:~y" ts x y)
   )
