@@ -84,14 +84,14 @@
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(0.1 0.1 0.1
-     0.2 0.2 0.2
+   '(0.2 0.2 0.2
      0.3 0.3 0.3
      0.4 0.4 0.4
      0.5 0.5 0.5
      0.6 0.6 0.6
      0.7 0.7 0.7
-     0.8 0.8 0.8)))
+     0.8 0.8 0.8
+     0.9 0.9 0.9)))
 
 (defvar *cube-indices*
   (cffi:foreign-alloc
@@ -152,21 +152,29 @@
   (setf *programs-dict* (load-shaders)))
 
 
-;; to be understood while reading LOAD-SHADER function
+;; to be understood while reading the LOAD-SHADER function
 ;; example: (uniform :vec :<name-of-uniform> <new-value>)
-(defmethod uniform ((type (eql :vec)) key value)
-  (uniformfv *programs-dict* key value))
-
-
-(defmethod uniform ((type (eql :mat)) key value)
-  ;; nice, transpose is NIL by default!
-  (uniform-matrix *programs-dict* key 4 value NIL))
+(defgeneric uniform (type key value)
+  (:method ((type (eql :vec)) key value)
+    (uniformfv *programs-dict* key value))
+  
+  (:method ((type (eql :vec)) key value)
+    (uniformfv *programs-dict* key value))
+  
+  (:method ((type (eql :mat)) key value)
+    ;; nice, transpose is NIL by default!
+    (uniform-matrix *programs-dict* key 4 value NIL)))
 
 
 ;; TODO: why specialize on SHADE
 
 
 ;;..............................................................................
+
+
+(defun initialize-gl-vao ()
+  ())
+
 
 (defvar *vao* 0)
 (defun initialize-vao ()
@@ -198,22 +206,23 @@
 (defvar *position-buffer-object*)
 
 
-
 (defmethod initialize-instance :after ((w test-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
   ;; and this is done in the main thread.
 
   ;; if you (setf (idle-render window) t) it'll call RENDER as fast as
-  ;; possible when not processing other events; suitable for games
+  ;; possible when not processing other events - suitable for games
   (setf (idle-render w) t)
   (gl:clear-color 0 0 1 1)
   (gl:clear :color-buffer-bit)
   (gl:viewport 0 0 800 600)
 
+  ;; with culling
   (gl:enable :cull-face)
   (gl:cull-face :back)
   (gl:front-face :cw)
 
+  
   ;; shader stuff
   (initialize-program)
 
@@ -261,7 +270,7 @@
 	   (vector
 	    (sb-cga:matrix*
 	     (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))
-	     (sb-cga:translate (vec3 1.0 0.0 -1.0)))))  
+	     (sb-cga:translate (vec3 0.0 0.0 -1.0)))))  
   
   (gl:bind-buffer :array-buffer *position-buffer-object*)
   (%gl:enable-vertex-attrib-array 0)
@@ -272,6 +281,8 @@
 
 
 (defparameter *rotate-x* -1.0)
+(defparameter *rotate-y* 0.0)
+(defparameter *zoom-z* -2.0)
 
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
@@ -279,12 +290,12 @@
   (uniform :mat :model-to-clip
 	   (vector
 	    (sb-cga:matrix*
-	     (sb-cga:translate (vec3 0.0 0.0 -2.0))
-	     (sb-cga:rotate (vec3 *rotate-x* 0.0 0.0))
+	     (sb-cga:translate (vec3 0.0 0.0 *zoom-z*))
+	     (sb-cga:rotate (vec3 *rotate-x* *rotate-y* 0.0))
 	     (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0)))))
 
-    (uniform :mat :perspective-matrix
-	   (vector (perspective-matrix 90.0 3/4 1.0 1000.0)))  
+  (uniform :mat :perspective-matrix
+	   (vector (perspective-matrix 170.0 1 0.0 1000.0)))  
 
   (%gl:draw-elements :triangles  (* 36 2) :unsigned-short 0)
   (gl:bind-vertex-array 0))
@@ -311,11 +322,10 @@
 
 (defmethod mousewheel-event ((window test-window) ts x y)
   (with-slots (rotation) window
-    (incf *rotate-x* 0.2)
-    (print (list x y))
-    (render window))
-  ;; (format t "Mousewheel-event issued ts:~a x:~x y:~y" ts x y)
-  )
+    (cond ((= y 1) (incf *zoom-z* 0.2))
+	  ((= y -1) (decf *zoom-z* 0.2)))
+;    (render window)
+    ))
 
 (defmethod textinput-event ((window test-window) ts text) ;
   ;; (format t "You typed: ~S~%" text)
@@ -336,7 +346,11 @@
   (format t "~A button: ~A at ~A, ~A~%" state b x y))
 
 (defmethod mousemotion-event ((window test-window) ts mask x y xr yr)
-  (when (> mask 0)
-    (format t "Mouse motion, button-mask = ~A at ~A, ~A~%" mask x y)))
+  (flet ((left-mouse-button-clicked-p ()
+	   (= mask 1)))
+    ;; rotate x, y axis
+    (when (left-mouse-button-clicked-p)
+      (incf *rotate-y* (/ xr 100.0))
+      (incf *rotate-x* (/ yr 100.0)))))
 
 ;; (make-instance 'test-window)
