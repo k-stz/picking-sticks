@@ -281,10 +281,11 @@
   ;; projection matrix
   (uniform :mat :perspective-matrix
 	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))  
-
   (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
   (gl:bind-vertex-array 0))
 
+
+(defvar *test*)
 
 (defmethod render ((window test-window))
   ;; Your GL context is automatically active.  FLUSH and
@@ -328,3 +329,6 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0)))))
+
+
+

@@ -1,8 +1,16 @@
-(defpackage cepl-test
-  (:use :cl :cepl))
+;; to get this to work:
+;; load CEPL's "cepl-default" system
+;; then (cepl:repl)
+;; then (run-loop)
 
-(in-package :cepl-test)
 
+;; (defpackage cepl-test
+;;   (:use :cl :cepl))
+
+;; TODO: for some strange reason it doesn't work with :cepl-test repl which :use :cepl 
+;; (in-package :cepl-test)
+
+(in-package :cepl)
 
 (defparameter *array* nil)
 (defparameter *stream* nil)
@@ -20,8 +28,8 @@
 (defun-g frag ((color :vec4))
   color)
 
-;; (defpipeline prog-1 ()
-;;     (g-> #'vert #'frag))
+(defpipeline prog-1 ()
+    (g-> #'vert #'frag))
 
 (defun step-demo ()
   (evt:pump-events)
@@ -30,6 +38,7 @@
   (map-g #'prog-1 *stream*)
   (update-display))
 
+;; start it using this
 (defun run-loop ()
   (setf *running* t
         *array* (make-gpu-array
@@ -40,6 +49,8 @@
    *stream* (make-buffer-stream *array*))
   (loop :while *running* :do (continuable (step-demo))))
 
+;; to terminate the loop, test with other WM, with stumpwm the last image
+;; stays imprinted in the sdl-window
 (defun stop-loop ()
   (setf *running* nil))
 
