@@ -2,7 +2,7 @@
 
 (declaim (optimize (speed 0) (safety 3) (debug 3)))
 
-(defpackage :test
+(defpackage :texture-test
   ;; :use inherits all the exported symbols from the package given
   (:use :cl
 	;; this one's important, as all the defclass lambda lists
@@ -12,7 +12,7 @@
 	:kit.gl.shader
 	:kit.math))
 
-(in-package :test)
+(in-package :texture-test)
 
 
 
@@ -107,15 +107,15 @@
 (defun load-shaders ()
   (defdict shaders (:shader-path
 		    (merge-pathnames
-		     #p "examples/shaders/" (asdf/system:system-source-directory :sdl2kit-examples)))
+		     #p "shaders/" (asdf/system:system-source-directory :picking-sticks)))
     ;; instead of (:file <path>) you may directly provide the shader as a string containing the
     ;; source code
     (shader matrix-perspective-v :vertex-shader (:file "transform-and-project.vert"))
-    (shader color-pass-through-f :fragment-shader (:file "color-pass-through.frag"))
+    (shader texture-f :fragment-shader (:file "texture.frag"))
     ;; here we compose the shaders into programs, in this case just one ":basic-projection"
     (program :basic-projection (:model-to-clip :perspective-matrix) ;<- UNIFORMS!
 	     (:vertex-shader matrix-perspective-v)
-	     (:fragment-shader color-pass-through-f)))
+	     (:fragment-shader texture-f)))
   ;; function may only run when a gl-context exists, as its documentation
   ;; mentions
   (compile-shader-dictionary 'shaders))
@@ -244,6 +244,8 @@
 
 (defvar *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(1.0 2.0 3.0 4.0)))
 
+(defparameter *gauss-sampler* 0)
+
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
 	(width 10)
@@ -256,7 +258,12 @@
     (%gl:tex-parameter-i :texture-1d :texture-base-level 0)
     (%gl:tex-parameter-i :texture-1d :texture-max-level 0)
     ;; unbind
-    (gl:bind-texture :texture-1d 0)))
+    (gl:bind-texture :texture-1d 0)
+    ;; TODO: export gl::gen-sampler
+    (setf *gauss-sampler* (first (gl::gen-samplers 1)))
+    (%gl:sampler-parameter-i *gauss-sampler* :texture-mag-filter :nearest)
+    (%gl:sampler-parameter-i *gauss-sampler* :texture-min-filter :nearest)
+    (%gl:sampler-parameter-i *gauss-sampler* :texture-wrap-s :clamp-to-edge)))
 
 
 ;;Rendering----------------------------------------------------------------------
