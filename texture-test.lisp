@@ -113,7 +113,7 @@
     (shader matrix-perspective-v :vertex-shader (:file "transform-and-project.vert"))
     (shader texture-f :fragment-shader (:file "texture.frag"))
     ;; here we compose the shaders into programs, in this case just one ":basic-projection"
-    (program :basic-projection (:model-to-clip :perspective-matrix) ;<- UNIFORMS!
+    (program :basic-projection (:model-to-clip :perspective-matrix :test-texture) ;<- UNIFORMS!
 	     (:vertex-shader matrix-perspective-v)
 	     (:fragment-shader texture-f)))
   ;; function may only run when a gl-context exists, as its documentation
@@ -136,7 +136,10 @@
   
   (:method ((type (eql :mat)) key value)
     ;; nice, transpose is NIL by default!
-    (uniform-matrix *programs-dict* key 4 value NIL)))
+    (uniform-matrix *programs-dict* key 4 value NIL))
+  
+  (:method ((type (eql :int)) key value)
+    (uniformi *programs-dict* key value)))
 
 
 ;;VAO setup.....................................................................
@@ -208,6 +211,7 @@
 
 ;;init code---------------------------------------------------------------------
 
+(defparameter *tex-unit* 0)
 
 (defmethod initialize-instance :after ((w texture-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
@@ -228,6 +232,12 @@
   (initialize-program)
   (initialize-vao)
 
+  ;;texture
+  ;; TODO: so in the shader we refer to the texture via this arbitrary index value?
+  (use-program *programs-dict* :basic-projection)
+  (uniform :int :test-texture *tex-unit*)
+  (use-program *programs-dict* 0)
+
   ;; TODO: clean this up and do the tests
     ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an os issue
@@ -244,7 +254,9 @@
 
 (defvar *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(1.0 2.0 3.0 4.0)))
 
-(defparameter *gauss-sampler* 0)
+(defparameter *sampler* 0)
+(defparameter *texture* 0)
+
 
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
@@ -252,7 +264,10 @@
 	;; TODO: put meaningful data in texture-data
 	(texture-data *some-texture-data*))
 
+    (setf *texture* m-texture)
+
     (%gl:bind-texture :texture-1d m-texture)
+    ;; TODO: "width" is wrong here
     (gl:tex-image-1d :texture-1d 0 :r8 width 0 :red :unsigned-byte texture-data)
     ;; TODO understand
     (%gl:tex-parameter-i :texture-1d :texture-base-level 0)
@@ -260,10 +275,11 @@
     ;; unbind
     (gl:bind-texture :texture-1d 0)
     ;; TODO: export gl::gen-sampler
-    (setf *gauss-sampler* (first (gl::gen-samplers 1)))
-    (%gl:sampler-parameter-i *gauss-sampler* :texture-mag-filter :nearest)
-    (%gl:sampler-parameter-i *gauss-sampler* :texture-min-filter :nearest)
-    (%gl:sampler-parameter-i *gauss-sampler* :texture-wrap-s :clamp-to-edge)))
+    (setf *sampler* (first (gl::gen-samplers 1)))
+    (%gl:sampler-parameter-i *sampler* :texture-mag-filter :nearest)
+    (%gl:sampler-parameter-i *sampler* :texture-min-filter :nearest)
+    (%gl:sampler-parameter-i *sampler* :texture-wrap-s :clamp-to-edge)
+    (setf *texture* m-texture)))
 
 
 ;;Rendering----------------------------------------------------------------------
@@ -284,12 +300,20 @@
 	     (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0)))))
   ;; projection matrix
   (uniform :mat :perspective-matrix
-	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))  
+	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))
+
+  ;;texture stuff:
+  (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+  (%gl:bind-texture :texture-1d *texture*)
+  (%gl:bind-sampler *tex-unit* *sampler*)
+  
   (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
+
+
+  (%gl:bind-sampler *tex-unit* 0)
+  (%gl:bind-texture :texture-1d 0)
   (gl:bind-vertex-array 0))
 
-
-(defvar *test*)
 
 (defmethod render ((window texture-window))
   ;; Your GL context is automatically active.  FLUSH and
