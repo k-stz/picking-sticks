@@ -25,7 +25,7 @@
 ;;;
 ;;; Then, make a window.
 ;;;
-;;;   (make-instance 'sdl2.kit.test:test-window)
+;;;   (make-instance 'sdl2.kit.test:texture-window)
 ;;;
 ;;; After you close a window, it will be collected at some point.
 
@@ -38,7 +38,7 @@
 ;;; These are the only functions guaranteed to be "safe" (including
 ;;; threadsafety and other expectations).
 
-(defclass test-window (kit.sdl2:gl-window)
+(defclass texture-window (kit.sdl2:gl-window)
   ((start-time :initform (get-internal-real-time))
    (one-frame-time :initform (get-internal-real-time))
    (frames :initform 0)))
@@ -209,27 +209,7 @@
 ;;init code---------------------------------------------------------------------
 
 
-;; TODO build vao
-(defun draw-triangle ()
-  (use-program *programs-dict* :basic-transform)
-  (uniform :vec :color #(1.0 0.0 0.0 1.0))
-  (uniform :mat :model-to-clip
-	   (vector
-	    (sb-cga:matrix*
-	     (sb-cga:rotate (vec3 0.0 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159))))
-	     (sb-cga:translate (vec3 0.0 0.0 -1.0)))))  
-  
-  (gl:bind-buffer :array-buffer *position-buffer-object*)
-  (%gl:enable-vertex-attrib-array 0)
-  (%gl:vertex-attrib-pointer 0 4 :float :false 0 0)
-
-  (gl:draw-arrays :triangles 0 3)
-  (gl:use-program 0))
-
-
-(defvar *position-buffer-object*)
-
-(defmethod initialize-instance :after ((w test-window) &key &allow-other-keys)
+(defmethod initialize-instance :after ((w texture-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
   ;; and this is done in the main thread.
 
@@ -262,6 +242,23 @@
   ;; (gl:enable-vertex-attrib-array 0)
 )
 
+(defvar *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(1.0 2.0 3.0 4.0)))
+
+(defun create-texture ()
+  (let ((m-texture (first (gl:gen-textures 1)))
+	(width 10)
+	;; TODO: put meaningful data in texture-data
+	(texture-data *some-texture-data*))
+
+    (%gl:bind-texture :texture-1d m-texture)
+    (gl:tex-image-1d :texture-1d 0 :r8 width 0 :red :unsigned-byte texture-data)
+    ;; TODO understand
+    (%gl:tex-parameter-i :texture-1d :texture-base-level 0)
+    (%gl:tex-parameter-i :texture-1d :texture-max-level 0)
+    ;; unbind
+    (gl:bind-texture :texture-1d 0)))
+
+
 ;;Rendering----------------------------------------------------------------------
 
 (defparameter *rotate-x* 1.0)
@@ -287,11 +284,13 @@
 
 (defvar *test*)
 
-(defmethod render ((window test-window))
+(defmethod render ((window texture-window))
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
   (gl:clear :color-buffer)
+
+;  (draw-triangle)
 
   (draw-cube)
 
@@ -300,29 +299,29 @@
 
 ;;Events------------------------------------------------------------------------
 
-(defmethod close-window ((window test-window))
+(defmethod close-window ((window texture-window))
   (format t "Bye!~%")
   ;; To _actually_ destroy the GL context and close the window,
   ;; CALL-NEXT-METHOD.  You _may_ not want to do this, if you wish to
   ;; prompt the user!
   (call-next-method))
 
-(defmethod mousewheel-event ((window test-window) ts x y)
+(defmethod mousewheel-event ((window texture-window) ts x y)
   ;; zoom in/out
   (cond ((= y 1) (incf *zoom-z* 0.2))
 	((= y -1) (decf *zoom-z* 0.2)))
   (render window))
 
 
-(defmethod keyboard-event ((window test-window) state ts repeat-p keysym)
+(defmethod keyboard-event ((window texture-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
     (when (eq :scancode-escape scancode)
       (close-window window))))
 
-(defmethod mousebutton-event ((window test-window) state ts b x y)
+(defmethod mousebutton-event ((window texture-window) state ts b x y)
   (format t "~A button: ~A at ~A, ~A~%" state b x y))
 
-(defmethod mousemotion-event ((window test-window) ts mask x y xr yr)
+(defmethod mousemotion-event ((window texture-window) ts mask x y xr yr)
   (flet ((left-mouse-button-clicked-p ()
 	   (= mask 1)))
     ;; rotate x, y axis
