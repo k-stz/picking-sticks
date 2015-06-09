@@ -252,7 +252,7 @@
   ;; (gl:enable-vertex-attrib-array 0)
 )
 
-(defvar *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(1.0 2.0 3.0 4.0)))
+(defvar *some-texture-data* (cffi:foreign-alloc :ubyte :initial-contents '(1 2 3 4)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -266,8 +266,24 @@
 
     (setf *texture* m-texture)
 
+    ;; :texture-1d the texture contains 1d-image_s_, peculiariy: once you bind the
+    ;; texture with a certain type, here :texture-1d, you always need to bind it
+    ;; with the same type
     (%gl:bind-texture :texture-1d m-texture)
     ;; TODO: "width" is wrong here
+    ;; describes how we allocate storage and pass data to the texture, like gl:buffer-data
+    ;; the parameters:
+    ;; - target         : type of the _currently_ bound texture
+    ;; - level          : TODO
+    ;; - internal-format: format that opengl will use to store the texture's data
+    ;; - width          : width of the image = length of the look-up/array table
+    ;; - border         : must always be 0: represents an old feature, no longer supported
+    
+    ;; These last three parameters, of all the functions of the form gl:tex-image*, are special.
+    ;; They tell opengl how to read the texture data in our array.. TODO
+    ;; - format         : 
+    ;; - type           :
+    ;; - data           :
     (gl:tex-image-1d :texture-1d 0 :r8 width 0 :red :unsigned-byte texture-data)
     ;; TODO understand
     (%gl:tex-parameter-i :texture-1d :texture-base-level 0)
