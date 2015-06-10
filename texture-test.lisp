@@ -252,7 +252,7 @@
   ;; (gl:enable-vertex-attrib-array 0)
 )
 
-(defparameter *some-texture-data* (cffi:foreign-alloc :ubyte :initial-contents '(1 3 4 5)))
+(defparameter *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(0.5)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -260,7 +260,7 @@
 
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
-	(width 4) ;; length of the look-up table
+	(width 1) ;; length of the look-up table
 	;; TODO: put meaningful data in texture-data
 	(texture-data *some-texture-data*))
 
@@ -271,6 +271,7 @@
     ;; with the same type
     (%gl:bind-texture :texture-1d m-texture)
 
+    ;; Texture contain arrays (called images), the elements of the images are called texels
 
     ;; Though textures have a lot in common with buffer objects there some major difference:
     ;; when we provide data to a buffer object owned by gl with gl:buffer-sub-data opengl will
@@ -301,7 +302,21 @@
     ;; - format         : 
     ;; - type           :
     ;; - data           :
-    (gl:tex-image-1d :texture-1d 0 :r8 width 0 :red :unsigned-byte texture-data)
+    (gl:tex-image-1d :texture-1d
+		     0 ; level
+		     ;; the suffix of the format represent the data type:
+		     ;; here: f = float
+		     ;; no suffix defaults to the most commonly used: unsigned normalized integers
+		     :r32f
+		     ;;:r32f
+		     width 0
+		     ;; we are uploading a single "red" component to the texture, components of
+		     ;; _texels_ are called after colors. Because it doesn't end with "-integer"
+		     ;; opengl knows that it is either a floating-point value or a normalized integer
+		     :red
+		     ;; each component is stored in a float
+		     :float
+		     texture-data)
     ;; TODO understand
     (%gl:tex-parameter-i :texture-1d :texture-base-level 0)
     (%gl:tex-parameter-i :texture-1d :texture-max-level 0)
@@ -309,6 +324,7 @@
     (gl:bind-texture :texture-1d 0)
     ;; TODO: export gl::gen-sampler
     (setf *sampler* (first (gl::gen-samplers 1)))
+    ;; TODO explain
     (%gl:sampler-parameter-i *sampler* :texture-mag-filter :nearest)
     (%gl:sampler-parameter-i *sampler* :texture-min-filter :nearest)
     (%gl:sampler-parameter-i *sampler* :texture-wrap-s :clamp-to-edge)
@@ -336,6 +352,7 @@
 	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))
 
   ;;texture stuff:
+  ;; NEXT-TODO also glUniform1i(.., 1)... ?
   (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
   (%gl:bind-texture :texture-1d *texture*)
   (%gl:bind-sampler *tex-unit* *sampler*)
