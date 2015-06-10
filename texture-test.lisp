@@ -252,7 +252,7 @@
   ;; (gl:enable-vertex-attrib-array 0)
 )
 
-(defvar *some-texture-data* (cffi:foreign-alloc :ubyte :initial-contents '(1 2 3 4)))
+(defparameter *some-texture-data* (cffi:foreign-alloc :ubyte :initial-contents '(1 3 4 5)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -260,18 +260,35 @@
 
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
-	(width 10)
+	(width 4) ;; length of the look-up table
 	;; TODO: put meaningful data in texture-data
 	(texture-data *some-texture-data*))
 
     (setf *texture* m-texture)
 
-    ;; :texture-1d the texture contains 1d-image_s_, peculiariy: once you bind the
+    ;; :texture-1d the texture contains 1d-image_s_. Peculiariy: once you bind the
     ;; texture with a certain type, here :texture-1d, you always need to bind it
     ;; with the same type
     (%gl:bind-texture :texture-1d m-texture)
-    ;; TODO: "width" is wrong here
-    ;; describes how we allocate storage and pass data to the texture, like gl:buffer-data
+
+
+    ;; Though textures have a lot in common with buffer objects there some major difference:
+    ;; when we provide data to a buffer object owned by gl with gl:buffer-sub-data opengl will
+    ;; get the data in the same way we provided it, you could say we memcpy the exact same
+    ;; bytes over to the GPU memory.
+    ;; With textures, though, this is wildly different. The gl will take the data from the
+    ;; data from us and put it in whatever representation is most efficient for the underlying
+    ;; hardware. Our job thus is to do two things:
+    ;; (1) tell OpenGL what format to use (underlying byte representation of data will vary
+    ;;     depending on the graphics card)
+    ;; (2) and describe how the data is stored in our array
+    ;;
+
+    ;; This process of transfering the user provided data representation to a texture image
+    ;; is called _/pixel transfer/_!
+    
+    ;; Both is accomplied using gl:tex-image-*, which describes how we allocate storage
+    ;; and pass data to the texture, like gl:buffer-data
     ;; the parameters:
     ;; - target         : type of the _currently_ bound texture
     ;; - level          : TODO
