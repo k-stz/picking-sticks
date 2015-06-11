@@ -233,13 +233,13 @@
   (initialize-vao)
 
   ;;texture
-  ;; TODO: so in the shader we refer to the texture via this arbitrary index value?
+  ;; here we associate the uniform sample with the texture image unit
   (use-program *programs-dict* :basic-projection)
   (uniform :int :test-texture *tex-unit*)
   (use-program *programs-dict* 0)
 
   ;; TODO: clean this up and do the tests
-    ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
+  ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an os issue
   ;; (sdl2:gl-set-swap-interval 1) 
 
@@ -250,7 +250,7 @@
   ;; (%gl:buffer-data :array-buffer 48 *triangle-data* :static-draw)
   ;; (initialize-program)
   ;; (gl:enable-vertex-attrib-array 0)
-)
+  )
 
 (defparameter *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(0.5)))
 
@@ -322,12 +322,26 @@
     (%gl:tex-parameter-i :texture-1d :texture-max-level 0)
     ;; unbind
     (gl:bind-texture :texture-1d 0)
+
     ;; TODO: export gl::gen-sampler
+    ;; the _sampler object_ specifies how data should be read from the texture
     (setf *sampler* (first (gl::gen-samplers 1)))
     ;; TODO explain
     (%gl:sampler-parameter-i *sampler* :texture-mag-filter :nearest)
     (%gl:sampler-parameter-i *sampler* :texture-min-filter :nearest)
+    ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
+    ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
+    ;; first component of the texture
     (%gl:sampler-parameter-i *sampler* :texture-wrap-s :clamp-to-edge)
+
+
+    ;; Now in our shader we have a "uniform sampler1D <name>" and we need to associate
+    ;; this sampler uniform with our texture object (here: m-texture or *texture*) like
+    ;; with UBO we do this with a slot in the context, the so called:
+    ;; _/texture image unit/_
+    ;; we associated 
+
+    
     (setf *texture* m-texture)))
 
 
@@ -355,6 +369,8 @@
   ;; NEXT-TODO also glUniform1i(.., 1)... ?
   (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
   (%gl:bind-texture :texture-1d *texture*)
+  ;; associate the sampler object with the texture object and sampler uniform via the
+  ;; "texture image unit"
   (%gl:bind-sampler *tex-unit* *sampler*)
   
   (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
