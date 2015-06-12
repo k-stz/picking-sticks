@@ -26,5 +26,5 @@ void main() {
   // Return value: a vec4, here vec4(<depends> 0 0 1) <- because we only set the RED component!!
   float i = texture(test_texture, 0.0).r;
   // _texture sampling_: "fetching data from a texture at a particular location is called sampling"!
-  outputColor = texture(test_texture, 0.0); 
+  outputColor = vec4(texture(test_texture, 1.0)); 
 }

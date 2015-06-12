@@ -238,6 +238,9 @@
   (uniform :int :test-texture *tex-unit*)
   (use-program *programs-dict* 0)
 
+  ;;wow, I haven't even called it
+  (create-texture)
+
   ;; TODO: clean this up and do the tests
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an os issue
@@ -252,7 +255,7 @@
   ;; (gl:enable-vertex-attrib-array 0)
   )
 
-(defparameter *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(0.5)))
+(defparameter *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(0.8)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -327,12 +330,17 @@
     ;; the _sampler object_ specifies how data should be read from the texture
     (setf *sampler* (first (gl::gen-samplers 1)))
     ;; TODO explain
-    (%gl:sampler-parameter-i *sampler* :texture-mag-filter :nearest)
-    (%gl:sampler-parameter-i *sampler* :texture-min-filter :nearest)
+    ;; what :nearest doesn't work, is the enum missing too?
+    ;; (%gl:sampler-parameter-i *sampler* :texture-mag-filter :nearest)
+    ;; (%gl:sampler-parameter-i *sampler* :texture-min-filter :nearest)
+
+
     ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
     ;; first component of the texture
-    (%gl:sampler-parameter-i *sampler* :texture-wrap-s :clamp-to-edge)
+
+    ;; "The value :CLAMP-TO-EDGE is not of type REAL."
+    ;; (%gl:sampler-parameter-i *sampler* :texture-wrap-s :clamp-to-edge)
 
 
     ;; Now in our shader we have a "uniform sampler1D <name>" and we need to associate
