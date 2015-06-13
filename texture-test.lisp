@@ -321,8 +321,8 @@
 		     :float
 		     texture-data)
     ;; TODO understand
-    (%gl:tex-parameter-i :texture-1d :texture-base-level 0)
-    (%gl:tex-parameter-i :texture-1d :texture-max-level 0)
+    (gl::tex-parameter :texture-1d :texture-base-level 0)
+    (gl::tex-parameter :texture-1d :texture-max-level 0)
     ;; unbind
     (gl:bind-texture :texture-1d 0)
 
@@ -330,17 +330,18 @@
     ;; the _sampler object_ specifies how data should be read from the texture
     (setf *sampler* (first (gl::gen-samplers 1)))
     ;; TODO explain
-    ;; what :nearest doesn't work, is the enum missing too?
-    ;; (%gl:sampler-parameter-i *sampler* :texture-mag-filter :nearest)
-    ;; (%gl:sampler-parameter-i *sampler* :texture-min-filter :nearest)
+    ;; (%gl:sampler-parameter-i *sampler*
+    ;; 			     (cffi:foreign-enum-value '%gl:enum :texture-mag-filter)
+    ;; 			     (cffi:foreign-enum-value '%gl:enum :nearest))
+    (gl::sampler-parameter *sampler* :texture-mag-filter :nearest)
+    (gl::sampler-parameter *sampler* :texture-min-filter :nearest)
 
 
     ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
     ;; first component of the texture
 
-    ;; "The value :CLAMP-TO-EDGE is not of type REAL."
-    ;; (%gl:sampler-parameter-i *sampler* :texture-wrap-s :clamp-to-edge)
+    (gl::sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge)
 
 
     ;; Now in our shader we have a "uniform sampler1D <name>" and we need to associate
