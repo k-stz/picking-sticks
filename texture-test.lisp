@@ -255,7 +255,8 @@
   ;; (gl:enable-vertex-attrib-array 0)
   )
 
-(defparameter *some-texture-data* (cffi:foreign-alloc :float :initial-contents '(0.8)))
+(defvar *some-texture-data* (cffi:foreign-alloc :float :initial-contents
+						'(0.1 0.0 0.0 0.0 0.0 0.5 0.0 0.0 0.0 1.0)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -263,7 +264,7 @@
 
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
-	(width 1) ;; length of the look-up table
+	(width 10) ;; length of the look-up table, (here: number of components in *some-texture-data*)
 	;; TODO: put meaningful data in texture-data
 	(texture-data *some-texture-data*))
 
@@ -311,37 +312,39 @@
 		     ;; here: f = float
 		     ;; no suffix defaults to the most commonly used: unsigned normalized integers
 		     :r32f
-		     ;;:r32f
-		     width 0
+		     width ;; width = 1 means one component (not width 0!)
+		     0
 		     ;; we are uploading a single "red" component to the texture, components of
 		     ;; _texels_ are called after colors. Because it doesn't end with "-integer"
-		     ;; opengl knows that it is either a floating-point value or a normalized integer
+		     ;; opengl knows that it is either a floating-point value or a normalized integer.
+		     ;; note that normalized integers are converted to float by opengl when they're
+		     ;; accessed
 		     :red
 		     ;; each component is stored in a float
 		     :float
 		     texture-data)
     ;; TODO understand
-    (gl::tex-parameter :texture-1d :texture-base-level 0)
-    (gl::tex-parameter :texture-1d :texture-max-level 0)
+    (gl:tex-parameter :texture-1d :texture-base-level 0)
+    (gl:tex-parameter :texture-1d :texture-max-level 0)
     ;; unbind
     (gl:bind-texture :texture-1d 0)
 
     ;; TODO: export gl::gen-sampler
     ;; the _sampler object_ specifies how data should be read from the texture
-    (setf *sampler* (first (gl::gen-samplers 1)))
+    (setf *sampler* (first (gl:gen-samplers 1)))
     ;; TODO explain
     ;; (%gl:sampler-parameter-i *sampler*
     ;; 			     (cffi:foreign-enum-value '%gl:enum :texture-mag-filter)
     ;; 			     (cffi:foreign-enum-value '%gl:enum :nearest))
-    (gl::sampler-parameter *sampler* :texture-mag-filter :nearest)
-    (gl::sampler-parameter *sampler* :texture-min-filter :nearest)
+    (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
+    (gl:sampler-parameter *sampler* :texture-min-filter :nearest)
 
 
     ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
     ;; first component of the texture
 
-    (gl::sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge)
+    (gl:sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge)
 
 
     ;; Now in our shader we have a "uniform sampler1D <name>" and we need to associate
