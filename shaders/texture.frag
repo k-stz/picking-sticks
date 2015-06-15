@@ -32,6 +32,7 @@ void main() {
 
   // this is equivalent to the one below!! This is important to understand!
   // outputColor = vec4(texture(test_texture, 0.0).r, 0.0, 0.0, 1.0); 
-  outputColor = texture(test_texture, interp_color.x);
+  //outputColor = texture(test_texture, interp_color.x);
+  outputColor = texture(test_texture, 0.5);
 
 }

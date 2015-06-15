@@ -255,8 +255,9 @@
   ;; (gl:enable-vertex-attrib-array 0)
   )
 
-(defvar *some-texture-data* (cffi:foreign-alloc :float :initial-contents
-						'(0.1 0.0 0.0 0.0 0.0 0.5 0.0 0.0 0.0 1.0)))
+
+(defvar *some-texture-data* (cffi:foreign-alloc :unsigned-char :initial-contents
+						(list 10 0 0 0 0 (floor 255 2) 0 0 0 255)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -311,7 +312,7 @@
 		     ;; the suffix of the format represent the data type:
 		     ;; here: f = float
 		     ;; no suffix defaults to the most commonly used: unsigned normalized integers
-		     :r32f
+		     :r8
 		     width ;; width = 1 means one component (not width 0!)
 		     0
 		     ;; we are uploading a single "red" component to the texture, components of
@@ -321,7 +322,7 @@
 		     ;; accessed
 		     :red
 		     ;; each component is stored in a float
-		     :float
+		     :unsigned-byte 
 		     texture-data)
     ;; TODO understand
     (gl:tex-parameter :texture-1d :texture-base-level 0)
@@ -437,7 +438,5 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0)))))
-
-
 
 
