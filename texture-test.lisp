@@ -235,24 +235,15 @@
   ;;texture
   ;; here we associate the uniform sample with the texture image unit
   (use-program *programs-dict* :basic-projection)
-  (uniform :int :test-texture *tex-unit*)
+  (uniform :int :test-texture *tex-unit*) ; = glUniform1i(<location>, <texture-image-unit>);
   (use-program *programs-dict* 0)
 
-  ;;wow, I haven't even called it
   (create-texture)
 
   ;; TODO: clean this up and do the tests
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
-  ;; if tearing disappears, or if it is an os issue
+  ;; if tearing disappears, or if it is an OS issue
   ;; (sdl2:gl-set-swap-interval 1) 
-
-  ;; setup buffer-data
-  ;; TODO: make vao
-  ;; (setf *position-buffer-object* (first (gl:gen-buffers 1)))
-  ;; (gl:bind-buffer :array-buffer *position-buffer-object*)
-  ;; (%gl:buffer-data :array-buffer 48 *triangle-data* :static-draw)
-  ;; (initialize-program)
-  ;; (gl:enable-vertex-attrib-array 0)
   )
 
 
@@ -266,7 +257,6 @@
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
 	(width 10) ;; length of the look-up table, (here: number of components in *some-texture-data*)
-	;; TODO: put meaningful data in texture-data
 	(texture-data *some-texture-data*))
 
     (setf *texture* m-texture)
@@ -297,30 +287,40 @@
     ;; and pass data to the texture, like gl:buffer-data
     ;; the parameters:
     ;; - target         : type of the _currently_ bound texture
-    ;; - level          : TODO
+    ;; - level          : TODO, UPDATE: used for mipmaps when the same texture is provided
+    ;;                    at various resolutions to solve the issue of a very small texture
+    ;;                    which would have multiple texels per pixel, and OpenGL (ES atleast)
+    ;;                    can only really take 4 into comparison calculations (magnimization).
     ;; - internal-format: format that opengl will use to store the texture's data
     ;; - width          : width of the image = length of the look-up/array table
     ;; - border         : must always be 0: represents an old feature, no longer supported
     
     ;; These last three parameters, of all the functions of the form gl:tex-image*, are special.
-    ;; They tell opengl how to read the texture data in our array.. TODO
-    ;; - format         : 
-    ;; - type           :
-    ;; - data           :
+    ;; They tell opengl how to read the texture data in our array..
+    ;; - format         : component supplied to the "uniform sampler", ther are only certain
+    ;;                    arrangments: :red works, :blue doesn't, but :rgba does
+    ;; - type           : type representation on the opengl side (as opposed to user data), OpenGL
+    ;;                    will perform type conversions in the pixel transfer step
+    ;; - data           : actuall data provided
     (gl:tex-image-1d :texture-1d
 		     0 ; level
 		     ;; the suffix of the format represent the data type:
 		     ;; here: f = float
 		     ;; no suffix defaults to the most commonly used: unsigned normalized integers
-		     :r8
+		     :r8 
 		     width ;; width = 1 means one component (not width 0!)
 		     0
-		     ;; we are uploading a single "red" component to the texture, components of
-		     ;; _texels_ are called after colors. Because it doesn't end with "-integer"
-		     ;; opengl knows that it is either a floating-point value or a normalized integer.
-		     ;; note that normalized integers are converted to float by opengl when they're
-		     ;; accessed
-		     :red
+		     ;; we are uploading a single "red" component to the texture,
+		     ;; components of _texels_ are called after colors. Remember that our
+		     ;; texel is going to be represented as a 4d-vector, and a vectors
+		     ;; _components_ are it's x,y,z,w values, but for a texel those are
+		     ;; the r,g,b,a values!!
+		     ;;Because it doesn't end with "-integer" opengl knows that it is
+		     ;;either a floating-point value or a normalized integer.  note that
+		     ;;normalized integers are converted to float by opengl when they're
+		     ;;accessed
+		     :red 
+		     ;;normalized integer!!
 		     ;; each component is stored in a float
 		     :unsigned-byte 
 		     texture-data)
@@ -330,21 +330,16 @@
     ;; unbind
     (gl:bind-texture :texture-1d 0)
 
-    ;; TODO: export gl::gen-sampler
     ;; the _sampler object_ specifies how data should be read from the texture
     (setf *sampler* (first (gl:gen-samplers 1)))
     ;; TODO explain
-    ;; (%gl:sampler-parameter-i *sampler*
-    ;; 			     (cffi:foreign-enum-value '%gl:enum :texture-mag-filter)
-    ;; 			     (cffi:foreign-enum-value '%gl:enum :nearest))
     (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
     (gl:sampler-parameter *sampler* :texture-min-filter :nearest)
 
 
     ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
-    ;; first component of the texture
-
+    ;; first component of the texture, (stpq)
     (gl:sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge)
 
 
@@ -379,11 +374,18 @@
 	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))
 
   ;;texture stuff:
-  ;; NEXT-TODO also glUniform1i(.., 1)... ?
+  ;; set the texture image unit every subsequent gl:bind-texture will associate texture with
   (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+  ;; associate our *texture*(-handle) with the texture image unit above. Remember the GLSL sampler uniform
+  ;; association is build with setting the uniform to the same texture image unit we used in the
+  ;; gl:active-texture (the *tex-unit* value) this was already done in the INITILIZE-INSTANCE code
+  ;; with (uniform :int :test-texture *tex-unit*)
+  ;; Another very important part of gl:active-texture is that it the texture now is "bound to the context"
+  ;; and as such many gl calls can affect it, like: gl:tex-image, gl:tex-parameter, gl:bind-texture:
   (%gl:bind-texture :texture-1d *texture*)
+
   ;; associate the sampler object with the texture object and sampler uniform via the
-  ;; "texture image unit"
+  ;; "texture image unit", here, called *tex-unit*
   (%gl:bind-sampler *tex-unit* *sampler*)
   
   (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
@@ -399,8 +401,6 @@
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
   (gl:clear :color-buffer)
-
-;  (draw-triangle)
 
   (draw-cube)
 
