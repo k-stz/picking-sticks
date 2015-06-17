@@ -2,7 +2,7 @@
 
 (declaim (optimize (speed 0) (safety 3) (debug 3)))
 
-(defpackage :texture-test
+(defpackage :2d-texture
   ;; :use inherits all the exported symbols from the package given
   (:use :cl
 	;; this one's important, as all the defclass lambda lists
@@ -12,7 +12,7 @@
 	:kit.gl.shader
 	:kit.math))
 
-(in-package :texture-test)
+(in-package :2d-texture)
 
 
 
@@ -111,7 +111,7 @@
     ;; instead of (:file <path>) you may directly provide the shader as a string containing the
     ;; source code
     (shader matrix-perspective-v :vertex-shader (:file "transform-and-project.vert"))
-    (shader texture-f :fragment-shader (:file "texture.frag"))
+    (shader texture-f :fragment-shader (:file "2d-texture.frag"))
     ;; here we compose the shaders into programs, in this case just one ":basic-projection"
     (program :basic-projection (:model-to-clip :perspective-matrix :test-texture) ;<- UNIFORMS!
 	     (:vertex-shader matrix-perspective-v)
