@@ -11,7 +11,7 @@ out vec4 outputColor;
 // :texture-1d -> sampler1D etc.
 // furthermore: isampler1D would represent a texture that returns integers
 // while just "sampler1D" defaults to a float returning texture
-uniform sampler1D test_texture;
+uniform sampler2D test_texture;
 
 void main() {
   // texture(test_texture, 0).r <- returns a float!
@@ -31,9 +31,10 @@ void main() {
   // texture() returns a vec4, and .r accesses the "red" component
   // the other components are intuitively g,b and a!!!
 
-  // this is equivalent to the one below!! This is important to understand!
-  //  outputColor = vec4(texture(test_texture, 0.5).r, 0.0, 0.0, 1.0); 
-  outputColor = texture(test_texture, interp_color.x);
+
+  // now we access values from a 2d-texture with a two dimensional texture coordinate form:
+  // vec2(x,y);
+  outputColor = texture(test_texture, vec2(interp_color.x, interp_color.y));
   //  outputColor = texture(test_texture, 0.5);
 
 }

@@ -251,6 +251,8 @@
 						(list 10 0 0 0 0 (floor 255 2) 0 0 0 255)))
 
 
+(defvar *2d-texture-data*
+  (cffi:foreign-alloc :unsigned-char :initial-contents (loop for i upto 255 collect i)))
 
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
@@ -258,15 +260,15 @@
 
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
-	(width 10) ;; length of the look-up table, (here: number of components in *some-texture-data*)
-	(texture-data *some-texture-data*))
+	;(width 256) ;; length of the look-up table, (here: number of components in *some-texture-data*)
+	(texture-data *2d-texture-data*))
 
     (setf *texture* m-texture)
 
     ;; :texture-1d the texture contains 1d-image_s_. Peculiariy: once you bind the
     ;; texture with a certain type, here :texture-1d, you always need to bind it
     ;; with the same type
-    (%gl:bind-texture :texture-1d m-texture)
+    (%gl:bind-texture :texture-2D m-texture)
 
     ;; Texture contain arrays (called images), the elements of the images are called texels
 
@@ -304,14 +306,19 @@
     ;; - type           : type representation on the opengl side (as opposed to user data), OpenGL
     ;;                    will perform type conversions in the pixel transfer step
     ;; - data           : actuall data provided
-    (gl:tex-image-1d :texture-1d
+    (gl:tex-image-2d :texture-2d
 		     0 ; level
 		     ;; the suffix of the format represent the data type:
 		     ;; here: f = float
 		     ;; no suffix defaults to the most commonly used: unsigned normalized integers
 		     :r8 
-		     width ;; width = 1 means one component (not width 0!)
-		     0
+		     16 ;; width = 1 means one component (not width 0!)
+		     16 ;; height, we provide the data with a 1d-array, this is where opengl
+		        ;; descides how to access it via pointer arithmetic to get at the proper values
+		        ;; i.e. how many rows in a column is decided here
+
+		     0 ; border: old no longer supported feature
+		     
 		     ;; we are uploading a single "red" component to the texture,
 		     ;; components of _texels_ are called after colors. Remember that our
 		     ;; texel is going to be represented as a 4d-vector, and a vectors
@@ -327,10 +334,10 @@
 		     :unsigned-byte 
 		     texture-data)
     ;; TODO understand
-    (gl:tex-parameter :texture-1d :texture-base-level 0)
-    (gl:tex-parameter :texture-1d :texture-max-level 0)
+    (gl:tex-parameter :texture-2d :texture-base-level 0)
+    (gl:tex-parameter :texture-2d :texture-max-level 0)
     ;; unbind
-    (gl:bind-texture :texture-1d 0)
+    (gl:bind-texture :texture-2D 0)
 
     ;; the _sampler object_ specifies how data should be read from the texture
     (setf *sampler* (first (gl:gen-samplers 1)))
@@ -384,7 +391,7 @@
   ;; with (uniform :int :test-texture *tex-unit*)
   ;; Another very important part of gl:active-texture is that it the texture now is "bound to the context"
   ;; and as such many gl calls can affect it, like: gl:tex-image, gl:tex-parameter, gl:bind-texture:
-  (%gl:bind-texture :texture-1d *texture*)
+  (%gl:bind-texture :texture-2d *texture*)
 
   ;; associate the sampler object with the texture object and sampler uniform via the
   ;; "texture image unit", here, called *tex-unit*
@@ -394,7 +401,7 @@
 
 
   (%gl:bind-sampler *tex-unit* 0)
-  (%gl:bind-texture :texture-1d 0)
+  (%gl:bind-texture :texture-2d 0)
   (gl:bind-vertex-array 0))
 
 
