@@ -254,6 +254,27 @@
 (defvar *2d-texture-data*
   (cffi:foreign-alloc :unsigned-char :initial-contents (loop for i upto 255 collect i)))
 
+
+(defvar *2d-test-data*
+  (cffi:foreign-alloc :unsigned-char
+		      ;; to tell up from bottom better in tests
+		      :initial-contents (list    0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					         0   0   0   0   0   0   0   0  64  64  64  64  64  64  64  64
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 255 255 255
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 255 255 255
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 255 255 255)))
+
 (defparameter *sampler* 0)
 (defparameter *texture* 0)
 
@@ -261,7 +282,7 @@
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
 	;(width 256) ;; length of the look-up table, (here: number of components in *some-texture-data*)
-	(texture-data *2d-texture-data*))
+	(texture-data *2d-test-data*))
 
     (setf *texture* m-texture)
 
