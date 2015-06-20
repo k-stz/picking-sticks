@@ -48,46 +48,44 @@
 
 ;;Data:--------------------------------------------------------------------------
 
-(defvar *cube-positions*
+;; (defparameter *cube-positions*
+;;   (cffi:foreign-alloc
+;;    :float
+;;    :initial-contents
+;;    '(0.5 0.5 0.5			;0
+;;      0.5 -0.5 0.5			;1
+;;      -0.5 -0.5 0.5			;2
+;;      -0.5 0.5 0.5			;3
+;;      0.5 0.5 -0.5			;4
+;;      0.5 -0.5 -0.5			;5
+;;      -0.5 -0.5 -0.5			;6
+;;      -0.5 0.5 -0.5)))			;7
+
+;; front
+
+(defparameter *cube-positions*
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(0.5 0.5 0.5			;0
-     0.5 -0.5 0.5			;1
-     -0.5 -0.5 0.5			;2
-     -0.5 0.5 0.5			;3
-     0.5 0.5 -0.5			;4
-     0.5 -0.5 -0.5			;5
-     -0.5 -0.5 -0.5			;6
-     -0.5 0.5 -0.5)))			;7
+   (list 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 -0.5 0.5 -0.5 -0.5 0.5 -0.5 0.5 0.5 0.5 0.5 0.5
+	 0.5 0.5 -0.5 0.5 -0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 0.5 0.5 0.5 0.5 0.5 0.5 -0.5
+	 -0.5 0.5 -0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5 0.5 -0.5 -0.5 0.5 0.5 -0.5 -0.5 0.5
+	 -0.5 -0.5 0.5 0.5 -0.5 -0.5 0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 0.5 -0.5
+	 -0.5 0.5 0.5 0.5 0.5 -0.5 0.5 0.5 0.5 -0.5 0.5 0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5
+	 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5
+	 -0.5 0.5 0.5 -0.5 0.5)))
+
 
 (defparameter *tex-coord*
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(;; front
-     0.0 1.0
-     0.0 0.0
-     1.0 0.0
-     1.0 1.0
-     ;; right-side     
-     1.0 1.0
-     1.0 1.0
-     ;; back
-     1.0 1.0
-     1.0 1.0
-
-     ;; left-side
-     1.0 1.0
-     1.0 1.0
-     ;; top
-     1.0 0.0
-     1.0 1.0
-
-     ;; bottom
-     1.0 0.0
-     1.0 1.0
-     )))
+   '(0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
+     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
+     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
+     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
+     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
+     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0)))
 
 
 (defvar *cube-indices*
@@ -182,16 +180,14 @@
     ;; 8 vertices need to be associated with 2d-texture corner
     ;; 2 2d-texture needs two indices to read from it
     ;; 4 size of float
-    (%gl:buffer-data :array-buffer (+ (* 8 3 4) (* 8 2 4)) *cube-positions* :static-draw)
+    (%gl:buffer-data :array-buffer (+ (* 108 4) (* 72 4)) *cube-positions* :static-draw)
     (%gl:enable-vertex-attrib-array 0)
     (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
-    ;;VBO - colors
+    ;;VBO - texture coordinates
     ;; texture sub-data starts in vbo exactly after the position vertices hence
-    ;; the offset (* 24 4 3) and its size is also (* 24 4 3) as every vertices
-    ;; has its own color
-    (%gl:buffer-sub-data :array-buffer (* 8 3 4) (* 8 2 4) *tex-coord*)
+    (%gl:buffer-sub-data :array-buffer (* 108 4) (* 72 4) *tex-coord*)
     (%gl:enable-vertex-attrib-array 5)
-    (%gl:vertex-attrib-pointer 5 2 :float :false 0 (* 8 3 4))
+    (%gl:vertex-attrib-pointer 5 2 :float :false 0 (* 108 4))
     
     ;;IBO
     (gl:bind-buffer :element-array-buffer ibo)
@@ -200,7 +196,7 @@
     ;; (* 2 6) => 12. Each triangle consists of 3 vertices, hence, (* 3 12) => 36
     ;; and the index buffer's indices first point to the vertices in the vbo,
     ;; supplied by *cube-positions*
-    (%gl:buffer-data :element-array-buffer (* 36 2) *cube-indices* :static-draw)
+    (%gl:buffer-data :element-array-buffer (* 2 36) *cube-indices* :static-draw)
 
     (gl:bind-vertex-array 0)
     (setf *vao* vao)))
@@ -437,7 +433,8 @@
   ;; "texture image unit", here, called *tex-unit*
   (%gl:bind-sampler *tex-unit* *sampler*)
   
-  (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
+  ;(%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
+  (%gl:draw-arrays :triangles 0 (* 2 36))
 
 
   (%gl:bind-sampler *tex-unit* 0)

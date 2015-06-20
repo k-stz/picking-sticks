@@ -38,7 +38,7 @@ void main() {
   // vec2(x,y);
   outputColor = texture(test_texture, colorCoord);
   // outputColor = texture(test_texture, vec2(1.0,1.0));
-  // outputColor= vec4(colorCoord.x);
+  // outputColor= vec4(colorCoord.y);
   //  outputColor = texture(test_texture, 0.5);
 
 }
