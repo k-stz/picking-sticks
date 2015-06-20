@@ -61,18 +61,34 @@
      -0.5 -0.5 -0.5			;6
      -0.5 0.5 -0.5)))			;7
 
-(defvar *cube-colors*
+(defparameter *tex-coord*
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(0.2 0.2 0.2			;0
-     0.3 0.3 0.3			;1
-     0.4 0.4 0.4			;2
-     0.5 0.5 0.5			;3
-     0.6 0.6 0.6			;4
-     0.7 0.7 0.7			;5
-     0.8 0.8 0.8			;6
-     0.9 0.9 0.9)))			;7
+   '(;; front
+     1.0 1.0
+     1.0 0.0
+     0.0 0.0
+     0.0 1.0
+     ;; right-side     
+     1.0 1.0
+     1.0 1.0
+     ;; back
+     1.0 1.0
+     1.0 1.0
+
+     ;; left-side
+     1.0 1.0
+     1.0 1.0
+     ;; top
+     1.0 0.0
+     1.0 1.0
+
+     ;; bottom
+     1.0 0.0
+     1.0 1.0
+     )))
+
 
 (defvar *cube-indices*
   (cffi:foreign-alloc
@@ -96,6 +112,7 @@
      ;; bottom
      1 5 6
      6 2 1)))
+
 
 
 ;;Shader------------------------------------------------------------------------
@@ -158,20 +175,23 @@
     ;;which is a struct containing field with a pointer to the forein-memory and a field
     ;;with the size.  In this case ommited for the sake of a terse example.
     ;; Layout:
-    ;; 24 number of vertices/colors
-    ;; 4 size of the float data type
-    ;; 3 x,y,z coordinate (positions) or red,green,blue (colors)
-    ;; 2 array contains 24 position vertices and, again, 24 color vertices
-    (%gl:buffer-data :array-buffer (* 24 4 3 2) *cube-positions* :static-draw)
+    ;; 8 number of vertices/colors
+    ;; 3 components per vertex
+    ;; 4 size of float
+    ;; second (texture coordinate)
+    ;; 8 vertices need to be associated with 2d-texture corner
+    ;; 2 2d-texture needs two indices to read from it
+    ;; 4 size of float
+    (%gl:buffer-data :array-buffer (+ (* 8 3 4) (* 8 2 4)) *cube-positions* :static-draw)
     (%gl:enable-vertex-attrib-array 0)
     (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
     ;;VBO - colors
-    ;; color sub-data starts in vbo exactly after the position vertices hence
+    ;; texture sub-data starts in vbo exactly after the position vertices hence
     ;; the offset (* 24 4 3) and its size is also (* 24 4 3) as every vertices
     ;; has its own color
-    (%gl:buffer-sub-data :array-buffer (* 24 4 3) (* 24 4 3) *cube-colors*)
-    (%gl:enable-vertex-attrib-array 1)
-    (%gl:vertex-attrib-pointer 1 3 :float :false 0 0)
+    (%gl:buffer-sub-data :array-buffer (* 8 3 4) (* 8 2 4) *tex-coord*)
+    (%gl:enable-vertex-attrib-array 5)
+    (%gl:vertex-attrib-pointer 5 2 :float :false 0 (* 8 3 4))
     
     ;;IBO
     (gl:bind-buffer :element-array-buffer ibo)
@@ -179,8 +199,7 @@
     ;; it takes 2 triangles to draw the side of cube, hence to draw a whole cube:
     ;; (* 2 6) => 12. Each triangle consists of 3 vertices, hence, (* 3 12) => 36
     ;; and the index buffer's indices first point to the vertices in the vbo,
-    ;; supplied by *cube-positions*, and then for each position to the corresponding
-    ;; color in the vbo, supplied by *cube-colors*, hence 36 times 2!
+    ;; supplied by *cube-positions*
     (%gl:buffer-data :element-array-buffer (* 36 2) *cube-indices* :static-draw)
 
     (gl:bind-vertex-array 0)
@@ -370,7 +389,7 @@
     ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
     ;; first component of the texture, (stpq)
-    (gl:sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge)
+    (gl:sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge) ;; change to repeat
 
 
     ;; Now in our shader we have a "uniform sampler1D <name>" and we need to associate

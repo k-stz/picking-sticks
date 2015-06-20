@@ -3,6 +3,8 @@
 
 in vec4 interp_color;
 
+in vec2 colorCoord;
+
 out vec4 outputColor;
 
 // The _GLSL sampler_ a special type in opengl, they represent a texture that is bound
@@ -34,7 +36,9 @@ void main() {
 
   // now we access values from a 2d-texture with a two dimensional texture coordinate form:
   // vec2(x,y);
-  outputColor = texture(test_texture, vec2(interp_color.x, interp_color.y));
+  outputColor = texture(test_texture, colorCoord);
+  // outputColor = texture(test_texture, vec2(1.0,1.0));
+  // outputColor= vec4(colorCoord.x);
   //  outputColor = texture(test_texture, 0.5);
 
 }
