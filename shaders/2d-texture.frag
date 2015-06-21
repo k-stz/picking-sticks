@@ -18,13 +18,12 @@ uniform sampler2D test_texture;
 void main() {
   // texture(test_texture, 0).r <- returns a float!
   // outputColor = sqrt(interp_color); // simple gamma correction
-  // '.r' here refers to the texture component. Since this is a 1d-texture that's it
-  // other component including r: RGBA
+  // '.r' here refers to the texture component.
 
-  // the 2nd parameter to texture() is the _texture coordinate_ since this is a 1d-texture/sampler1D
-  // the texture coordinate also has only one dimension
+  // the 2nd parameter to texture() is the _texture coordinate_ since this is a 2d-texture/sampler2D
+  // the texture coordinate also has two dimensions, we access texels using a 2d vector: vec2()
   // the texture() function expects texture coordinates to be normalized (!) i.e. on the range [0,1]
-  // maps to all the texels within the texture [0, texture-size]!!
+  // i.e. maps to all the texels within the texture [0, texture-size]!!
   // Return value: a vec4, here vec4(<depends> 0 0 1) <- because we only set the RED component!!
   //  float i = texture(test_texture, 0.0).r;
   // _texture sampling_: "fetching data from a texture at a particular location is called sampling"!
@@ -36,7 +35,7 @@ void main() {
 
   // now we access values from a 2d-texture with a two dimensional texture coordinate form:
   // vec2(x,y);
-  outputColor = texture(test_texture, colorCoord);
+  outputColor = sqrt(vec4(0.0, texture(test_texture, colorCoord).r , 0.0, 1.0));
   // outputColor = texture(test_texture, vec2(1.0,1.0));
   // outputColor= vec4(colorCoord.y);
   //  outputColor = texture(test_texture, 0.5);

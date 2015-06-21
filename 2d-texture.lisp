@@ -63,7 +63,7 @@
 
 ;; front
 
-(defparameter *cube-positions*
+(defvar *cube-positions*
   (cffi:foreign-alloc
    :float
    :initial-contents
@@ -76,16 +76,16 @@
 	 -0.5 0.5 0.5 -0.5 0.5)))
 
 
-(defparameter *tex-coord*
+(defvar *tex-coord*
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
-     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
-     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
-     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
-     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0
-     0.0 1.0   0.0 0.0   1.0 0.0   1.0 0.0   1.0 1.0   0.0 1.0)))
+   '(1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
+     1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
+     1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
+     1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
+     1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
+     1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0)))
 
 
 (defvar *cube-indices*
@@ -226,7 +226,7 @@
 
 ;;init code---------------------------------------------------------------------
 
-(defparameter *tex-unit* 0)
+(defvar *tex-unit* 0)
 
 (defmethod initialize-instance :after ((w texture-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
@@ -258,7 +258,7 @@
   ;; TODO: clean this up and do the tests
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an OS issue
-  ;; (sdl2:gl-set-swap-interval 1) 
+  ; (sdl2:gl-set-swap-interval 1) 
   )
 
 
@@ -273,36 +273,36 @@
 (defvar *2d-test-data*
   (cffi:foreign-alloc :unsigned-char
 		      ;; to tell up from bottom better in tests
-		      :initial-contents (list    0   0   0  255  0   0   0   0  64  64  64  64  64  64  64  64
-					         0   0  255 255 255  0   0   0  64  64  64  99  64  64  64  64
-					         0  255  0  255  0  255  0   0  64  64  99  64  64  64  64  64
-					         0   0   0  255  0   0   0   0  64  99  64  64  64  64  64  64
-					         0   0   0  255  0   0   0   0  99  99  99  99  99  99  99  64
-					         0   0   0  255  0   0   0   0  64  99  64  64  64  64  64  64
-					         0   0   0  255  0   0   0   0  64  64  99  64  64  64  64  64
-					         0   0   0   0   0   0   0   0  64  64  64  99  64  64  64  64
-						 128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
-						 128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
-						 128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
-						 000 128 000 128 128 128 128 128 195 195 000 195 195 195 195 195 
-						 000 128 000 128 128 128 128 000 195 000 000 000 195 000 000 000 
-						 000 000 128 128 000 128 000 128 195 195 000 195 195 195 195 000 
-						 000 128 000 128 128 128 128 000 195 195 000 195 195 195 000 195 
-						 000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000 )))
+		      :initial-contents (list  64  64  64  255 64  64  64  64 000  64  64  64  64  64 000  64
+					       64  64  255 255 255 64  64 000  64  64 100  64  64  64  64 000
+					       64  255 64  255 64  255 64 000  64  64  64 100  64  64  64 000
+					       64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
+					       64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
+					       64  64  64  255 64  64  64 000  64  64  64 100 100  64  64 000
+					       64  64  64  255 64  64  64 000  64  64 100  64 100  64  64 000
+					       64  64  64  64  64  64  64  64 000 100  64  64  64 100 000  64
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+					       128 128 128 128 128 128 128 128 195 195 000 195 195 195 195 195 
+					       000 128 128 128 128 128 128 000 195 000 000 000 195 000 000 000 
+					       000 128 000 128 128 128 000 128 195 195 000 195 195 195 195 000 
+					       000 000 128 128 000 128 128 000 195 195 000 195 195 195 000 195 
+					       000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000)))
 
-(defparameter *sampler* 0)
-(defparameter *texture* 0)
+(defvar *sampler* 0)
+(defvar *texture* 0)
 
 
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
-	;(width 256) ;; length of the look-up table, (here: number of components in *some-texture-data*)
+	;;(width 256) ; length of the look-up table
 	(texture-data *2d-test-data*))
 
     (setf *texture* m-texture)
 
-    ;; :texture-1d the texture contains 1d-image_s_. Peculiariy: once you bind the
-    ;; texture with a certain type, here :texture-1d, you always need to bind it
+    ;; :texture-2d the texture contains 2d-image_s_. Peculiariy: once you bind the
+    ;; texture with a certain type, here :texture-2d, you always need to bind it
     ;; with the same type
     (%gl:bind-texture :texture-2D m-texture)
 
@@ -350,8 +350,8 @@
 		     :r8 
 		     16 ;; width = 1 means one component (not width 0!)
 		     16 ;; height, we provide the data with a 1d-array, this is where opengl
-		        ;; descides how to access it via pointer arithmetic to get at the proper values
-		        ;; i.e. how many rows in a column is decided here
+		     ;; descides how to access it via pointer arithmetic to get at the proper values
+		     ;; i.e. how many rows in a column is decided here
 
 		     0 ; border: old no longer supported feature
 		     
@@ -413,7 +413,8 @@
 	    (sb-cga:matrix*
 	     (sb-cga:translate (vec3 0.0 0.0 *zoom-z*))
 	     (sb-cga:rotate (vec3 *rotate-x* *rotate-y* 0.0))
-	     (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0)))))
+	     ;; (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 250.0) (* 2 3.14159)) 0.0))
+	     )))
   ;; projection matrix
   (uniform :mat :perspective-matrix
 	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))
