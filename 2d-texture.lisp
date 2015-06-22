@@ -95,8 +95,8 @@
    '(;; front
      0 1 2
      2 3 0
-     ;; right-side     
-     4 5 1  
+     ;; right-side
+     4 5 1
      1 0 4
      ;; back
      7 6 5
@@ -145,14 +145,14 @@
 (defgeneric uniform (type key value)
   (:method ((type (eql :vec)) key value)
     (uniformfv *programs-dict* key value))
-  
+
   (:method ((type (eql :vec)) key value)
     (uniformfv *programs-dict* key value))
-  
+
   (:method ((type (eql :mat)) key value)
     ;; nice, transpose is NIL by default!
     (uniform-matrix *programs-dict* key 4 value NIL))
-  
+
   (:method ((type (eql :int)) key value)
     (uniformi *programs-dict* key value)))
 
@@ -188,7 +188,7 @@
     (%gl:buffer-sub-data :array-buffer (* 108 4) (* 72 4) *tex-coord*)
     (%gl:enable-vertex-attrib-array 5)
     (%gl:vertex-attrib-pointer 5 2 :float :false 0 (* 108 4))
-    
+
     ;;IBO
     (gl:bind-buffer :element-array-buffer ibo)
     ;; why (* 36 2)?
@@ -258,7 +258,7 @@
   ;; TODO: clean this up and do the tests
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an OS issue
-  ; (sdl2:gl-set-swap-interval 1) 
+  ; (sdl2:gl-set-swap-interval 1)
   )
 
 
@@ -273,22 +273,30 @@
 (defvar *2d-test-data*
   (cffi:foreign-alloc :unsigned-char
 		      ;; to tell up from bottom better in tests
-		      :initial-contents (list  64  64  64  255 64  64  64  64 000  64  64  64  64  64 000  64
-					       64  64  255 255 255 64  64 000  64  64 100  64  64  64  64 000
-					       64  255 64  255 64  255 64 000  64  64  64 100  64  64  64 000
-					       64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
-					       64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
-					       64  64  64  255 64  64  64 000  64  64  64 100 100  64  64 000
-					       64  64  64  255 64  64  64 000  64  64 100  64 100  64  64 000
-					       64  64  64  64  64  64  64  64 000 100  64  64  64 100 000  64
-					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
-					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
-					       128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
-					       128 128 128 128 128 128 128 128 195 195 000 195 195 195 195 195 
-					       000 128 128 128 128 128 128 000 195 000 000 000 195 000 000 000 
-					       000 128 000 128 128 128 000 128 195 195 000 195 195 195 195 000 
-					       000 000 128 128 000 128 128 000 195 195 000 195 195 195 000 195 
-					       000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000)))
+		      ;; Note: This is also how opengl expects texture data. We can read the value from this
+		      ;; 1d-array by making it arbitrarily 2d (gl:tex-image-2d ... <width> <height> .#|<-here|#.)
+		      ;; and we read the value using tex-coordinate, where, with the current representation below
+		      ;; [0,0] represents top-left, [1,0] top-righ, [1,1]. If we imagine the texture coordinates
+		      ;; following a coordinate system sceme this "asci-art" below is upside-down. Positive
+  		      ;; y is down, negative up. But x is right.
+  		      :initial-contents
+ ;;    	 -------+------------------------------------------------------------------------------> +x
+ #|	       	.  |# (list  64  64  64  255 64  64  64  64 000  64  64  64  64  64 000  64
+ #|	       	.  |# 	     64  64  255 255 255 64  64 000  64  64 100  64  64  64  64 000
+ #|	       	.  |# 	     64  255 64  255 64  255 64 000  64  64  64 100  64  64  64 000
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100 100  64  64 000
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64 100  64 100  64  64 000
+ #|	       	.  |# 	     64  64  64  64  64  64  64  64 000 100  64  64  64 100 000  64
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 000 195 195 195 195 195
+ #|	       	.  |# 	     000 128 128 128 128 128 128 000 195 000 000 000 195 000 000 000
+ #|	       	.  |# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 195 195 000
+ #|    	     +y	.  |# 	     000 000 128 128 000 128 128 000 195 195 000 195 195 195 000 195
+ #|    	       	v  |# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000)))
 
 (defvar *sampler* 0)
 (defvar *texture* 0)
@@ -322,7 +330,7 @@
 
     ;; This process of transfering the user provided data representation to a texture image
     ;; is called _/pixel transfer/_!
-    
+
     ;; Both is accomplied using gl:tex-image-*, which describes how we allocate storage
     ;; and pass data to the texture, like gl:buffer-data
     ;; the parameters:
@@ -334,7 +342,7 @@
     ;; - internal-format: format that opengl will use to store the texture's data
     ;; - width          : width of the image = length of the look-up/array table
     ;; - border         : must always be 0: represents an old feature, no longer supported
-    
+
     ;; These last three parameters, of all the functions of the form gl:tex-image*, are special.
     ;; They tell opengl how to read the texture data in our array..
     ;; - format         : component supplied to the "uniform sampler", ther are only certain
@@ -347,14 +355,14 @@
 		     ;; the suffix of the format represent the data type:
 		     ;; here: f = float
 		     ;; no suffix defaults to the most commonly used: unsigned normalized integers
-		     :r8 
+		     :r8
 		     16 ;; width = 1 means one component (not width 0!)
 		     16 ;; height, we provide the data with a 1d-array, this is where opengl
 		     ;; descides how to access it via pointer arithmetic to get at the proper values
 		     ;; i.e. how many rows in a column is decided here
 
 		     0 ; border: old no longer supported feature
-		     
+
 		     ;; we are uploading a single "red" component to the texture,
 		     ;; components of _texels_ are called after colors. Remember that our
 		     ;; texel is going to be represented as a 4d-vector, and a vectors
@@ -364,10 +372,10 @@
 		     ;;either a floating-point value or a normalized integer.  note that
 		     ;;normalized integers are converted to float by opengl when they're
 		     ;;accessed
-		     :red 
+		     :red
 		     ;;normalized integer!!
 		     ;; each component is stored in a float
-		     :unsigned-byte 
+		     :unsigned-byte
 		     texture-data)
     ;; TODO understand
     (gl:tex-parameter :texture-2d :texture-base-level 0)
@@ -392,9 +400,9 @@
     ;; this sampler uniform with our texture object (here: m-texture or *texture*) like
     ;; with UBO we do this with a slot in the context, the so called:
     ;; _/texture image unit/_
-    ;; we associated 
+    ;; we associated
 
-    
+
     (setf *texture* m-texture)))
 
 
@@ -433,7 +441,7 @@
   ;; associate the sampler object with the texture object and sampler uniform via the
   ;; "texture image unit", here, called *tex-unit*
   (%gl:bind-sampler *tex-unit* *sampler*)
-  
+
   ;(%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
   (%gl:draw-arrays :triangles 0 (* 2 36))
 
@@ -485,5 +493,3 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0)))))
-
-
