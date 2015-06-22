@@ -76,11 +76,11 @@
 	 -0.5 0.5 0.5 -0.5 0.5)))
 
 
-(defvar *tex-coord*
+(setf *tex-coord*
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
+   '(2.0 0.0   2.0 2.0   0.0 2.0   0.0 2.0   0.0 0.0   2.0 0.0 ;; to show of *sampler* :repeat
      1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
      1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
      1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
@@ -393,7 +393,9 @@
     ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
     ;; first component of the texture, (stpq)
-    (gl:sampler-parameter *sampler* :texture-wrap-s :clamp-to-edge) ;; change to repeat
+    (gl:sampler-parameter *sampler* :texture-wrap-s :repeat) ;; change to repeat
+    ;; now with 2d-textures we have two texture coordinates we need to cara about:
+    (gl:sampler-parameter *sampler* :texture-wrap-t :repeat)
 
 
     ;; Now in our shader we have a "uniform sampler1D <name>" and we need to associate
