@@ -14,6 +14,15 @@
 
 (in-package :2d-texture)
 
+;; with this you can call gl cmds in the repl while the sdl2kit window is running
+;; affecting it:
+;; repl> #m (gl:sampler-parameter *sampler* :texture-wrap-t :mirror-clamp-to-edge)
+;; TODO: where to put reader-macro definitions. Surround by (evel-when xyz)? How does
+;;       it behave on reloading/compiling the file
+(set-dispatch-macro-character #\# #\m
+			      #'(lambda (str char n)
+				  (declare (ignore char n))
+				  (list 'sdl2:in-main-thread () (read str t nil t))))
 
 
 ;;; HOW TO USE:
@@ -59,7 +68,7 @@
 ;;      0.5 0.5 -0.5			;4
 ;;      0.5 -0.5 -0.5			;5
 ;;      -0.5 -0.5 -0.5			;6
-;;      -0.5 0.5 -0.5)))			;7
+;;      -0.5 0.5 -0.5)))		;7
 
 ;; front
 
