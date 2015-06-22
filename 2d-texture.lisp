@@ -25,6 +25,12 @@
 				  (list 'sdl2:in-main-thread () (read str t nil t))))
 
 
+;; quite clunky, but with the right abstraction this can be done with even less typing
+;; #m (progn
+;;      (gl:bind-vertex-array *vao*)
+;;      (%gl:buffer-sub-data :array-buffer (* 108 4) (* 72 4) *tex-coord*)) ;<- provide texture
+
+
 ;;; HOW TO USE:
 ;;;
 ;;; First, run this. It is SAFE to run repeatedly:
@@ -85,11 +91,11 @@
 	 -0.5 0.5 0.5 -0.5 0.5)))
 
 
-(setf *tex-coord*
+(defvar *tex-coord*
   (cffi:foreign-alloc
    :float
    :initial-contents
-   '(2.0 0.0   2.0 2.0   0.0 2.0   0.0 2.0   0.0 0.0   2.0 0.0 ;; to show of *sampler* :repeat
+   '(20.0 0.0   20.0 20.0   0.0 20.0   0.0 20.0   0.0 0.0   20.0 0.0 ;; to show of *sampler* :repeat
      1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
      1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
      1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0
@@ -432,7 +438,7 @@
 	    (sb-cga:matrix*
 	     (sb-cga:translate (vec3 0.0 0.0 *zoom-z*))
 	     (sb-cga:rotate (vec3 *rotate-x* *rotate-y* 0.0))
-	     ;; (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 250.0) (* 2 3.14159)) 0.0))
+	     ;;(sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0))
 	     )))
   ;; projection matrix
   (uniform :mat :perspective-matrix
