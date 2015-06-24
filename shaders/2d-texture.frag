@@ -3,6 +3,7 @@
 
 in vec4 interp_color;
 
+// test window space interpolation qualifier
 in vec2 colorCoord;
 
 out vec4 outputColor;
@@ -35,7 +36,8 @@ void main() {
 
   // now we access values from a 2d-texture with a two dimensional texture coordinate form:
   // vec2(x,y);
-  outputColor = sqrt(vec4(0.0, texture(test_texture, colorCoord).r , 0.0, 1.0));
+  //outputColor = sqrt(vec4(0.0, texture(test_texture, colorCoord).r , 0.0, 1.0));
+  outputColor = texture(test_texture, colorCoord);
   // outputColor = texture(test_texture, vec2(1.0,1.0));
   // outputColor= vec4(colorCoord.y);
   //  outputColor = texture(test_texture, 0.5);

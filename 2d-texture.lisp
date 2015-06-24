@@ -285,7 +285,7 @@
   (cffi:foreign-alloc :unsigned-char :initial-contents (loop for i upto 255 collect i)))
 
 
-(defvar *2d-test-data*
+(defvar *arrow-lambda-data*
   (cffi:foreign-alloc :unsigned-char
 		      ;; to tell up from bottom better in tests
 		      ;; Note: This is also how opengl expects texture data. We can read the value from this
@@ -296,22 +296,39 @@
   		      ;; y is down, negative up. But x is right.
   		      :initial-contents
  ;;    	 -------+------------------------------------------------------------------------------> +x
- #|	       	.  |# (list  64  64  64  255 64  64  64  64 000  64  64  64  64  64 000  64
- #|	       	.  |# 	     64  64  255 255 255 64  64 000  64  64 100  64  64  64  64 000
- #|	       	.  |# 	     64  255 64  255 64  255 64 000  64  64  64 100  64  64  64 000
- #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
- #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000
- #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100 100  64  64 000
- #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64 100  64 100  64  64 000
- #|	       	.  |# 	     64  64  64  64  64  64  64  64 000 100  64  64  64 100 000  64
- #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
- #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
- #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195
- #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 000 195 195 195 195 195
- #|	       	.  |# 	     000 128 128 128 128 128 128 000 195 000 000 000 195 000 000 000
- #|	       	.  |# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 195 195 000
- #|    	     +y	.  |# 	     000 000 128 128 000 128 128 000 195 195 000 195 195 195 000 195
- #|    	       	v  |# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000)))
+ #|	       	.  |# (list  64  64  64  255 64  64  64  64 000  64  64  64  64  64 000  64 
+ #|	       	.  |# 	     64  64  255 255 255 64  64 000  64  64 100  64  64  64  64 000 
+ #|	       	.  |# 	     64  255 64  255 64  255 64 000  64  64  64 100  64  64  64 000 
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000 
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100  64  64  64 000 
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64  64 100 100  64  64 000 
+ #|	       	.  |# 	     64  64  64  255 64  64  64 000  64  64 100  64 100  64  64 000 
+ #|	       	.  |# 	     64  64  64  64  64  64  64  64 000 100  64  64  64 100 000  64 
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195 
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195 
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 195 195 195 195 195 195 
+ #|	       	.  |# 	     128 128 128 128 128 128 128 128 195 195 000 195 195 195 195 195 
+ #|	       	.  |# 	     000 128 128 128 128 128 128 000 195 000 000 000 195 000 000 000 
+ #|	       	.  |# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 195 195 000 
+ #|     +y 0	.  |# 	     000 000 128 128 000 128 128 000 195 195 000 195 195 195 000 195 
+ #|     	v 0|# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000)))
+
+
+(defvar *rgba-texture-data*
+  (cffi:foreign-alloc :unsigned-char
+		      ;; to tell up from bottom better in tests
+		      ;; Note: This is also how opengl expects texture data. We can read the value from this
+		      ;; 1d-array by making it arbitrarily 2d (gl:tex-image-2d ... <width> <height> .#|<-here|#.)
+		      ;; and we read the value using tex-coordinate, where, with the current representation below
+		      ;; [0,0] represents top-left, [1,0] top-righ, [1,1]. If we imagine the texture coordinates
+		      ;; following a coordinate system sceme this "asci-art" below is upside-down. Positive
+  		      ;; y is down, negative up. But x is right.
+  		      :initial-contents
+
+		      (list  255 000 000  000 000 000  255 000 000  255 000 000
+			     000 000 000  255 000 000  000 000 000  255 000 000
+			     255 000 000  000 000 000  255 000 000  000 000 000
+			     000 000 000  255 000 000  000 000 000  255 000 000)))
 
 (defvar *sampler* 0)
 (defvar *texture* 0)
@@ -429,7 +446,23 @@
 (defparameter *rotate-y* 0.0)
 (defparameter *zoom-z* -2.0)
 
+(defparameter *test-rgba-texture* nil)
+
+(defun update-texture ()
+  (%gl:bind-texture :texture-2d *texture*)
+  (gl:tex-image-2d :texture-2d
+		   0   ;level TODO
+		   :r8 ;individual element representation
+		   16 ;width
+		   16 ;height
+		   0 ; border
+		   :red ;components per element
+		   :unsigned-byte ;; normalized integer
+		   *2d-test-data*)
+  (%gl:bind-texture :texture-2d 0))
+
 (defun draw-cube ()
+  (update-texture)
   (gl:bind-vertex-array *vao*)
   (use-program *programs-dict* :basic-projection)
   ;; all the neat transformations take place here
