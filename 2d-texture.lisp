@@ -316,12 +316,13 @@
 
 
 (defmacro rgba-list (&body list)
-  `(symbol-macrolet
+  `(let
        ((r '(255 0 0 255))
 	(g '(0 255 0 255))
 	(b '(0 0 255 255))
 	(d '(0 0 0 255)) ;; dark
-	(w '(255 255 255 255)))
+	(v '(138 43 226 255))
+	(_ '(255 255 255 0)))
      (append
       ,@list)))
 
@@ -330,22 +331,26 @@
   (cffi:foreign-alloc :unsigned-char
   		      :initial-contents
 		      ;; TODO: test alpha zero "discard" and stamp out a sprite?
-		      (rgba-list w w w w w w w w w w w w w w w w
-				 w b w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w b g r g w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w b w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w
-				 w w w w w w w w w w w w w w w w)))
+		      (rgba-list _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ b r _ _ b r _ g b d _ d r g _ _ _ _ _ 
+				 _ _ g _ _ _ g _ _ r _ _ b _ d _ _ _ _ _ 
+				 _ _ b _ _ _ b _ _ _ d _ g r _ _ _ _ _ _ 
+				 _ _ d g r _ d _ r g b _ r _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ g g g _ _ r _ _ b _ b _ d d _ v v v _
+				 _ g _ _ _ r _ r _ b b b _ d _ _ v _ _ _
+				 _ g _ _ _ r r r _ b _ b _ d d _ _ v _ _
+				 _ g _ g _ r _ r _ b _ b _ d _ _ _ _ v _
+				 _ _ g _ _ r _ r _ b _ b _ d d _ v v v _
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ )))
 
 (defvar *sampler* 0)
 (defvar *texture* 0)
@@ -475,9 +480,13 @@
 	(%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit-2*))
 	(%gl:bind-texture :texture-2d *texture*)
         (%gl:bind-sampler *tex-unit-2* *sampler*)
+    (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
+    (gl:sampler-parameter *sampler* :texture-min-filter :linear)
+
+
 	(uniform :int :test-texture *tex-unit-2*)
 
-	(gl:tex-image-2d :texture-2d 0 :r8 16 16 0
+	(gl:tex-image-2d :texture-2d 0 :rgba8 20 20 0
 			 :rgba		;components per element
 			 :unsigned-byte ;; normalized integer
 			 *rgba-texture-data*))
