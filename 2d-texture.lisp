@@ -242,6 +242,7 @@
 ;;init code---------------------------------------------------------------------
 
 (defvar *tex-unit* 0)
+(defvar *tex-unit-2* 1)
 
 (defmethod initialize-instance :after ((w texture-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
@@ -314,21 +315,37 @@
  #|     	v 0|# 	     000 128 000 128 128 128 000 128 195 195 000 195 195 000 000 000)))
 
 
-(defvar *rgba-texture-data*
-  (cffi:foreign-alloc :unsigned-char
-		      ;; to tell up from bottom better in tests
-		      ;; Note: This is also how opengl expects texture data. We can read the value from this
-		      ;; 1d-array by making it arbitrarily 2d (gl:tex-image-2d ... <width> <height> .#|<-here|#.)
-		      ;; and we read the value using tex-coordinate, where, with the current representation below
-		      ;; [0,0] represents top-left, [1,0] top-righ, [1,1]. If we imagine the texture coordinates
-		      ;; following a coordinate system sceme this "asci-art" below is upside-down. Positive
-  		      ;; y is down, negative up. But x is right.
-  		      :initial-contents
+(defmacro rgba-list (&body list)
+  `(symbol-macrolet
+       ((r '(255 0 0 255))
+	(g '(0 255 0 255))
+	(b '(0 0 255 255))
+	(d '(0 0 0 255)) ;; dark
+	(w '(255 255 255 255)))
+     (append
+      ,@list)))
 
-		      (list  255 000 000  000 000 000  255 000 000  255 000 000
-			     000 000 000  255 000 000  000 000 000  255 000 000
-			     255 000 000  000 000 000  255 000 000  000 000 000
-			     000 000 000  255 000 000  000 000 000  255 000 000)))
+
+(defparameter *rgba-texture-data*
+  (cffi:foreign-alloc :unsigned-char
+  		      :initial-contents
+		      ;; TODO: test alpha zero "discard" and stamp out a sprite?
+		      (rgba-list w w w w w w w w w w w w w w w w
+				 w b w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w b g r g w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w b w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w
+				 w w w w w w w w w w w w w w w w)))
 
 (defvar *sampler* 0)
 (defvar *texture* 0)
@@ -337,7 +354,7 @@
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
 	;;(width 256) ; length of the look-up table
-	(texture-data *2d-test-data*))
+	(texture-data *arrow-lambda-data*))
 
     (setf *texture* m-texture)
 
@@ -446,23 +463,40 @@
 (defparameter *rotate-y* 0.0)
 (defparameter *zoom-z* -2.0)
 
-(defparameter *test-rgba-texture* nil)
+(defvar *test-rgba-texture* nil)
 
 (defun update-texture ()
-  (%gl:bind-texture :texture-2d *texture*)
-  (gl:tex-image-2d :texture-2d
-		   0   ;level TODO
-		   :r8 ;individual element representation
-		   16 ;width
-		   16 ;height
-		   0 ; border
-		   :red ;components per element
-		   :unsigned-byte ;; normalized integer
-		   *2d-test-data*)
-  (%gl:bind-texture :texture-2d 0))
+  ;; expects a gl-program already in use
+  ;; TODO: ugh, so much repetition
+  (if *test-rgba-texture*
+      (progn
+	;; this tells the shader sampler uniform where in the texture image unit
+	;; to fetch data from
+	(%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit-2*))
+	(%gl:bind-texture :texture-2d *texture*)
+        (%gl:bind-sampler *tex-unit-2* *sampler*)
+	(uniform :int :test-texture *tex-unit-2*)
+
+	(gl:tex-image-2d :texture-2d 0 :r8 16 16 0
+			 :rgba		;components per element
+			 :unsigned-byte ;; normalized integer
+			 *rgba-texture-data*))
+      (progn
+      	(%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+        (%gl:bind-texture :texture-2d *texture*)
+        (%gl:bind-sampler *tex-unit* *sampler*)
+      	(uniform :int :test-texture *tex-unit*)
+      	(gl:tex-image-2d :texture-2d
+      			 0   ;level TODO
+      			 :r8 ;individual element representation
+      			 16 ;width
+      			 16 ;height
+      			 0 ; border
+      			 :red ;components per element
+      			 :unsigned-byte ;; normalized integer
+      			 *arrow-lambda-data*))))
 
 (defun draw-cube ()
-  (update-texture)
   (gl:bind-vertex-array *vao*)
   (use-program *programs-dict* :basic-projection)
   ;; all the neat transformations take place here
@@ -479,19 +513,18 @@
 
   ;;texture stuff:
   ;; set the texture image unit every subsequent gl:bind-texture will associate texture with
-  (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+  ;;(%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
   ;; associate our *texture*(-handle) with the texture image unit above. Remember the GLSL sampler uniform
   ;; association is build with setting the uniform to the same texture image unit we used in the
   ;; gl:active-texture (the *tex-unit* value) this was already done in the INITILIZE-INSTANCE code
   ;; with (uniform :int :test-texture *tex-unit*)
   ;; Another very important part of gl:active-texture is that it the texture now is "bound to the context"
   ;; and as such many gl calls can affect it, like: gl:tex-image, gl:tex-parameter, gl:bind-texture:
-  (%gl:bind-texture :texture-2d *texture*)
 
-  ;; associate the sampler object with the texture object and sampler uniform via the
-  ;; "texture image unit", here, called *tex-unit*
-  (%gl:bind-sampler *tex-unit* *sampler*)
+  
 
+ (update-texture)
+  
   ;(%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
   (%gl:draw-arrays :triangles 0 (* 2 36))
 
