@@ -585,3 +585,21 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0)))))
+
+
+;;sdl2-image experiments--------------------------------------------------------
+
+;;initialize and load some formats (?)
+(sdl2-image:init '(:png :jpg :tif))
+
+(defun image-file->sdl-surface (path)
+  (sdl2-image:load-image path))
+
+
+(defvar *123-png-sdl-surface* (image-file->sdl-surface  "123.png"))
+
+;; the sdl-surface is a struct-object
+
+
+;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
+
