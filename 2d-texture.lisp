@@ -291,7 +291,16 @@
 (defclass image-object ()
   ((height :initarg :height)
    (width :initarg :width)
-   (pixels :initarg :pixels)))
+   (pixels :initarg :pixels)
+   (ffi-array)))
+
+(defmethod initialize-instance :after ((the-image image-object) &key)
+  (alexandria:if-let ((pixels (slot-value the-image 'pixels)))
+    (setf (slot-value the-image 'ffi-array)
+	  ;; TODO: get type from #3Array?
+	  (cffi:foreign-alloc :unsigned-char :initial-contents pixels))
+    ;; else
+    (error "The PIXELS slot is not set in the IMAGE-OBJECT object.")))
 
 (defun image-file->sdl-surface->image-object (path)
   ;; TODO: when and why use. Initialize and load some formats (?)
@@ -312,7 +321,7 @@
 
 
 
-(defvar *123-image-object* (image-file->image-object "123.png"))
+(defvar *123-image-object-from-sdl-surface* (image-file->sdl-surface->image-object "123.png"))
 
 ;; the sdl-surface is a struct-object
 ;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
@@ -327,7 +336,8 @@
 ;;opticl experiments------------------------------------------------------------
 
 ;; TODO: chedk out 3bgl-opticl for a direct solution
-
+;; TODO: check out sbcl for some lowlevel vecor access and provide it with
+;;       #+sbcl.. ?
 (defun 3d-array->vector (3d-array)
   (let* ((dims (array-dimensions 3d-array))
 	 (dims-1d (apply #'* dims))
@@ -338,20 +348,20 @@
 
 
 (defun image-file->image-object (path)
-  (let ((img(convert-image-to-rgba (read-png-file path))))
+  (let ((img (convert-image-to-rgba (read-png-file path))))
     ;; first dim: height then width then length of pixel, here 4 because rgba
     (with-image-bounds (height width) img
-      (make-instance 'image-object :height height :width width )))
-)
+      (make-instance 'image-object :height height :width width
+		     :pixels (3d-array->vector img)))))
 
 ;;print representation reads, intuitively, top-to-bottom just like the picture rendered
 ;;a 3d-array: 1.row 2.pixel 3. color-component
-(defparameter *123-png-opticl* (convert-image-to-rgba (read-png-file "123.png")))
+(defvar *png-opticl* (image-file->image-object "foo.png"))
 
 ;;useful functions
-;; (with-image-bounds (height width) *123-png-opticl*
+;; (with-image-bounds (height width) *png-opticl*
 ;;   (list height width)) ; ==> (3 3)
-;; (convert-image-to-rgba *123-PNG-OPTICL*)
+;; (convert-image-to-rgba *PNG-OPTICL*)
 
 ;; since we're dealing with a simple array
 ;; (array-element-type <array>)
@@ -600,10 +610,13 @@
 
 	 (uniform :int :test-texture *tex-unit-2*)
 
-	 (gl:tex-image-2d :texture-2d 0 :rgba8 20 20 0
-			  :rgba	;components per element
-			  :unsigned-byte ;; normalized integer
-			  *rgba-texture-data*)))))
+	 (with-slots (width height pixels ffi-array) *png-opticl*
+	   (gl:tex-image-2d :texture-2d 0 :rgba8
+			    width
+			    height 0
+			    :rgba	;components per element
+			    :unsigned-byte ;; normalized integer
+			    ffi-array))))))
 
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
