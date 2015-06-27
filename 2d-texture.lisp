@@ -280,6 +280,59 @@
   )
 
 
+;;; Getting image data from pictures with sdl2-image or opticl
+
+;;sdl2-image experiments--------------------------------------------------------
+
+;; (sdl2-image:init '(:png :jpg :tif))
+
+
+;; TODO add more useful sdl-surface struct fields. type information?
+(defclass image-object ()
+  ((height :initarg :height)
+   (width :initarg :width)
+   (pixels :initarg :pixels)))
+
+(defun image-file->image-object (path)
+  ;; TODO: when and why use. Initialize and load some formats (?)
+  (sdl2-image:init '(:png :jpg :tif)) 
+  (let* ((sdl-surface (sdl2-image:load-image path))
+	 (width (sdl2:surface-width sdl-surface))
+	 (height (sdl2:surface-height sdl-surface))
+	 ;; this is how we access fields from the ffi struct that are missing in
+	 ;; the wrapper!
+	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels)))
+    (make-instance 'image-object :width width :height height :pixels pixels-ptr)))
+
+
+
+
+(defvar *123-image-object* (image-file->image-object "123.png"))
+
+;; the sdl-surface is a struct-object
+;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
+;; ^ iterating over the above, reading bytes, shows that the picture colors
+;; are indeed in there, but with some other image data.
+
+;; new approach: get missing slot in the sdl2 wrapper using plus-c:c-ref
+;; (plus-c:c-ref (sdl2-image:load-image "123.png)
+;; *123-png-sdl-surface* sdl2-ffi:sdl-surface :pixels)
+
+
+;;opticl experiments------------------------------------------------------------
+
+;;print representation reads, intuitively, top-to-bottom just like the picture rendered
+;; (defvar *123-png-opticl* (read-png-file "123.png"))
+
+;; useful functions
+;; (with-image-bounds (height width) *123-png-opticl*
+;;   (list height width)) ; ==> (3 3)
+;;(convert-image-to-rgba *123-PNG-OPTICL*)
+
+
+
+;;texture data------------------------------------------------------------------
+
 (defvar *some-texture-data* (cffi:foreign-alloc :unsigned-char :initial-contents
 						(list 10 0 0 0 0 (floor 255 2) 0 0 0 255)))
 
@@ -605,55 +658,3 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0)))))
-
-
-;;sdl2-image experiments--------------------------------------------------------
-
-;; abandoning for now because sdl_pixel_format doesn't seem to be available
-
-
-;; (sdl2-image:init '(:png :jpg :tif))
-
-
-;; TODO add more useful sdl-surface struct fields. type information?
-(defclass image-object ()
-  ((height :initarg :height)
-   (width :initarg :width)
-   (pixels :initarg :pixels)))
-
-(defun image-file->image-object (path)
-  ;; TODO: when and why use. Initialize and load some formats (?)
-  (sdl2-image:init '(:png :jpg :tif)) 
-  (let* ((sdl-surface (sdl2-image:load-image path))
-	 (width (sdl2:surface-width sdl-surface))
-	 (height (sdl2:surface-height sdl-surface))
-	 ;; this is how we access fields from the ffi struct that are missing in
-	 ;; the wrapper!
-	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels)))
-    (make-instance 'image-object :width width :height height :pixels pixels-ptr)))
-
-
-
-
-(defvar *123-image-object* (image-file->image-object "123.png"))
-
-;; the sdl-surface is a struct-object
-;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
-;; ^ iterating over the above, reading bytes, shows that the picture colors
-;; are indeed in there, but with some other image data.
-
-;; new approach: get missing slot in the sdl2 wrapper using plus-c:c-ref
-;; (plus-c:c-ref (sdl2-image:load-image "123.png)
-;; *123-png-sdl-surface* sdl2-ffi:sdl-surface :pixels)
-
-
-;;opticl experiments------------------------------------------------------------
-
-;;print representation reads, intuitively, top-to-bottom just like the picture rendered
-(defvar *123-png-opticl* (read-png-file "123.png"))
-
-;; useful functions
-;; (with-image-bounds (height width) *123-png-opticl*
-;;   (list height width)) ; ==> (3 3)
-;;(convert-image-to-rgba *123-PNG-OPTICL*)
-
