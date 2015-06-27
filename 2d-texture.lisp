@@ -10,7 +10,8 @@
 	;; appear in the example unqualified, as they're interned
 	:sdl2.kit
 	:kit.gl.shader
-	:kit.math))
+	:kit.math
+	:opticl))
 
 (in-package :2d-texture)
 
@@ -242,7 +243,8 @@
 ;;init code---------------------------------------------------------------------
 
 (defvar *tex-unit* 0)
-(defvar *tex-unit-2* 1)
+(defvar *tex-unit-1* 1)
+(defvar *tex-unit-2* 2)
 
 (defmethod initialize-instance :after ((w texture-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
@@ -327,7 +329,7 @@
       ,@list)))
 
 
-(defparameter *rgba-texture-data*
+(defvar *rgba-texture-data*
   (cffi:foreign-alloc :unsigned-char
   		      :initial-contents
 		      ;; TODO: test alpha zero "discard" and stamp out a sprite?
@@ -351,6 +353,8 @@
 				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 				 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ )))
+
+;;(defparameter *123-texture-data*)
 
 (defvar *sampler* 0)
 (defvar *texture* 0)
@@ -468,42 +472,58 @@
 (defparameter *rotate-y* 0.0)
 (defparameter *zoom-z* -2.0)
 
-(defvar *test-rgba-texture* nil)
+(defvar *use-texture-number* 1) ;; for live-coding tests
 
 (defun update-texture ()
   ;; expects a gl-program already in use
   ;; TODO: ugh, so much repetition
-  (if *test-rgba-texture*
-      (progn
-	;; this tells the shader sampler uniform where in the texture image unit
-	;; to fetch data from
-	(%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit-2*))
-	(%gl:bind-texture :texture-2d *texture*)
-        (%gl:bind-sampler *tex-unit-2* *sampler*)
-    (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
-    (gl:sampler-parameter *sampler* :texture-min-filter :linear)
+  (case *use-texture-number*
+    (0 (progn
+	 ;; this tells the shader sampler uniform where in the texture image unit
+	 ;; to fetch data from
+	 (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit-1*))
+	 (%gl:bind-texture :texture-2d *texture*)
+	 (%gl:bind-sampler *tex-unit-1* *sampler*)
+	 (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
+	 (gl:sampler-parameter *sampler* :texture-min-filter :linear)
 
 
-	(uniform :int :test-texture *tex-unit-2*)
+	 (uniform :int :test-texture *tex-unit-1*)
 
-	(gl:tex-image-2d :texture-2d 0 :rgba8 20 20 0
-			 :rgba		;components per element
-			 :unsigned-byte ;; normalized integer
-			 *rgba-texture-data*))
-      (progn
-      	(%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
-        (%gl:bind-texture :texture-2d *texture*)
-        (%gl:bind-sampler *tex-unit* *sampler*)
-      	(uniform :int :test-texture *tex-unit*)
-      	(gl:tex-image-2d :texture-2d
-      			 0   ;level TODO
-      			 :r8 ;individual element representation
-      			 16 ;width
-      			 16 ;height
-      			 0 ; border
-      			 :red ;components per element
-      			 :unsigned-byte ;; normalized integer
-      			 *arrow-lambda-data*))))
+	 (gl:tex-image-2d :texture-2d 0 :rgba8 20 20 0
+			  :rgba	;components per element
+			  :unsigned-byte ;; normalized integer
+			  *rgba-texture-data*)))
+    (1 (progn
+	 (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+	 (%gl:bind-texture :texture-2d *texture*)
+	 (%gl:bind-sampler *tex-unit* *sampler*)
+	 (uniform :int :test-texture *tex-unit*)
+	 (gl:tex-image-2d :texture-2d
+			  0		;level TODO
+			  :r8		;individual element representation
+			  16		;width
+			  16		;height
+			  0		; border
+			  :red	;components per element
+			  :unsigned-byte ;; normalized integer
+			  *arrow-lambda-data*)))
+    (2 (progn
+	 ;; this tells the shader sampler uniform where in the texture image unit
+	 ;; to fetch data from
+	 (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit-2*))
+	 (%gl:bind-texture :texture-2d *texture*)
+	 (%gl:bind-sampler *tex-unit-2* *sampler*)
+	 (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
+	 (gl:sampler-parameter *sampler* :texture-min-filter :linear)
+
+
+	 (uniform :int :test-texture *tex-unit-2*)
+
+	 (gl:tex-image-2d :texture-2d 0 :rgba8 20 20 0
+			  :rgba	;components per element
+			  :unsigned-byte ;; normalized integer
+			  *rgba-texture-data*)))))
 
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
@@ -532,9 +552,9 @@
 
   
 
- (update-texture)
-  
-  ;(%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
+  (update-texture)
+
+  ;; (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
   (%gl:draw-arrays :triangles 0 (* 2 36))
 
 
@@ -589,17 +609,51 @@
 
 ;;sdl2-image experiments--------------------------------------------------------
 
-;;initialize and load some formats (?)
-(sdl2-image:init '(:png :jpg :tif))
-
-(defun image-file->sdl-surface (path)
-  (sdl2-image:load-image path))
+;; abandoning for now because sdl_pixel_format doesn't seem to be available
 
 
-(defvar *123-png-sdl-surface* (image-file->sdl-surface  "123.png"))
+;; (sdl2-image:init '(:png :jpg :tif))
+
+
+;; TODO add more useful sdl-surface struct fields. type information?
+(defclass image-object ()
+  ((height :initarg :height)
+   (width :initarg :width)
+   (pixels :initarg :pixels)))
+
+(defun image-file->image-object (path)
+  ;; TODO: when and why use. Initialize and load some formats (?)
+  (sdl2-image:init '(:png :jpg :tif)) 
+  (let* ((sdl-surface (sdl2-image:load-image path))
+	 (width (sdl2:surface-width sdl-surface))
+	 (height (sdl2:surface-height sdl-surface))
+	 ;; this is how we access fields from the ffi struct that are missing in
+	 ;; the wrapper!
+	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels)))
+    (make-instance 'image-object :width width :height height :pixels pixels-ptr)))
+
+
+
+
+(defvar *123-image-object* (image-file->image-object "123.png"))
 
 ;; the sdl-surface is a struct-object
-
-
 ;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
+;; ^ iterating over the above, reading bytes, shows that the picture colors
+;; are indeed in there, but with some other image data.
+
+;; new approach: get missing slot in the sdl2 wrapper using plus-c:c-ref
+;; (plus-c:c-ref (sdl2-image:load-image "123.png)
+;; *123-png-sdl-surface* sdl2-ffi:sdl-surface :pixels)
+
+
+;;opticl experiments------------------------------------------------------------
+
+;;print representation reads, intuitively, top-to-bottom just like the picture rendered
+(defvar *123-png-opticl* (read-png-file "123.png"))
+
+;; useful functions
+;; (with-image-bounds (height width) *123-png-opticl*
+;;   (list height width)) ; ==> (3 3)
+;;(convert-image-to-rgba *123-PNG-OPTICL*)
 
