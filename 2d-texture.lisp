@@ -293,7 +293,7 @@
    (width :initarg :width)
    (pixels :initarg :pixels)))
 
-(defun image-file->image-object (path)
+(defun image-file->sdl-surface->image-object (path)
   ;; TODO: when and why use. Initialize and load some formats (?)
   (sdl2-image:init '(:png :jpg :tif))
   (let* ((sdl-surface (sdl2-image:load-image path))
@@ -326,24 +326,15 @@
 
 ;;opticl experiments------------------------------------------------------------
 
+;; TODO: chedk out 3bgl-opticl for a direct solution
+
 (defun 3d-array->vector (3d-array)
   (let* ((dims (array-dimensions 3d-array))
-	 (vector (make-array (apply #'* dims)
-			     :fill-pointer 0)))
-    (destructuring-bind (i-bound j-bound k-bound) dims
-      (loop for i below i-bound do
-	   (loop for j below j-bound do
-		(loop for k below k-bound do
-		     (vector-push (aref qux i j k) vector)))))
+	 (dims-1d (apply #'* dims))
+	 (vector (make-array dims-1d)))
+    (loop for i below dims-1d do
+	 (setf (aref vector i) (row-major-aref 3d-array i)))
     vector))
-
-(let ((list nil))
-	      (destructuring-bind (i-bound j-bound k-bound) (array-dimensions qux)
-		(loop for i below i-bound do
-		     (loop for j below j-bound do
-			  (loop for k below k-bound do
-			       (push (aref qux i j k) list)))))
-		 (nreverse list))
 
 
 (defun image-file->image-object (path)
