@@ -253,7 +253,7 @@
   ;; if you (setf (idle-render window) t) it'll call RENDER as fast as
   ;; possible when not processing other events - suitable for games
   (setf (idle-render w) t)
-  (gl:clear-color 0 0 1 1)
+  (gl:clear-color 0 0 0.5 1)
   (gl:clear :color-buffer-bit)
   (gl:viewport 0 0 800 600)
 
@@ -295,13 +295,18 @@
 
 (defun image-file->image-object (path)
   ;; TODO: when and why use. Initialize and load some formats (?)
-  (sdl2-image:init '(:png :jpg :tif)) 
+  (sdl2-image:init '(:png :jpg :tif))
   (let* ((sdl-surface (sdl2-image:load-image path))
 	 (width (sdl2:surface-width sdl-surface))
 	 (height (sdl2:surface-height sdl-surface))
 	 ;; this is how we access fields from the ffi struct that are missing in
 	 ;; the wrapper!
+	 ;; NEXT-TODO: convert into rgba, use "pitch" to read row of pixels properly
+	 ;; and read a bit into sdl_surface to see if you missing something. As things
+	 ;; are right now opticl appears much simpler. It also doesn't need ffi.
+	 (pitch (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pitch))
 	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels)))
+    (declare (ignore pitch)) ;; TODO
     (make-instance 'image-object :width width :height height :pixels pixels-ptr)))
 
 
@@ -321,14 +326,45 @@
 
 ;;opticl experiments------------------------------------------------------------
 
-;;print representation reads, intuitively, top-to-bottom just like the picture rendered
-;; (defvar *123-png-opticl* (read-png-file "123.png"))
+(defun 3d-array->vector (3d-array)
+  (let* ((dims (array-dimensions 3d-array))
+	 (vector (make-array (apply #'* dims)
+			     :fill-pointer 0)))
+    (destructuring-bind (i-bound j-bound k-bound) dims
+      (loop for i below i-bound do
+	   (loop for j below j-bound do
+		(loop for k below k-bound do
+		     (vector-push (aref qux i j k) vector)))))
+    vector))
 
-;; useful functions
+(let ((list nil))
+	      (destructuring-bind (i-bound j-bound k-bound) (array-dimensions qux)
+		(loop for i below i-bound do
+		     (loop for j below j-bound do
+			  (loop for k below k-bound do
+			       (push (aref qux i j k) list)))))
+		 (nreverse list))
+
+
+(defun image-file->image-object (path)
+  (let ((img(convert-image-to-rgba (read-png-file path))))
+    ;; first dim: height then width then length of pixel, here 4 because rgba
+    (with-image-bounds (height width) img
+      (make-instance 'image-object :height height :width width )))
+)
+
+;;print representation reads, intuitively, top-to-bottom just like the picture rendered
+;;a 3d-array: 1.row 2.pixel 3. color-component
+(defparameter *123-png-opticl* (convert-image-to-rgba (read-png-file "123.png")))
+
+;;useful functions
 ;; (with-image-bounds (height width) *123-png-opticl*
 ;;   (list height width)) ; ==> (3 3)
-;;(convert-image-to-rgba *123-PNG-OPTICL*)
+;; (convert-image-to-rgba *123-PNG-OPTICL*)
 
+;; since we're dealing with a simple array
+;; (array-element-type <array>)
+;; (array-dimensions <array>)
 
 
 ;;texture data------------------------------------------------------------------
