@@ -297,31 +297,34 @@
 (defmethod initialize-instance :after ((the-image image-object) &key)
   (alexandria:if-let ((pixels (slot-value the-image 'pixels)))
     (setf (slot-value the-image 'ffi-array)
-	  ;; TODO: get type from #3Array?
-	  (cffi:foreign-alloc :unsigned-char :initial-contents pixels))
+  	  ;; TODO: get type from #3Array?
+  	  (cffi:foreign-alloc :unsigned-char :initial-contents pixels))
     ;; else
     (error "The PIXELS slot is not set in the IMAGE-OBJECT object.")))
 
-(defun image-file->sdl-surface->image-object (path)
-  ;; TODO: when and why use. Initialize and load some formats (?)
-  (sdl2-image:init '(:png :jpg :tif))
-  (let* ((sdl-surface (sdl2-image:load-image path))
-	 (width (sdl2:surface-width sdl-surface))
-	 (height (sdl2:surface-height sdl-surface))
-	 ;; this is how we access fields from the ffi struct that are missing in
-	 ;; the wrapper!
-	 ;; NEXT-TODO: convert into rgba, use "pitch" to read row of pixels properly
-	 ;; and read a bit into sdl_surface to see if you missing something. As things
-	 ;; are right now opticl appears much simpler. It also doesn't need ffi.
-	 (pitch (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pitch))
-	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels)))
-    (declare (ignore pitch)) ;; TODO
-    (make-instance 'image-object :width width :height height :pixels pixels-ptr)))
+;; (defun image-file->sdl-surface->image-object (path)
+;;   ;; TODO: when and why use. Initialize and load some formats (?)
+;;   (sdl2-image:init '(:png :jpg :tif))
+;;   (let* ((sdl-surface (sdl2-image:load-image path))
+;; 	 (width (sdl2:surface-width sdl-surface))
+;; 	 (height (sdl2:surface-height sdl-surface))
+;; 	 ;; this is how we access fields from the ffi struct that are missing in
+;; 	 ;; the wrapper!
+;; 	 ;; NEXT-TODO: convert into rgba, use "pitch" to read row of pixels properly
+;; 	 ;; and read a bit into sdl_surface to see if you missing something. As things
+;; 	 ;; are right now opticl appears much simpler. It also doesn't need ffi.
+;; 	 (pitch (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pitch))
+;; 	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels))
+;; 	 )
+;;     (declare (ignore pitch)) ;; TODO
+;;     ;; TODO: :pixel slot must be an object INITIALIZE-INSTANCE :after will build a ffi-array
+;;     ;; from
+;;     (make-instance 'image-object :width width :height height :pixels NIL)))
 
 
 
 
-(defvar *123-image-object-from-sdl-surface* (image-file->sdl-surface->image-object "123.png"))
+;; (defvar *123-image-object-from-sdl-surface* (image-file->sdl-surface->image-object "123.png"))
 
 ;; the sdl-surface is a struct-object
 ;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
