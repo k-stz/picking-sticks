@@ -33,13 +33,14 @@ void main() {
   // texture() returns a vec4, and .r accesses the "red" component
   // the other components are intuitively g,b and a!!!
 
-  if (texture(test_texture,colorCoord).a < 1.0)
+  // '==' for numerical comparison '=' for boolean casts
+  if (texture(test_texture,colorCoord).a == 0.0)
     discard;
   
   // now we access values from a 2d-texture with a two dimensional texture coordinate form:
   // vec2(x,y);
   //outputColor = sqrt(vec4(0.0, texture(test_texture, colorCoord).r , 0.0, 1.0));
-  outputColor = texture(test_texture, colorCoord);
+    outputColor = texture(test_texture, colorCoord);
   // outputColor = texture(test_texture, vec2(1.0,1.0));
   // outputColor= vec4(colorCoord.y);
   //  outputColor = texture(test_texture, 0.5);
