@@ -11,7 +11,9 @@
 	:sdl2.kit
 	:kit.gl.shader
 	:kit.math
-	:opticl))
+	:opticl)
+  (:export
+   #:game-window))
 
 (in-package :game)
 
@@ -25,6 +27,8 @@
 				  (declare (ignore char n))
 				  (list 'sdl2:in-main-thread () (read str t nil t))))
 
+
+(setf *default-pathname-defaults* (asdf/system:system-source-directory "picking-sticks"))
 
 ;; quite clunky, but with the right abstraction this can be done with even less typing
 ;; #m (progn
@@ -302,39 +306,6 @@
     ;; else
     (error "The PIXELS slot is not set in the IMAGE-OBJECT object.")))
 
-;; (defun image-file->sdl-surface->image-object (path)
-;;   ;; TODO: when and why use. Initialize and load some formats (?)
-;;   (sdl2-image:init '(:png :jpg :tif))
-;;   (let* ((sdl-surface (sdl2-image:load-image path))
-;; 	 (width (sdl2:surface-width sdl-surface))
-;; 	 (height (sdl2:surface-height sdl-surface))
-;; 	 ;; this is how we access fields from the ffi struct that are missing in
-;; 	 ;; the wrapper!
-;; 	 ;; NEXT-TODO: convert into rgba, use "pitch" to read row of pixels properly
-;; 	 ;; and read a bit into sdl_surface to see if you missing something. As things
-;; 	 ;; are right now opticl appears much simpler. It also doesn't need ffi.
-;; 	 (pitch (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pitch))
-;; 	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels))
-;; 	 )
-;;     (declare (ignore pitch)) ;; TODO
-;;     ;; TODO: :pixel slot must be an object INITIALIZE-INSTANCE :after will build a ffi-array
-;;     ;; from
-;;     (make-instance 'image-object :width width :height height :pixels NIL)))
-
-
-
-
-;; (defvar *123-image-object-from-sdl-surface* (image-file->sdl-surface->image-object "123.png"))
-
-;; the sdl-surface is a struct-object
-;; (sdl2-ffi::sdl-surface-ptr *123-PNG-SDL-SURFACE*) ==> ptr
-;; ^ iterating over the above, reading bytes, shows that the picture colors
-;; are indeed in there, but with some other image data.
-
-;; new approach: get missing slot in the sdl2 wrapper using plus-c:c-ref
-;; (plus-c:c-ref (sdl2-image:load-image "123.png)
-;; *123-png-sdl-surface* sdl2-ffi:sdl-surface :pixels)
-
 
 ;;opticl experiments------------------------------------------------------------
 
@@ -351,7 +322,7 @@
 
 
 (defun image-file->image-object (path)
-  (let ((img (convert-image-to-rgba (read-png-file path))))
+  (let* ((img (convert-image-to-rgba (read-png-file path))))
     ;; first dim: height then width then length of pixel, here 4 because rgba
     (with-image-bounds (height width) img
       (make-instance 'image-object :height height :width width
