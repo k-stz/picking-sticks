@@ -1,9 +1,24 @@
+;; Idea: one array of static rectangles (background)
+;;       and one array of constantly changing rectangles
+;;      => write all into one vbo (gl:buffe-data ...)
+;;      - draws all with one call
+;;      - much better performance, less overhead with individual
+;;      - gl:buffer-sub-data 
+;;
+;;      => change rectangle data (position,color) on cpu/cl side
+;;         using simple arrays
+
+;; TODO: texatl to get sprites and spritesheet integretation, maybe even text!!
+
+;; one big texture to read all the data from, again using texatl?
+
+
 
 (defpackage :game-objects
   (:use :cl
 	;; oooooh, only the EXTERNAL symbols get inherited!!
-;	:game
-	:kit.gl.shader))
+	:kit.gl.shader
+	:kit.math))
 
 (in-package :game-objects)
 
@@ -14,18 +29,27 @@
    (pixels :initarg :pixels)
    (ffi-array)))
 
-;; try to collect everything needed to draw arbitrary rectangles
-(defclass rectangle-object ()
-  ((positions :initarg :positions)
-   (texture-coordinates :initform
-			#(1.0 0.0   1.0 1.0   0.0 1.0   0.0 1.0   0.0 0.0   1.0 0.0))
-   (image-data :initarg :image-data :type 'image-object)
-   ;; vao
-   (vao :initarg :vao)
-   (vbo)
-   (shader-dictionary) ;;defdict
-   (shader-program) ;; :basic-projection
-   ))
+
+(defvar *recs* nil)
+
+(defclass rectangle ()
+  ((x1 :initarg :x1 :type vec2)
+   (x2 :initarg :x2 :type vec2)
+   (y1 :initarg :y1 :type vec2)
+   (y2 :initarg :y2 :type vec2)))
+
+(defun make-rectangle (&optional
+			 (position (vec2 0.0 0.0))
+			 (width 1.0)
+			 (height 1.0))
+  (macrolet ((vec2+ (v1 v2)
+	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
+		     (+ (aref ,v1 1) (aref ,v2 1)))))
+    (make-instance 'rectangle
+		   :x1 position
+		   :x2 (vec2+ position (vec2 width 0.0))
+		   :y1 (vec2+ position (vec2 0.0 height))
+		   :y2 (vec2+ position (vec2 width height)))))
 
 
 (defvar *default-ffi-positions*
@@ -64,23 +88,4 @@
 
 ;;     (gl:bind-vertex-array 0)
 ;;     (values vao vbo)))
-
-
-;; only call when program is in use?
-;; (defgeneric draw-rectangle (object)
-;;   (:method ((rectangle rectangle-object))
-;;     (unless (slot-boundp rectangle 'vao)
-;;       (setf (slot-value rectangle 'vao)
-;; 	    (make-gpu-rectangle)))
-;;     (with-slots (vao) rectangle
-;;       (gl:bind-vertex-array vao)
-;;       (use-program game::*programs-dict* :basic-projection)
-
-      
-;;       (%gl:draw-arrays :triangles 0 (* 2 36))
-
-
-;;       (gl:bind-vertex-array vao)
-;;       (use-program game::*programs-dict* 0))))
-
 
