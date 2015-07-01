@@ -627,10 +627,9 @@
 
   (%gl:bind-sampler *tex-unit* 0)
   (%gl:bind-texture :texture-2d 0)
-  (gl:bind-vertex-array 0))
+  (gl:bind-vertex-array 0)
+  (use-program *programs-dict* 0))
 
-
-(defparameter foo 0)
 
 (defmethod render ((window game-window))
   
@@ -644,6 +643,9 @@
 
   (display-fps window)
   (framelimit window 60))
+
+
+
 
 ;;Events------------------------------------------------------------------------
 
