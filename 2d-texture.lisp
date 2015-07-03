@@ -314,6 +314,28 @@
 ;; 	 ;; and read a bit into sdl_surface to see if you missing something. As things
 ;; 	 ;; are right now opticl appears much simpler. It also doesn't need ffi.
 ;; 	 (pitch (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pitch))
+;;; NEXT-TODO: very useful
+;; sdl-surface->format->rmask directly translates to:
+;; (c-ref some-surface sdl2-ffi:sdl-surface :format :rmask)
+;; and then there is C-LET:
+
+;; even more powerful abstraction example:
+;; (plus-c:c-let ((surface sdl2-ffi:sdl-surface :from *sdl-surface*))
+;; 	(surface :format :rmask))
+
+
+;; > it will also allocate them if you don't specify :from/:ptr, and you can
+;;        iirc specify :count
+
+
+;; > basically should fold all the syntax for alloc/ref/free/etc into one
+;;        handy easy-to-read block
+
+;; > : do the pointers get freed outside the c-let? 
+
+;; > : c-let doesn't free, C-WITH does free, or either explicitly with
+;;        :free {t|nil}
+
 ;; 	 (pixels-ptr (plus-c:c-ref sdl-surface sdl2-ffi:sdl-surface :pixels))
 ;; 	 )
 ;;     (declare (ignore pitch)) ;; TODO

@@ -18,7 +18,13 @@
   (:use :cl
 	;; oooooh, only the EXTERNAL symbols get inherited!!
 	:kit.gl.shader
-	:kit.math))
+	:kit.math)
+  (:export :rectangle
+	   ;; wow, else we can't access the unqualified from other
+	   ;; packages like so (slot-value *rectangle* 'x1) ...
+	   :x1 :x2 :y1 :y2
+	                 
+	   :make-rectangle))
 
 (in-package :game-objects)
 
@@ -50,6 +56,8 @@
 		   :x2 (vec2+ position (vec2 width 0.0))
 		   :y1 (vec2+ position (vec2 0.0 height))
 		   :y2 (vec2+ position (vec2 width height)))))
+
+
 
 
 (defvar *default-ffi-positions*

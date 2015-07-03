@@ -11,7 +11,8 @@
 	:sdl2.kit
 	:kit.gl.shader
 	:kit.math
-	:opticl)
+	:opticl
+	:game-objects)
   (:export
    #:game-window))
 
