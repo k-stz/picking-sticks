@@ -36,8 +36,28 @@
    (ffi-array)))
 
 
-(defvar *recs* nil)
+;; hash so we can querry (gethash :hero *dynamic-rectangles)
+(defvar *dynamic-rectangles* (make-hash-table)
+  "Rectangles that change often, like game objects and animations")
+(defvar *static-rectangles* (make-hash-table)
+  "Rectangles usually don't change, like background and solid scenery")
 
+(defun print-rectangles (rectangle-hash-map)
+  (maphash #'(lambda (k v) (format t "~&key:~a value:~a~%" k v))
+	   rectangle-hash-map))
+
+(defun add-rectangle-as (name rectangle &key (as :dynamic))
+  ;; give good feedback in case of error
+  (let ((rectangles-container
+	 (case as
+	   (:dynamic *dynamic-rectangles*)
+	   (:static *static-rectangles*)
+	   (t (error "Instead of: ~a, please provide either :dynamic or :static" as)))))
+    (setf (gethash name rectangles-container) rectangle)))
+
+
+
+;; TODO: give nice print representation
 (defclass rectangle ()
   ((x1 :initarg :x1 :type vec2)
    (x2 :initarg :x2 :type vec2)
@@ -45,17 +65,19 @@
    (y2 :initarg :y2 :type vec2)))
 
 (defun make-rectangle (&optional
-			 (position (vec2 0.0 0.0))
+			 (x 0.0)
+			 (y 0.0)
 			 (width 1.0)
 			 (height 1.0))
-  (macrolet ((vec2+ (v1 v2)
-	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
-		     (+ (aref ,v1 1) (aref ,v2 1)))))
-    (make-instance 'rectangle
-		   :x1 position
-		   :x2 (vec2+ position (vec2 width 0.0))
-		   :y1 (vec2+ position (vec2 0.0 height))
-		   :y2 (vec2+ position (vec2 width height)))))
+  (let ((position (vec2 x y)))
+    (macrolet ((vec2+ (v1 v2)
+		 `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
+			(+ (aref ,v1 1) (aref ,v2 1)))))
+      (make-instance 'rectangle
+		     :x1 position
+		     :x2 (vec2+ position (vec2 width 0.0))
+		     :y1 (vec2+ position (vec2 0.0 height))
+		     :y2 (vec2+ position (vec2 width height))))))
 
 
 
