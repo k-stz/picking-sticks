@@ -37,6 +37,12 @@
 
 
 ;; hash so we can querry (gethash :hero *dynamic-rectangles)
+;; TODO: downside transition from hashtable to ffi-array
+;;       workaround: store as array, and create a hashtable to associate name with index:
+;;       (aref *dynamics-array* (gethash 'name *hash*)) ;<- abstracted away
+;;       This sounds so general I bet there must be a solution out there already
+;;       but this is premature optimization, MAPHASH shall suffice for now to get the values
+;; CLRHASH to clear the hashtable!
 (defvar *dynamic-rectangles* (make-hash-table)
   "Rectangles that change often, like game objects and animations")
 (defvar *static-rectangles* (make-hash-table)
@@ -47,12 +53,14 @@
 	   rectangle-hash-map))
 
 (defun add-rectangle-as (name rectangle &key (as :dynamic))
-  ;; give good feedback in case of error
   (let ((rectangles-container
-	 (case as
+	 (ecase as
 	   (:dynamic *dynamic-rectangles*)
-	   (:static *static-rectangles*)
-	   (t (error "Instead of: ~a, please provide either :dynamic or :static" as)))))
+	   (:static *static-rectangles*))))
+    (multiple-value-bind (value set?) (gethash name rectangles-container)
+      (declare (ignore value))
+      (when set?
+	(warn "The value under key: ~a was already set." name)))
     (setf (gethash name rectangles-container) rectangle)))
 
 
@@ -63,6 +71,14 @@
    (x2 :initarg :x2 :type vec2)
    (y1 :initarg :y1 :type vec2)
    (y2 :initarg :y2 :type vec2)))
+
+
+(defun rectangle->verts (rectangle)
+  (with-slots (x1 x2 y1 y2) rectangle
+    ;; this is where the lowlevel texture mapping shows possible optimization: build
+    ;; index-buffer-objects each time, to only need 4 verts instead of one?
+      (list y1 x2 x1
+	    x1 y1 y2)))
 
 (defun make-rectangle (&optional
 			 (x 0.0)
