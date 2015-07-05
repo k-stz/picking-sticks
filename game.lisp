@@ -181,6 +181,7 @@
 ;;VAO setup.....................................................................
 
 (defvar *vao* 0)
+(defvar *vbo* 0)
 
 (defun initialize-vao ()
   (let ((vao (first (gl:gen-vertex-arrays 1)))
@@ -220,6 +221,8 @@
     (%gl:buffer-data :element-array-buffer (* 2 36) *cube-indices* :static-draw)
 
     (gl:bind-vertex-array 0)
+    (gl:bind-buffer :array-buffer 0)
+    (setf *vbo* vbo)
     (setf *vao* vao)))
 
 ;;utils-------------------------------------------------------------------------
@@ -270,6 +273,11 @@
   (initialize-program)
   (initialize-vao)
 
+  ;; EXPERIMENTS
+  (game-objects::initialize-rectangle-vao)
+  ;; /EXPERIMETNS
+  
+  
   ;;texture
   ;; here we associate the uniform sample with the texture image unit
   (use-program *programs-dict* :basic-projection)
@@ -595,6 +603,7 @@
 
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)
+  (gl:bind-buffer :array-buffer *vbo*)
   (use-program *programs-dict* :basic-projection)
   ;; all the neat transformations take place here
   (uniform :mat :model-to-clip
@@ -629,8 +638,34 @@
   (%gl:bind-sampler *tex-unit* 0)
   (%gl:bind-texture :texture-2d 0)
   (gl:bind-vertex-array 0)
+  (gl:bind-buffer :array-buffer 0)
   (use-program *programs-dict* 0))
 
+
+(defun draw-rectangles ()
+  (gl:bind-vertex-array game-objects::*vao*)
+  (gl:bind-buffer :array-buffer game-objects::*vbo*)
+  (use-program *programs-dict* :basic-projection)
+
+  (uniform :mat :model-to-clip
+	   (vector
+	    (sb-cga:matrix*
+	     (sb-cga:translate (vec3 0.0 0.0 *zoom-z*))
+	     (sb-cga:rotate (vec3 *rotate-x* *rotate-y* 0.0))
+	     ;;(sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0))
+	     )))
+  ;; projection matrix
+  (uniform :mat :perspective-matrix
+	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))
+
+
+  (game-objects::update-rectangle-vao)
+  (%gl:draw-arrays :points 0 30)
+
+
+  (gl:bind-vertex-array 0)
+  (gl:bind-buffer :array-buffer 0)
+  (use-program *programs-dict* 0))
 
 (defmethod render ((window game-window))
   
@@ -641,6 +676,8 @@
   (gl:clear :color-buffer)
 
   (draw-cube)
+
+  (draw-rectangles)
 
   (display-fps window)
   (framelimit window 60))

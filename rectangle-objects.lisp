@@ -23,7 +23,6 @@
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
 	   :x1 :x2 :y1 :y2
-	                 
 	   :make-rectangle))
 
 (in-package :game-objects)
@@ -60,25 +59,19 @@
     (multiple-value-bind (value set?) (gethash name rectangles-container)
       (declare (ignore value))
       (when set?
-	(warn "The value under key: ~a was already set." name)))
+	(warn "The value under key: ~a was already set and has been now overwritten." name)))
     (setf (gethash name rectangles-container) rectangle)))
 
 
 
 ;; TODO: give nice print representation
 (defclass rectangle ()
+  ;; TODO: instead of vec2 provide as seperate x1-x x1-y ? So that
+  ;;       transforming into 1d-array is easier (to pass into foreign-array)
   ((x1 :initarg :x1 :type vec2)
    (x2 :initarg :x2 :type vec2)
    (y1 :initarg :y1 :type vec2)
    (y2 :initarg :y2 :type vec2)))
-
-
-(defun rectangle->verts (rectangle)
-  (with-slots (x1 x2 y1 y2) rectangle
-    ;; this is where the lowlevel texture mapping shows possible optimization: build
-    ;; index-buffer-objects each time, to only need 4 verts instead of one?
-      (list y1 x2 x1
-	    x1 y1 y2)))
 
 (defun make-rectangle (&optional
 			 (x 0.0)
@@ -96,7 +89,52 @@
 		     :y2 (vec2+ position (vec2 width height))))))
 
 
+(defun rectangle->verts (rectangle)
+  (with-slots (x1 x2 y1 y2) rectangle
+    (concatenate 'vector y1 x2 x1
+	  x1 y1 y2)))
 
+
+
+(defun rectangle-hash->vector (rectangle-hash)
+  (apply 'concatenate 'vector
+	 (loop for name being the hash-keys in rectangle-hash using (hash-value rectangle)
+	    collect (rectangle->verts rectangle))))
+
+(defvar *vao*)
+(defvar *vbo*)
+
+
+(defun initialize-rectangle-vao ()
+  (let ((vao (first (gl:gen-vertex-arrays 1)))
+	(vbo (first (gl:gen-buffers 1))))
+    (gl:bind-vertex-array vao)
+    ;;VBO
+    (gl:bind-buffer :array-buffer vbo)
+    (%gl:enable-vertex-attrib-array 0)
+    (%gl:vertex-attrib-pointer 0 2 :float :false 0 0)
+
+    (gl:bind-vertex-array 0)
+    (gl:bind-buffer :array-buffer 0)
+    (setf *vao* vao)
+    (setf *vbo* vbo)))
+
+
+
+
+(defun update-rectangle-vao ()
+  (let* ((dynamic-verts
+	 (rectangle-hash->vector *dynamic-rectangles*))
+	 (ffi-array (cffi:foreign-alloc :float
+					:initial-contents dynamic-verts)))
+    (gl:bind-vertex-array *vao*)
+    (gl:bind-buffer :array-buffer *vbo*)
+    
+    (%gl:buffer-data :array-buffer (* 4 (length dynamic-verts)) ffi-array :static-draw)
+    (cffi-sys:foreign-free ffi-array)
+
+    (gl:bind-vertex-array 0)
+    (gl:bind-buffer :array-buffer 0)))
 
 (defvar *default-ffi-positions*
   (cffi:foreign-alloc :float :initial-contents
