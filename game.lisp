@@ -148,10 +148,15 @@
     ;; source code
     (shader matrix-perspective-v :vertex-shader (:file "transform-and-project.vert"))
     (shader texture-f :fragment-shader (:file "2d-texture.frag"))
+    (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
+    (shader color-pass-through-f :fragment-shader (:file "color-pass-through.frag"))
     ;; here we compose the shaders into programs, in this case just one ":basic-projection"
     (program :basic-projection (:model-to-clip :perspective-matrix :test-texture) ;<- UNIFORMS!
 	     (:vertex-shader matrix-perspective-v)
-	     (:fragment-shader texture-f)))
+	     (:fragment-shader texture-f))
+    (program :passthrough ()
+	     (:vertex-shader pass-through-v)
+	     (:fragment-shader color-pass-through-f)))
   ;; function may only run when a gl-context exists, as its documentation
   ;; mentions
   (compile-shader-dictionary 'shaders))
@@ -271,7 +276,7 @@
   (gl:front-face :cw)
 
   (initialize-program)
-  (initialize-vao)
+  ;; (initialize-vao)
 
   ;; EXPERIMENTS
   (game-objects::initialize-rectangle-vao)
@@ -645,23 +650,13 @@
 (defun draw-rectangles ()
   (gl:bind-vertex-array game-objects::*vao*)
   (gl:bind-buffer :array-buffer game-objects::*vbo*)
-  (use-program *programs-dict* :basic-projection)
-
-  (uniform :mat :model-to-clip
-	   (vector
-	    (sb-cga:matrix*
-	     (sb-cga:translate (vec3 0.0 0.0 *zoom-z*))
-	     (sb-cga:rotate (vec3 *rotate-x* *rotate-y* 0.0))
-	     ;;(sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0))
-	     )))
-  ;; projection matrix
-  (uniform :mat :perspective-matrix
-	   (vector (perspective-matrix (* pi 1/3) 1/1 0.0 1000.0)))
+  (use-program *programs-dict* :passthrough)
 
 
+
+  (%gl:draw-arrays :triangles 0 11)
+  ;; very strange, why when I put this here it works, but not before the DRAW-* call??
   (game-objects::update-rectangle-vao)
-  (%gl:draw-arrays :points 0 30)
-
 
   (gl:bind-vertex-array 0)
   (gl:bind-buffer :array-buffer 0)
@@ -675,7 +670,7 @@
   ;; after RENDER.
   (gl:clear :color-buffer)
 
-  (draw-cube)
+;  (draw-cube)
 
   (draw-rectangles)
 

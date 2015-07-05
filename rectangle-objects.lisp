@@ -91,7 +91,7 @@
 
 (defun rectangle->verts (rectangle)
   (with-slots (x1 x2 y1 y2) rectangle
-    (concatenate 'vector y1 x2 x1
+    (concatenate 'vector y2 x2 x1
 	  x1 y1 y2)))
 
 
@@ -111,6 +111,11 @@
     (gl:bind-vertex-array vao)
     ;;VBO
     (gl:bind-buffer :array-buffer vbo)
+
+    (let ((ffi-array (cffi:foreign-alloc :float :initial-contents '(0.0 0.0 0.0 0.5 0.5 0.5))))
+      (%gl:buffer-data :array-buffer 48 ffi-array :dynamic-draw)
+      (cffi-sys:foreign-free ffi-array))
+    
     (%gl:enable-vertex-attrib-array 0)
     (%gl:vertex-attrib-pointer 0 2 :float :false 0 0)
 
@@ -127,10 +132,12 @@
 	 (rectangle-hash->vector *dynamic-rectangles*))
 	 (ffi-array (cffi:foreign-alloc :float
 					:initial-contents dynamic-verts)))
+
     (gl:bind-vertex-array *vao*)
     (gl:bind-buffer :array-buffer *vbo*)
+
     
-    (%gl:buffer-data :array-buffer (* 4 (length dynamic-verts)) ffi-array :static-draw)
+    (%gl:buffer-sub-data :array-buffer 0 (* 4 (length dynamic-verts)) ffi-array)
     (cffi-sys:foreign-free ffi-array)
 
     (gl:bind-vertex-array 0)
