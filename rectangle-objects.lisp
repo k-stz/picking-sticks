@@ -101,6 +101,8 @@
 	 (loop for name being the hash-keys in rectangle-hash using (hash-value rectangle)
 	    collect (rectangle->verts rectangle))))
 
+;(defun move (rectangle))
+
 (defvar *vao*)
 (defvar *vbo*)
 
@@ -137,7 +139,7 @@
     (gl:bind-buffer :array-buffer *vbo*)
 
     
-    (%gl:buffer-sub-data :array-buffer 0 (* 4 (length dynamic-verts)) ffi-array)
+    (%gl:buffer-data :array-buffer (* 4 (length dynamic-verts)) ffi-array :static-draw)
     (cffi-sys:foreign-free ffi-array)
 
     (gl:bind-vertex-array 0)

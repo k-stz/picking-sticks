@@ -12,7 +12,8 @@
 	:kit.gl.shader
 	:kit.math
 	:opticl
-	:game-objects)
+	:game-objects
+	:gl-utils)
   (:export
    #:game-window))
 
@@ -648,18 +649,19 @@
 
 
 (defun draw-rectangles ()
-  (gl:bind-vertex-array game-objects::*vao*)
-  (gl:bind-buffer :array-buffer game-objects::*vbo*)
-  (use-program *programs-dict* :passthrough)
+  (game-objects::update-rectangle-vao)
 
+  (gl:bind-vertex-array game-objects::*vao*)
+;  (gl:bind-buffer :array-buffer game-objects::*vbo*)
+  (use-program *programs-dict* :passthrough)
 
 
   (%gl:draw-arrays :triangles 0 11)
   ;; very strange, why when I put this here it works, but not before the DRAW-* call??
-  (game-objects::update-rectangle-vao)
+
 
   (gl:bind-vertex-array 0)
-  (gl:bind-buffer :array-buffer 0)
+;  (gl:bind-buffer :array-buffer 0)
   (use-program *programs-dict* 0))
 
 (defmethod render ((window game-window))

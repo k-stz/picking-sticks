@@ -6,5 +6,6 @@
   :author "k-stz"
   :license "MIT"
   :serial t
-  :components ((:file "rectangle-objects")
+  :components ((:file "gl-utils")
+	       (:file "rectangle-objects")
 	       (:file "game")))
