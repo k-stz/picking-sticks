@@ -15,7 +15,8 @@
 	:game-objects
 	:gl-utils)
   (:export
-   #:game-window))
+   #:main
+   #:*game-window*))
 
 (in-package :game)
 
@@ -65,6 +66,10 @@
    (one-frame-time :initform (get-internal-real-time))
    (frames :initform 0)))
 
+(defvar *game-window*)
+
+(defun main ()
+  (setf *game-window* (make-instance 'game-window)))
 
 
 
@@ -269,7 +274,8 @@
   (setf (idle-render w) t)
   (gl:clear-color 0 0 0.5 1)
   (gl:clear :color-buffer-bit)
-  (gl:viewport 0 0 800 600)
+  (multiple-value-bind (width height) (window-size w)
+    (gl:viewport 0 0 width height))
 
   ;; with culling
   (gl:enable :cull-face)
@@ -277,7 +283,7 @@
   (gl:front-face :cw)
 
   (initialize-program)
-  ;; (initialize-vao)
+  (initialize-vao)
 
   ;; EXPERIMENTS
   (game-objects::initialize-rectangle-vao)
@@ -652,11 +658,11 @@
   (game-objects::update-rectangle-vao)
 
   (gl:bind-vertex-array game-objects::*vao*)
-;  (gl:bind-buffer :array-buffer game-objects::*vbo*)
   (use-program *programs-dict* :passthrough)
 
 
-  (%gl:draw-arrays :triangles 0 11)
+  ;; TODO: apply draw range
+  (game-objects::draw-rectangles)
   ;; very strange, why when I put this here it works, but not before the DRAW-* call??
 
 
@@ -666,13 +672,12 @@
 
 (defmethod render ((window game-window))
   
-  ;(error "bzzt")
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
   (gl:clear :color-buffer)
 
-;  (draw-cube)
+  (draw-cube)
 
   (draw-rectangles)
 

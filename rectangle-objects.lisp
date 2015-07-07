@@ -44,6 +44,8 @@
 ;; CLRHASH to clear the hashtable!
 (defvar *dynamic-rectangles* (make-hash-table)
   "Rectangles that change often, like game objects and animations")
+
+;; TODO: not used yet
 (defvar *static-rectangles* (make-hash-table)
   "Rectangles usually don't change, like background and solid scenery")
 
@@ -144,6 +146,11 @@
 
     (gl:bind-vertex-array 0)
     (gl:bind-buffer :array-buffer 0)))
+
+
+(defun draw-rectangles ()
+  (let ((dynamic-rectangle-size (* 6 (hash-table-count *dynamic-rectangles*))))
+    (%gl:draw-arrays :triangles 0 dynamic-rectangle-size)))
 
 (defvar *default-ffi-positions*
   (cffi:foreign-alloc :float :initial-contents
