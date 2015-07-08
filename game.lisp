@@ -164,7 +164,7 @@
     (program :passthrough ()
 	     (:vertex-shader pass-through-v)
 	     (:fragment-shader color-pass-through-f))
-    (program :pixel-orthogonal ()
+    (program :pixel-orthogonal (:window-width :window-height)
 	     (:vertex-shader pixel-orthogonal-v)
 	     (:fragment-shader color-pass-through-f)))
   ;; function may only run when a gl-context exists, as its documentation
@@ -269,6 +269,17 @@
 (defvar *tex-unit-1* 1)
 (defvar *tex-unit-2* 2)
 
+(defun rectangle-program-pixel-transfer (game-window)
+  ;; here we pass the window width height to the shader, so it has
+  ;; all the data needed to translate the pixel rectangle properly
+  (multiple-value-bind (width height) (window-size game-window)
+
+    (use-program *programs-dict* :pixel-orthogonal)
+    (uniform :int :window-width width)
+    (uniform :int :window-height height)
+    (use-program *programs-dict* 0)))
+
+
 (defmethod initialize-instance :after ((w game-window) &key &allow-other-keys)
   ;; GL setup can go here; your GL context is automatically active,
   ;; and this is done in the main thread.
@@ -289,10 +300,12 @@
   (initialize-program)
   (initialize-vao)
 
+
   ;; EXPERIMENTS
   (game-objects::initialize-rectangle-vao)
+  (rectangle-program-pixel-transfer w)
   ;; /EXPERIMETNS
-  
+
   
   ;;texture
   ;; here we associate the uniform sample with the texture image unit
@@ -305,7 +318,7 @@
   ;; TODO: clean this up and do the tests
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an OS issue
-  ; (sdl2:gl-set-swap-interval 1)
+					; (sdl2:gl-set-swap-interval 1)
   )
 
 

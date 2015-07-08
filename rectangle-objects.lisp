@@ -45,6 +45,10 @@
 (defvar *dynamic-rectangles* (make-hash-table)
   "Rectangles that change often, like game objects and animations")
 
+;; TODO: remove this test data
+(when (< (hash-table-count *dynamic-rectangles*) 1)
+  (add-rectangle-as :hero (make-rectangle)))
+
 ;; TODO: not used yet
 (defvar *static-rectangles* (make-hash-table)
   "Rectangles usually don't change, like background and solid scenery")
@@ -124,8 +128,6 @@
     (gl:bind-buffer :array-buffer 0)
     (setf *vao* vao)
     (setf *vbo* vbo)))
-
-
 
 
 (defun update-rectangle-vao ()
