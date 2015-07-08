@@ -156,12 +156,16 @@
     (shader texture-f :fragment-shader (:file "2d-texture.frag"))
     (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
     (shader color-pass-through-f :fragment-shader (:file "color-pass-through.frag"))
+    (shader pixel-orthogonal-v :vertex-shader (:file "pixel-orthogonal.vert"))
     ;; here we compose the shaders into programs, in this case just one ":basic-projection"
     (program :basic-projection (:model-to-clip :perspective-matrix :test-texture) ;<- UNIFORMS!
 	     (:vertex-shader matrix-perspective-v)
 	     (:fragment-shader texture-f))
     (program :passthrough ()
 	     (:vertex-shader pass-through-v)
+	     (:fragment-shader color-pass-through-f))
+    (program :pixel-orthogonal ()
+	     (:vertex-shader pixel-orthogonal-v)
 	     (:fragment-shader color-pass-through-f)))
   ;; function may only run when a gl-context exists, as its documentation
   ;; mentions
@@ -643,9 +647,7 @@
 
   (update-texture)
 
-  ;; (%gl:draw-elements :triangles (* 36 2) :unsigned-short 0)
   (%gl:draw-arrays :triangles 0 (* 2 36))
-
 
   (%gl:bind-sampler *tex-unit* 0)
   (%gl:bind-texture :texture-2d 0)
@@ -658,7 +660,7 @@
   (game-objects::update-rectangle-vao)
 
   (gl:bind-vertex-array game-objects::*vao*)
-  (use-program *programs-dict* :passthrough)
+  (use-program *programs-dict* :pixel-orthogonal)
 
 
   ;; TODO: apply draw range

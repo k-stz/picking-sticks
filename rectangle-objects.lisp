@@ -113,13 +113,10 @@
   (let ((vao (first (gl:gen-vertex-arrays 1)))
 	(vbo (first (gl:gen-buffers 1))))
     (gl:bind-vertex-array vao)
-    ;;VBO
+    ;;VBO yes, this is necessary, because it associates the vbo
+    ;;with the vao
     (gl:bind-buffer :array-buffer vbo)
 
-    (let ((ffi-array (cffi:foreign-alloc :float :initial-contents '(0.0 0.0 0.0 0.5 0.5 0.5))))
-      (%gl:buffer-data :array-buffer 48 ffi-array :dynamic-draw)
-      (cffi-sys:foreign-free ffi-array))
-    
     (%gl:enable-vertex-attrib-array 0)
     (%gl:vertex-attrib-pointer 0 2 :float :false 0 0)
 
@@ -133,12 +130,13 @@
 
 (defun update-rectangle-vao ()
   (let* ((dynamic-verts
-	 (rectangle-hash->vector *dynamic-rectangles*))
+	  (rectangle-hash->vector *dynamic-rectangles*))
 	 (ffi-array (cffi:foreign-alloc :float
 					:initial-contents dynamic-verts)))
 
     (gl:bind-vertex-array *vao*)
     (gl:bind-buffer :array-buffer *vbo*)
+
 
     
     (%gl:buffer-data :array-buffer (* 4 (length dynamic-verts)) ffi-array :static-draw)
