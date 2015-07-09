@@ -45,9 +45,6 @@
 (defvar *dynamic-rectangles* (make-hash-table)
   "Rectangles that change often, like game objects and animations")
 
-;; TODO: remove this test data
-(when (< (hash-table-count *dynamic-rectangles*) 1)
-  (add-rectangle-as :hero (make-rectangle)))
 
 ;; TODO: not used yet
 (defvar *static-rectangles* (make-hash-table)
@@ -82,8 +79,8 @@
 (defun make-rectangle (&optional
 			 (x 0.0)
 			 (y 0.0)
-			 (width 1.0)
-			 (height 1.0))
+			 (width 100.0)
+			 (height 100.0))
   (let ((position (vec2 x y)))
     (macrolet ((vec2+ (v1 v2)
 		 `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
@@ -134,11 +131,15 @@
   (let* ((dynamic-verts
 	  (rectangle-hash->vector *dynamic-rectangles*))
 	 (ffi-array (cffi:foreign-alloc :float
-					:initial-contents dynamic-verts)))
+					:initial-contents ;dynamic-verts
+					#(100.0 100.0 100.0 0.0
+					  0.0 0.0 0.0 0.0
+					  0.0 100.0 100.0 100.0) 
+					)))
+
 
     (gl:bind-vertex-array *vao*)
     (gl:bind-buffer :array-buffer *vbo*)
-
 
     
     (%gl:buffer-data :array-buffer (* 4 (length dynamic-verts)) ffi-array :static-draw)
@@ -189,3 +190,6 @@
 ;;     (gl:bind-vertex-array 0)
 ;;     (values vao vbo)))
 
+;; TODO: remove this test data
+(when (< (hash-table-count *dynamic-rectangles*) 1)
+  (add-rectangle-as :hero (make-rectangle)))

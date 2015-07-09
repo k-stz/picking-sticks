@@ -1,6 +1,7 @@
 (defpackage :gl-utils
   (:use :cl)
-  (:export :with-vao))
+  (:export :with-vao
+	   :with-program))
 
 (in-package :gl-utils)
 
@@ -12,3 +13,8 @@
   `(progn (gl:bind-vertex-array ,vao)
 	  ,@body
 	  (gl:bind-vertex-array 0)))
+
+(defmacro with-program (program-dict program-name &body body)
+  `(progn (kit.gl.shader:use-program ,program-dict ,program-name)
+	  ,@body
+	  (kit.gl.shader:use-program ,program-dict 0)))

@@ -171,11 +171,6 @@
   ;; mentions
   (compile-shader-dictionary 'shaders))
 
-(defvar *programs-dict*)
-
-(defun initialize-program ()
-  (setf *programs-dict* (load-shaders)))
-
 ;; to be understood while reading the LOAD-SHADER function
 ;; example: (uniform :vec :<name-of-uniform> <new-value>)
 (defgeneric uniform (type key value)
@@ -192,6 +187,11 @@
   (:method ((type (eql :int)) key value)
     (uniformi *programs-dict* key value)))
 
+
+(defvar *programs-dict*)
+
+(defun initialize-program ()
+  (setf *programs-dict* (load-shaders)))
 
 ;;VAO setup.....................................................................
 
@@ -731,9 +731,11 @@
   (format t "~A button: ~A at ~A, ~A~%" state b x y))
 
 (defmethod mousemotion-event ((window game-window) ts mask x y xr yr)
+  ;; TODO reverse x y position for more intuitve cartesian, bottom left, orientation
   (flet ((left-mouse-button-clicked-p ()
 	   (= mask 1)))
     ;; rotate x, y axis
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0)))))
+
