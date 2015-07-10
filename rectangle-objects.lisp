@@ -65,12 +65,12 @@
   (clrhash (the-table seq-hash-table)))
 
 
-(defmacro do-seq-hash ((var seq-hash &optional result) &body body &environment env)
+(defmacro do-seq-hash ((value key seq-hash &optional result) &body body &environment env)
   "Like DOLIST but iterates over a sequential-hash-table object."
   (declare (ignore env))
   `(let ((keys-array (keys-in-order ,seq-hash)))
-     (loop for key across keys-array 
-	for ,var = (gethash key (the-table ,seq-hash)) do
+     (loop for ,key across keys-array 
+	for ,value = (gethash ,key (the-table ,seq-hash)) do
 	  ,@body)
      ,result))
 
@@ -96,6 +96,11 @@
     (loop for keys-index below (length keys-array) do
 	 (format t "~&key:~a value:~a~%" (aref keys-array keys-index)
 		 (gethash (aref keys-array keys-index) hash-table)))))
+
+
+(defun new-print-rectangles (rectangle-hash-map)
+  (do-seq-hash (rectangle key rectangle-hash-map)
+    (format t "~&key:~a value:~a~%" key rectangle)))
 
 (defun add-rectangle-as (name rectangle &key (as :dynamic))
   (let* ((seq-hash-table
