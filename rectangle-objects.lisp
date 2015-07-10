@@ -131,11 +131,7 @@
   (let* ((dynamic-verts
 	  (rectangle-hash->vector *dynamic-rectangles*))
 	 (ffi-array (cffi:foreign-alloc :float
-					:initial-contents ;dynamic-verts
-					#(100.0 100.0 100.0 0.0
-					  0.0 0.0 0.0 0.0
-					  0.0 100.0 100.0 100.0) 
-					)))
+					:initial-contents dynamic-verts)))
 
 
     (gl:bind-vertex-array *vao*)

@@ -64,7 +64,9 @@
 (defclass game-window (kit.sdl2:gl-window)
   ((start-time :initform (get-internal-real-time))
    (one-frame-time :initform (get-internal-real-time))
-   (frames :initform 0)))
+   (frames :initform 0)
+   (width :accessor window-width)
+   (height :accessor window-height)))
 
 (defvar *game-window*)
 
@@ -272,15 +274,18 @@
 (defun rectangle-program-pixel-transfer (game-window)
   ;; here we pass the window width height to the shader, so it has
   ;; all the data needed to translate the pixel rectangle properly
-  (multiple-value-bind (width height) (window-size game-window)
-
-    (use-program *programs-dict* :pixel-orthogonal)
-    (uniform :int :window-width width)
-    (uniform :int :window-height height)
-    (use-program *programs-dict* 0)))
+  (use-program *programs-dict* :pixel-orthogonal)
+  (uniform :int :window-width (window-width game-window))
+  (uniform :int :window-height (window-height game-window))
+  (use-program *programs-dict* 0))
 
 
 (defmethod initialize-instance :after ((w game-window) &key &allow-other-keys)
+  (multiple-value-bind (width height) (window-size w)
+    (setf (window-width w) width
+	  (window-height w) height))
+
+  
   ;; GL setup can go here; your GL context is automatically active,
   ;; and this is done in the main thread.
 
@@ -289,8 +294,7 @@
   (setf (idle-render w) t)
   (gl:clear-color 0 0 0.5 1)
   (gl:clear :color-buffer-bit)
-  (multiple-value-bind (width height) (window-size w)
-    (gl:viewport 0 0 width height))
+  (gl:viewport 0 0 (window-width w) (window-height w))
 
   ;; with culling
   (gl:enable :cull-face)
@@ -711,31 +715,41 @@
   ;; prompt the user!
   (call-next-method))
 
+(defparameter *width-height* 2.0)
+
 (defmethod mousewheel-event ((window game-window) ts x y)
   ;; zoom in/out
-  (cond ((= y 1) (incf *zoom-z* 0.2))
-	((= y -1) (decf *zoom-z* 0.2)))
+  (cond ((= y 1) (incf *zoom-z* 0.2)
+	 (progn (incf *width-height* 1.0)))
+	((= y -1)
+	 (progn (decf *zoom-z* 0.2) (decf *width-height* 1.0))))
+  (when (< *width-height* 1.0)
+    (setf *width-height* 1.0))
   (render window))
 
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
     (when (eq :scancode-space scancode)
-      ;; (incf foo)
-      ;; (error "bzzt")
-      )
+      (clrhash game-objects::*dynamic-rectangles*))
     (when (eq :scancode-escape scancode)
       (close-window window))))
 
 (defmethod mousebutton-event ((window game-window) state ts b x y)
   (format t "~A button: ~A at ~A, ~A~%" state b x y))
 
+
+
+
 (defmethod mousemotion-event ((window game-window) ts mask x y xr yr)
   ;; TODO reverse x y position for more intuitve cartesian, bottom left, orientation
   (flet ((left-mouse-button-clicked-p ()
 	   (= mask 1)))
+    ;; TODO: allow with some keybinding
     ;; rotate x, y axis
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
-      (incf *rotate-x* (/ yr 100.0)))))
+      (incf *rotate-x* (/ yr 100.0))
+      (let* ((x (float x)) (y  (- (window-height window) (float y))))
+	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))))))
 
