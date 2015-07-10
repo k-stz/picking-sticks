@@ -61,8 +61,18 @@
 
 
 (defun clr-seq-hash (seq-hash-table)
-  (clrhash (the-table seq-hash-table))
-  (setf (keys-in-order seq-hash-table) (make-array 0 :fill-pointer t)))
+  (setf (keys-in-order seq-hash-table) (make-array 0 :fill-pointer t))
+  (clrhash (the-table seq-hash-table)))
+
+
+(defmacro do-seq-hash ((var seq-hash &optional result) &body body &environment env)
+  "Like DOLIST but iterates over a sequential-hash-table object."
+  (declare (ignore env))
+  `(let ((keys-array (keys-in-order ,seq-hash)))
+     (loop for key across keys-array 
+	for ,var = (gethash key (the-table ,seq-hash)) do
+	  ,@body)
+     ,result))
 
 
 ;; hash so we can querry (gethash :hero *dynamic-rectangles)
@@ -82,6 +92,7 @@
 (defun print-rectangles (rectangle-hash-map)
   (let ((keys-array (keys-in-order rectangle-hash-map))
 	(hash-table (the-table rectangle-hash-map)))
+    ;; TODO: use :across!
     (loop for keys-index below (length keys-array) do
 	 (format t "~&key:~a value:~a~%" (aref keys-array keys-index)
 		 (gethash (aref keys-array keys-index) hash-table)))))
@@ -135,8 +146,8 @@
 
 (defun rectangle-seq-hash->vector (rectangle-seq-hash)
   (apply 'concatenate 'vector
-	 (loop for name being the hash-keys in (the-table rectangle-seq-hash) using (hash-value rectangle)
-	    collect (rectangle->verts rectangle))))
+	 (loop for keys-index below (keys-in-order rectangle-seq-hash)
+	    collect) (rectangle->verts rectangle)))
 
 ;(defun move (rectangle))
 
