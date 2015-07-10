@@ -35,6 +35,36 @@
    (ffi-array)))
 
 
+;;Sequential HASH-TABLe---------------------------------------------------------
+
+;; why can't (class-of <hash-table>) be the superclass?
+;; This provides a hash-table where the order in of the keys is specified. This is needed
+;; for associating other data with the rectangles that will be stored here (e.g. textures)
+(defclass sequential-hash-table ()
+  ((hash-table :initform (make-hash-table) :accessor the-table)
+   (keys-in-order :initform (make-array 0 :fill-pointer t) :accessor keys-in-order)))
+
+
+(defun make-seq-hash-table ()
+  (make-instance 'sequential-hash-table))
+
+;; it looks like a hash-table, this might be coutner-intuitive as GETHASH, CLRHASH etc. don't work
+(defmethod print-object ((s sequential-hash-table) stream)
+  (declare (type stream stream))
+  (let ((hash-table (the-table s)))
+    (cond ((or (not *print-readably*) (not *read-eval*))
+	   (print-unreadable-object (s stream :type t :identity t)
+	     (format stream
+		     ":TEST ~S :COUNT ~S"
+		     (hash-table-test hash-table)
+		     (hash-table-count hash-table)))))))
+
+
+(defun clr-seq-hash (seq-hash-table)
+  (clrhash (the-table seq-hash-table))
+  (setf (keys-in-order seq-hash-table) (make-array 0 :fill-pointer t)))
+
+
 ;; hash so we can querry (gethash :hero *dynamic-rectangles)
 ;; TODO: downside transition from hashtable to ffi-array
 ;;       workaround: store as array, and create a hashtable to associate name with index:
@@ -42,27 +72,31 @@
 ;;       This sounds so general I bet there must be a solution out there already
 ;;       but this is premature optimization, MAPHASH shall suffice for now to get the values
 ;; CLRHASH to clear the hashtable!
-(defvar *dynamic-rectangles* (make-hash-table)
+(defvar *dynamic-rectangles* (make-seq-hash-table)
   "Rectangles that change often, like game objects and animations")
 
-
 ;; TODO: not used yet
-(defvar *static-rectangles* (make-hash-table)
+(defvar *static-rectangles* (make-seq-hash-table)
   "Rectangles usually don't change, like background and solid scenery")
 
 (defun print-rectangles (rectangle-hash-map)
-  (maphash #'(lambda (k v) (format t "~&key:~a value:~a~%" k v))
-	   rectangle-hash-map))
+  (let ((keys-array (keys-in-order rectangle-hash-map))
+	(hash-table (the-table rectangle-hash-map)))
+    (loop for keys-index below (length keys-array) do
+	 (format t "~&key:~a value:~a~%" (aref keys-array keys-index)
+		 (gethash (aref keys-array keys-index) hash-table)))))
 
 (defun add-rectangle-as (name rectangle &key (as :dynamic))
-  (let ((rectangles-container
+  (let* ((seq-hash-table
 	 (ecase as
 	   (:dynamic *dynamic-rectangles*)
-	   (:static *static-rectangles*))))
+	   (:static *static-rectangles*)))
+	(rectangles-container (the-table seq-hash-table)))
     (multiple-value-bind (value set?) (gethash name rectangles-container)
       (declare (ignore value))
-      (when set?
-	(warn "The value under key: ~a was already set and has been now overwritten." name)))
+      (if set?
+	(warn "The value under key: ~a was already set and has been now overwritten." name)
+	(vector-push-extend name (keys-in-order seq-hash-table))))
     (setf (gethash name rectangles-container) rectangle)))
 
 
@@ -99,9 +133,9 @@
 
 
 
-(defun rectangle-hash->vector (rectangle-hash)
+(defun rectangle-seq-hash->vector (rectangle-seq-hash)
   (apply 'concatenate 'vector
-	 (loop for name being the hash-keys in rectangle-hash using (hash-value rectangle)
+	 (loop for name being the hash-keys in (the-table rectangle-seq-hash) using (hash-value rectangle)
 	    collect (rectangle->verts rectangle))))
 
 ;(defun move (rectangle))
@@ -129,7 +163,7 @@
 
 (defun update-rectangle-vao ()
   (let* ((dynamic-verts
-	  (rectangle-hash->vector *dynamic-rectangles*))
+	  (rectangle-seq-hash->vector *dynamic-rectangles*))
 	 (ffi-array (cffi:foreign-alloc :float
 					:initial-contents dynamic-verts)))
 
@@ -146,7 +180,7 @@
 
 
 (defun draw-rectangles ()
-  (let ((dynamic-rectangle-size (* 6 (hash-table-count *dynamic-rectangles*))))
+  (let ((dynamic-rectangle-size (* 6 (hash-table-count (the-table *dynamic-rectangles*)))))
     (%gl:draw-arrays :triangles 0 dynamic-rectangle-size)))
 
 (defvar *default-ffi-positions*
@@ -187,5 +221,5 @@
 ;;     (values vao vbo)))
 
 ;; TODO: remove this test data
-(when (< (hash-table-count *dynamic-rectangles*) 1)
+(when (< (hash-table-count (the-table *dynamic-rectangles*)) 1)
   (add-rectangle-as :hero (make-rectangle)))

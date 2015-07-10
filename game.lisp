@@ -731,7 +731,7 @@
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
     (when (eq :scancode-space scancode)
-      (clrhash game-objects::*dynamic-rectangles*))
+      (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
     (when (eq :scancode-escape scancode)
       (close-window window))))
 
