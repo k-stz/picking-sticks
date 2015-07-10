@@ -67,7 +67,7 @@
 
 (defmacro do-seq-hash ((value key seq-hash &optional result) &body body &environment env)
   "Like DOLIST but iterates over a sequential-hash-table object."
-  (declare (ignore env))
+  (declare (ignore env)) 
   `(let ((keys-array (keys-in-order ,seq-hash)))
      (loop for ,key across keys-array 
 	for ,value = (gethash ,key (the-table ,seq-hash)) do
@@ -151,8 +151,9 @@
 
 (defun rectangle-seq-hash->vector (rectangle-seq-hash)
   (apply 'concatenate 'vector
-	 (loop for keys-index below (keys-in-order rectangle-seq-hash)
-	    collect) (rectangle->verts rectangle)))
+	 (loop for key across (keys-in-order rectangle-seq-hash)
+	    collect (rectangle->verts
+		     (gethash key (the-table rectangle-seq-hash))))))
 
 ;(defun move (rectangle))
 
