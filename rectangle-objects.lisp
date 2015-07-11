@@ -41,8 +41,8 @@
 ;; This provides a hash-table where the order in of the keys is specified. This is needed
 ;; for associating other data with the rectangles that will be stored here (e.g. textures)
 (defclass sequential-hash-table ()
-  ((hash-table :initform (make-hash-table) :accessor the-table)
-   (keys-in-order :initform (make-array 0 :fill-pointer t) :accessor keys-in-order)))
+  ((hash-table :initform (make-hash-table) :reader the-table)
+   (keys-in-order :initform (make-array 0 :fill-pointer 0) :accessor keys-in-order)))
 
 
 (defun make-seq-hash-table ()
@@ -65,15 +65,27 @@
   (clrhash (the-table seq-hash-table)))
 
 
-(defmacro do-seq-hash ((value key seq-hash &optional result) &body body &environment env)
-  "Like DOLIST but iterates over a sequential-hash-table object."
-  (declare (ignore env)) 
-  `(let ((keys-array (keys-in-order ,seq-hash)))
-     (loop for ,key across keys-array 
-	for ,value = (gethash ,key (the-table ,seq-hash)) do
-	  ,@body)
-     ,result))
 
+;; TODO:
+;; > the-table/keys-in-order are also captured.. the rest are CL symbols
+;; 	 so who cares
+;; > assumes they are internal to the package that implements it, so also
+;;   who cares
+;; > the same would go for keys-array :)
+
+;;  &environment env "only needed for macroexpand, more useful in cltl2 conforming implementation
+;;  (like sbcl)
+(defmacro do-seq-hash ((key value seq-hash &optional result) &body body)
+  "Like DOLIST but iterates over a sequential-hash-table object."
+  ;; keys-array is capturable! remove the let, sine it is only needed once
+  `(call-do-seq-hash ,seq-hash (lambda (,key ,value) ,@body) ,result))
+
+
+(defun call-do-seq-hash (seq-hash function result)
+  (progn (loop for key across (keys-in-order seq-hash) 
+	     for value = (gethash key (the-table seq-hash)) do
+	       (funcall function key value))
+	  result))
 
 ;; hash so we can querry (gethash :hero *dynamic-rectangles)
 ;; TODO: downside transition from hashtable to ffi-array
@@ -90,12 +102,8 @@
   "Rectangles usually don't change, like background and solid scenery")
 
 (defun print-rectangles (rectangle-hash-map)
-  (let ((keys-array (keys-in-order rectangle-hash-map))
-	(hash-table (the-table rectangle-hash-map)))
-    ;; TODO: use :across!
-    (loop for keys-index below (length keys-array) do
-	 (format t "~&key:~a value:~a~%" (aref keys-array keys-index)
-		 (gethash (aref keys-array keys-index) hash-table)))))
+  (do-seq-hash (key value rectangle-hash-map)
+    (format t "~&key:~a value:~a~%" key value)))
 
 
 (defun new-print-rectangles (rectangle-hash-map)

@@ -701,7 +701,8 @@
   (draw-rectangles)
 
   (display-fps window)
-  (framelimit window 60))
+;  (framelimit window 60)
+  )
 
 
 
