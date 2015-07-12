@@ -159,6 +159,8 @@
     (shader pass-through-v :vertex-shader (:file "pass-through.vert"))
     (shader color-pass-through-f :fragment-shader (:file "color-pass-through.frag"))
     (shader pixel-orthogonal-v :vertex-shader (:file "pixel-orthogonal.vert"))
+    (shader 2d-rectangle-texture-f :fragment-shader (:file "2d-rectangle-texture.frag"))
+    
     ;; here we compose the shaders into programs, in this case just one ":basic-projection"
     (program :basic-projection (:model-to-clip :perspective-matrix :test-texture) ;<- UNIFORMS!
 	     (:vertex-shader matrix-perspective-v)
@@ -166,9 +168,9 @@
     (program :passthrough ()
 	     (:vertex-shader pass-through-v)
 	     (:fragment-shader color-pass-through-f))
-    (program :pixel-orthogonal (:window-width :window-height)
+    (program :pixel-orthogonal (:window-width :window-height :rectangle-texture)
 	     (:vertex-shader pixel-orthogonal-v)
-	     (:fragment-shader color-pass-through-f)))
+	     (:fragment-shader 2d-rectangle-texture-f)))
   ;; function may only run when a gl-context exists, as its documentation
   ;; mentions
   (compile-shader-dictionary 'shaders))
@@ -272,7 +274,7 @@
 (defvar *tex-unit-2* 2)
 
 (defun rectangle-program-pixel-transfer (game-window)
-  ;; here we pass the window width height to the shader, so it has
+  ;; here we pass the window width and height to the shader, so it has
   ;; all the data needed to translate the pixel rectangle properly
   (use-program *programs-dict* :pixel-orthogonal)
   (uniform :int :window-width (window-width game-window))
@@ -307,7 +309,13 @@
 
   ;; EXPERIMENTS
   (game-objects::initialize-rectangle-vao)
+  (game-objects::create-rectangle-texture)
   (rectangle-program-pixel-transfer w)
+  ;; texture
+  (use-program *programs-dict* :pixel-orthogonal)
+  (uniform :int :rectangle-texture game-objects::*tex-unit*) ; = glUniform1i(<location>, <texture-image-unit>);
+  (use-program *programs-dict* 0)
+  
   ;; /EXPERIMETNS
 
   
@@ -554,7 +562,7 @@
     (gl:sampler-parameter *sampler* :texture-min-filter :nearest)
 
 
-    ;; :texture-wrap-s tells opengl that texture coordinates should be clampled to the
+    ;; :texture-wrap-s tells opengl that texture coordinates should be clamped to the
     ;; range of the texture. Big peculiarity the "-s" at the end actually refers to the
     ;; first component of the texture, (stpq)
     (gl:sampler-parameter *sampler* :texture-wrap-s :repeat) ;; change to repeat
@@ -567,7 +575,6 @@
     ;; with UBO we do this with a slot in the context, the so called:
     ;; _/texture image unit/_
     ;; we associated
-
 
     (setf *texture* m-texture)))
 

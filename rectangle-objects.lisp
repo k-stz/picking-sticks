@@ -218,33 +218,39 @@
 		      #(1.0 0.0   1.0 1.0   0.0 1.0
 			0.0 1.0   0.0 0.0   1.0 0.0)))
 
-;; ;; TODO: allow to make rectangle-objects without gl-context? Maybe add function
-;; ;; to build rectangle-object "on-gpu" I think that's how CEPL's gpu-* functions
-;; ;; are named like that
-;; (defun make-gpu-rectangle ()
-;;   "Returns VAO and VBO for a GPU rectangle data with vbo containing position and texture
-;; Data"
-;;   ;; TODO: if works, work on inder-buffer-object
-;;   (let ((vao (first (gl:gen-vertex-arrays 1)))
-;; 	(vbo (first (gl:gen-buffers 1))))
-;;     (gl:bind-vertex-array vao)
-;;     (gl:bind-buffer :array-buffer vbo)
-;;     ;; Positions:
-;;     ;; 2 triangles * 3 vertices * 3 components xyz * of 4 bytes (float) = 72
-;;     ;; textures:
-;;     ;; 2 triangles * 3 vertices * 2 components * of 4 bytes (float) = 48
-;;     (%gl:buffer-data :array-buffer (+ 72 48) *default-ffi-positions* :static-draw) ;TODO: :dynamic-draw?
-;;     ;; positions
-;;     (%gl:enable-vertex-attrib-array 0)
-;;     (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
-;;     ;; texture
-;;     (%gl:buffer-sub-data :array-buffer 72 48 *default-ffi-tex-coordinates*)
-;;     (%gl:enable-vertex-attrib-array 5)
-;;     (%gl:vertex-attrib-pointer 5 2 :float :false 0 72)
-
-;;     (gl:bind-vertex-array 0)
-;;     (values vao vbo)))
-
 ;; TODO: remove this test data
 (when (< (hash-table-count (the-table *dynamic-rectangles*)) 1)
   (add-rectangle-as :hero (make-rectangle)))
+
+;;Texture-----------------------------------------------------------------------
+
+;; TODO: integrate "texatl"
+(defvar *rectangle-texture*)
+(defvar *rectangle-sampler*)
+
+;; arbitrarily 10, so we don't collide with anything for now
+;; iirc up to 80 are guaranteed
+(defvar *tex-unit* 10)
+
+(defun create-rectangle-texture ()
+  (setf *rectangle-texture* (first (gl:gen-textures 1)))
+
+  (%gl:bind-texture :texture-2d *rectangle-texture*)
+  ;; TODO: understand
+  (gl:tex-parameter :texture-2d :texture-base-level 0)
+  (gl:tex-parameter :texture-2d :texture-max-level 0)
+
+
+  (setf *rectangle-sampler* (first (gl:gen-samplers 1)))
+  ;; TODO understand
+  (gl:sampler-parameter *rectangle-sampler* :texture-mag-filter :nearest)
+  (gl:sampler-parameter *rectangle-sampler* :texture-min-filter :nearest)
+  (gl:sampler-parameter *rectangle-sampler* :texture-wrap-s :repeat) ;; change to repeat
+  (gl:sampler-parameter *rectangle-sampler* :texture-wrap-t :repeat))
+
+
+
+(defun update-rectangle-texture ()
+  ;; make *tex-unit* the _current_ texture image unit, opengl 
+  (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+  )

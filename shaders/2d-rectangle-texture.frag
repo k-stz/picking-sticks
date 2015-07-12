@@ -2,7 +2,7 @@
 
 out vec4 outputColor;
 
-uniform sampler2D test_texture;
+uniform sampler2D rectangle_texture;
 
 void main() {
   outputColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
