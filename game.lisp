@@ -508,7 +508,25 @@
 
     ;; the _sampler object_ specifies how data should be read from the texture
     (setf *sampler* (first (gl:gen-samplers 1)))
-    ;; TODO explain
+    ;; This determines what _texture filtering_ method will be used:
+    ;; _nearest filtering_: take the closest texel closest to the provided texture
+    ;; coordinate and set the whole fragment to that color.
+    ;; _linear filtering_: take the 4 surrounding samples/texels and interpolate the color from them
+    ;; based, additionally, on the distance to the texture coordinate.
+    ;; the difference is staggering when applied to big, conventianal pictures, and the pixel
+    ;; art of *rgba-texture-data*
+    
+    ;; Finally imagine the picture being very far away, now many texels could share the
+    ;; same fragment, at the furthest extreme (zoom out) the whole texture could be
+    ;; covered by a single pixel and hence we have a plethora of texels to determine the
+    ;; final color of a pixel. This determination is increasingly expensive to compute.
+    ;; The solution to this problem is to provide multiple variations of our texture which
+    ;; are differ only in size. So that when we zoom out we eventually choose a the smaller
+    ;; version => texels to deal with. And when we zoom in, we can take the larger versions,
+    ;; to give the details more credit.
+    ;;   These multiple version of a texture to solve this issue are called:
+    ;; _Mipmaps_ (or mipmap levels), origin: a initialism composed of latin words "Multum in Parvo"
+    ;; (much in a small space) [wiki]
     (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
     (gl:sampler-parameter *sampler* :texture-min-filter :nearest)
 
@@ -562,6 +580,8 @@
 	 (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
 	 (%gl:bind-texture :texture-2d *texture*)
 	 (%gl:bind-sampler *tex-unit* *sampler*)
+	 (gl:sampler-parameter *sampler* :texture-mag-filter :nearest)
+	 (gl:sampler-parameter *sampler* :texture-min-filter :linear)
 	 (uniform :int :test-texture *tex-unit*)
 	 (gl:tex-image-2d :texture-2d
 			  0		;level TODO
