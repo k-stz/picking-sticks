@@ -5,5 +5,5 @@ out vec4 outputColor;
 uniform sampler2D rectangle_texture;
 
 void main() {
-  outputColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
+  outputColor = texture(rectangle_texture, vec2(0.5,0.5));
 }

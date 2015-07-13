@@ -633,6 +633,7 @@
 
 (defun draw-rectangles ()
   (game-objects::update-rectangle-vao)
+  (game-objects::update-rectangle-texture)
 
   (gl:bind-vertex-array game-objects::*vao*)
   (use-program *programs-dict* :pixel-orthogonal)

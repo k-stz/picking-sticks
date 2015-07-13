@@ -1,7 +1,12 @@
 (defpackage :opticl-utils
   (:use :cl
 	:opticl)
-  (:export :image-file->image-object))
+  (:export :image-file->image-object
+	   ;; image-objects
+	   :width
+	   :height
+	   :pixels
+	   :ffi-array))
 
 (in-package :opticl-utils)
 
