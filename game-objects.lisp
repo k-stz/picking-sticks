@@ -18,7 +18,9 @@
   (:use :cl
 	;; oooooh, only the EXTERNAL symbols get inherited!!
 	:kit.gl.shader
-	:kit.math)
+	:kit.math
+	:opticl
+	:opticl-utils)
   (:export :rectangle
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
@@ -249,8 +251,26 @@
   (gl:sampler-parameter *rectangle-sampler* :texture-wrap-t :repeat))
 
 
+(defvar *foo-img-object* (opticl-utils:image-file->image-object "foo.png"))
+
+
 
 (defun update-rectangle-texture ()
   ;; make *tex-unit* the _current_ texture image unit, opengl 
   (%gl:active-texture (+ (cffi:foreign-enum-value '%gl:enum :texture0) *tex-unit*))
+  (%gl:bind-texture :texture-2d *rectangle-texture*)
+  (%gl:bind-sampler *tex-unit* *rectangle-sampler*)
+  ;; TODO: each iteration or just on creation
+  (gl:sampler-parameter *rectangle-sampler* :texture-mag-filter :nearest)
+  (gl:sampler-parameter *rectangle-sampler* :texture-min-filter :linear)
+
+  ;; already done in game.lisp init code, TODO: need to change architecture here
+  ;; (uniform :int :test-texture *tex-unit-1*)
+  (with-slots (width height pixels ffi-array) *foo-img-object*
+    (gl:tex-image-2d :texture-2d 0 :rgba8
+		     width
+		     height 0
+		     :rgba		;components per element
+		     :unsigned-byte	;; normalized integer
+		     ffi-array))
   )

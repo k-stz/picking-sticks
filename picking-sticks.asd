@@ -7,5 +7,6 @@
   :license "MIT"
   :serial t
   :components ((:file "gl-utils")
-	       (:file "rectangle-objects")
+	       (:file "opticl-utils")
+	       (:file "game-objects")
 	       (:file "game")))
