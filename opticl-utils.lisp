@@ -11,6 +11,8 @@
 (in-package :opticl-utils)
 
 
+
+
 ;;sdl2-image experiments--------------------------------------------------------
 
 ;; (sdl2-image:init '(:png :jpg :tif))
@@ -33,7 +35,7 @@
 
 
 ;; TODO: chedk out 3bgl-opticl for a direct solution
-;; TODO: check out sbcl for some lowlevel vecor access and provide it with
+;; TODO: check out sbcl for some lowlevel vector access and provide it with
 ;;       #+sbcl.. ?
 (defun 3d-array->vector (3d-array)
   (let* ((dims (array-dimensions 3d-array))
@@ -45,7 +47,10 @@
 
 
 (defun image-file->image-object (path)
-  (let* ((img (convert-image-to-rgba (read-png-file path))))
+  ;; TODO: bad style?
+  ;; special-variables are special for this reason:
+  (let* ((*default-pathname-defaults* (asdf/system:system-source-directory "picking-sticks"))
+	 (img (convert-image-to-rgba (read-png-file path))))
     ;; first dim: height then width then length of pixel, here 4 because rgba
     (with-image-bounds (height width) img
       (make-instance 'image-object :height height :width width

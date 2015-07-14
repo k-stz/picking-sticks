@@ -31,9 +31,6 @@
 				  (declare (ignore char n))
 				  (list 'sdl2:in-main-thread () (read str t nil t))))
 
-
-(setf *default-pathname-defaults* (asdf/system:system-source-directory "picking-sticks"))
-
 ;; quite clunky, but with the right abstraction this can be done with even less typing
 ;; #m (progn
 ;;      (gl:bind-vertex-array *vao*)
@@ -715,7 +712,11 @@
       (close-window window))))
 
 (defmethod mousebutton-event ((window game-window) state ts b x y)
-  (format t "~A button: ~A at ~A, ~A~%" state b x y))
+  (format t "~A button: ~A at ~A, ~A~%" state b x y)
+  (when (eq state :mousebuttondown)
+
+    (let* ((x (float x)) (y  (- (window-height window) (float y))))
+      (game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*)))))
 
 
 
@@ -729,6 +730,7 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0))
-      (let* ((x (float x)) (y  (- (window-height window) (float y))))
-	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))))))
+      ;; (let* ((x (float x)) (y  (- (window-height window) (float y))))
+      ;; 	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*)))
+      )))
 
