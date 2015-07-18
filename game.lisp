@@ -691,7 +691,7 @@
   ;; prompt the user!
   (call-next-method))
 
-(defparameter *width-height* 2.0)
+(defparameter *width-height* 50.0)
 
 (defmethod mousewheel-event ((window game-window) ts x y)
   ;; zoom in/out

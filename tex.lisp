@@ -19,3 +19,11 @@
   `(multiple-value-bind (,width-var ,height-var)
        (png-bounds ,png-filename ,directory)
      ,@body))
+
+;; This is not how TEXATL works
+;; (defun png->spritesheet (png-filename &optional (directory *resources-dir*))
+;;   (let ((png-filename (merge-pathnames png-filename directory)))
+;;     (with-png-bounds width height (png-filename directory)
+;;       (texatl:make-sprite-atlas
+;;        width height
+;;        (list png-filename)))))
