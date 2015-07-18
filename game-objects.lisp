@@ -136,6 +136,8 @@
    (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec2 0.0 1.0))
    (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec2 1.0 1.0))))
 
+;; TODO: add texture coordinate to initilizations, providing a texture.png
+;; and a fixed texture coordinate with texatl:with-sprite ?
 (defun make-rectangle (&optional
 			 (x 0.0)
 			 (y 0.0)
@@ -161,8 +163,8 @@
 (defun rectangle->tex-coord (rectangle)
   (with-slots (tex-x1 tex-x2 tex-y1 tex-y2) rectangle
     (concatenate 'vector
-		 tex-y2 tex-x2 tex-x1
-		 tex-x1 tex-y1 tex-y2)))
+		 tex-x1 tex-y1 tex-y2
+		 tex-y2 tex-x2 tex-x1)))
 
 (defun rectangle-seq-hash->pos-vector (rectangle-seq-hash)
   (apply 'concatenate 'vector
@@ -303,10 +305,23 @@
 
   ;; already done in game.lisp init code, TODO: need to change architecture here
   ;; (uniform :int :test-texture *tex-unit-1*)
-  (with-slots (width height pixels pos-ffi-array) *foo-img-object*
+  (with-slots (width height pixels pos-ffi-array) *nyo-png*
     (gl:tex-image-2d :texture-2d 0 :rgba8
 		     width
 		     height 0
 		     :rgba		;components per element
 		     :unsigned-byte	;; normalized integer
 		     pos-ffi-array)))
+
+;;Transformations and changing data---------------------------------------------
+
+
+;; TODO implement a move METHOD that will, depending on the name of a rectangle,
+;; choose different tex-atlas data? (texatl.cl:sprite <spritesheet>) or
+;; introduce a new data structure saving a rectangle->spritesheet mapping?
+;; it will read different parts based on the movement direction and on the
+;; timestamp provided by the main loop will read different frames?
+
+;; we can only move *dynamic-rectangles*
+(defun move (name direction-vec2)
+  (list name direction-vec2))
