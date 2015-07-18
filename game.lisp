@@ -601,13 +601,13 @@
 
 	 (uniform :int :test-texture *tex-unit-2*)
 
-	 (with-slots (width height pixels ffi-array) *png-opticl*
+	 (with-slots (width height pixels pos-ffi-array) *png-opticl*
 	   (gl:tex-image-2d :texture-2d 0 :rgba8
 			    width
 			    height 0
 			    :rgba	;components per element
 			    :unsigned-byte ;; normalized integer
-			    ffi-array))))))
+			    pos-ffi-array))))))
 
 (defun draw-cube ()
   (gl:bind-vertex-array *vao*)

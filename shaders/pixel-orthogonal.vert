@@ -1,10 +1,14 @@
 #version 330
 
 layout(location = 0) in vec4 position;
+layout(location = 1) in vec2 texCoord;
 
 uniform int window_width;
 uniform int window_height;
 
+out vec2 colorCoord;
+
+// remove once colorCoord works:
 out vec2 texture_coordinate;
 
 void main () {
@@ -43,4 +47,7 @@ void main () {
       break;
     }
   texture_coordinate = offset;
+
+  // remove the above once this works:
+  colorCoord = texCoord;
 }

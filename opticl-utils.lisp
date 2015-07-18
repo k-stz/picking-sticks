@@ -6,7 +6,7 @@
 	   :width
 	   :height
 	   :pixels
-	   :ffi-array))
+	   :pos-ffi-array))
 
 (in-package :opticl-utils)
 
@@ -23,11 +23,11 @@
   ((height :initarg :height)
    (width :initarg :width)
    (pixels :initarg :pixels)
-   (ffi-array)))
+   (pos-ffi-array)))
 
 (defmethod initialize-instance :after ((the-image image-object) &key)
   (alexandria:if-let ((pixels (slot-value the-image 'pixels)))
-    (setf (slot-value the-image 'ffi-array)
+    (setf (slot-value the-image 'pos-ffi-array)
   	  ;; TODO: get type from #3Array?
   	  (cffi:foreign-alloc :unsigned-char :initial-contents pixels))
     ;; else

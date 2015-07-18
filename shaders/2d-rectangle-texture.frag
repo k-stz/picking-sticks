@@ -4,8 +4,10 @@ out vec4 outputColor;
 
 uniform sampler2D rectangle_texture;
 
-in vec2 texture_coordinate;
+in vec2 colorCoord;
+
+//in vec2 texture_coordinate;
 
 void main() {
-  outputColor = texture(rectangle_texture, texture_coordinate);
+  outputColor = texture(rectangle_texture, colorCoord);
 }
