@@ -704,12 +704,27 @@
   (render window))
 
 
+(defvar *nyo-rectangle* (game-objects:make-rectangle 100.0 100.0 64.0 96.0))
+(game-objects:add-rectangle-as :nyo *nyo-rectangle*)
+
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
+
+    (when (eq :scancode-d scancode)
+      (game-objects:move :nyo (vec2 10.0 0.0)))
+    (when (eq :scancode-a scancode)
+      (game-objects:move :nyo (vec2 -10.0 0.0)))
+    (when (eq :scancode-w scancode)
+      (game-objects:move :nyo (vec2 0.0 10.0)))
+    (when (eq :scancode-s scancode)
+      (game-objects:move :nyo (vec2 0.0 -10.0)))
+    
     (when (eq :scancode-space scancode)
       (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
     (when (eq :scancode-escape scancode)
-      (close-window window))))
+      (close-window window))
+    (when (eq :scancode-t scancode)
+      (print ts cl:*standard-output*))))
 
 (defmethod mousebutton-event ((window game-window) state ts b x y)
   (format t "~A button: ~A at ~A, ~A~%" state b x y)

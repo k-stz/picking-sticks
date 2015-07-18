@@ -25,7 +25,9 @@
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
 	   :x1 :x2 :y1 :y2
-	   :make-rectangle))
+	   :make-rectangle
+	   :add-rectangle-as
+	   :move))
 
 (in-package :game-objects)
 
@@ -316,12 +318,23 @@
 ;;Transformations and changing data---------------------------------------------
 
 
-;; TODO implement a move METHOD that will, depending on the name of a rectangle,
-;; choose different tex-atlas data? (texatl.cl:sprite <spritesheet>) or
-;; introduce a new data structure saving a rectangle->spritesheet mapping?
-;; it will read different parts based on the movement direction and on the
-;; timestamp provided by the main loop will read different frames?
-
 ;; we can only move *dynamic-rectangles*
+(defun move-rectangle (rectangle direction-vec2)
+  (assert (typep direction-vec2 '(simple-array single-float (2))))
+  (macrolet ((vec2+ (v1 v2)
+	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
+		      (+ (aref ,v1 1) (aref ,v2 1)))))
+    (with-slots (x1 x2 y1 y2) rectangle
+      (setf x1 (vec2+ x1 direction-vec2))
+      (setf x2 (vec2+ x2 direction-vec2))
+      (setf y1 (vec2+ y1 direction-vec2))
+      (setf y2 (vec2+ y2 direction-vec2)))))
+
+
+;; TODO: instead of writting a get-seq-hash and a SETFable version
+;; just make get-seq-hash expand into (gethash <key> (the-table <seq-has>))?
+
 (defun move (name direction-vec2)
-  (list name direction-vec2))
+  ;; for now we assume only *dynamic-rectangles* can be moved
+  (let ((rectangle (gethash name (the-table *dynamic-rectangles*))))
+    (move-rectangle rectangle direction-vec2)))
