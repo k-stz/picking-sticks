@@ -61,6 +61,9 @@
 (defun get-seq-hash (key seq-hash-table &optional default)
   (gethash key (the-table seq-hash-table) default))
 
+(defun get-rectangle (name &optional (rectangle-set *dynamic-rectangles*))
+  (get-seq-hash name rectangle-set))
+
 (defun clr-seq-hash (seq-hash-table)
   (setf (keys-in-order seq-hash-table) (make-array 0 :fill-pointer t))
   (clrhash (the-table seq-hash-table)))
@@ -125,6 +128,25 @@
     (setf (gethash name rectangles-container) rectangle)))
 
 
+;;Rectangle---------------------------------------------------------------------
+
+(defclass animation ()
+  ((start-time :initarg :start-time :initform 0)
+   ;; hm this is the global-texture, so there should also be a global sprite sheet
+   ;; (spritesheet :type TEXATL.CL:TEXATL-SPRITESHEET :initarg :spritesheet)
+   (frame :type integer :initform 0)
+   ;; idea is to pass those as arguments like so:
+   ;; (texatl.cl:sprite <spritesheet> '(<sprite-name> <mode> <direction>) 0)
+   ;; though it forces a particular kind of format for our spritesheet
+   (sprite-name :type keyword :initarg :sprite-name :initform :default-name)
+   (mode :type keyword)
+   (direction :type keyword)
+   (default-animation :type keyword :initform :walk)))
+
+(defmethod :after initialize-instance ((animation animation) &key)
+  
+  )
+
 
 ;; TODO: give nice print representation
 (defclass rectangle ()
@@ -140,7 +162,11 @@
    (tex-x1 :initarg :tex-x1 :type vec2 :initform (vec2 0.0 0.0))
    (tex-x2 :initarg :tex-x2 :type vec2 :initform (vec2 1.0 0.0))
    (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec2 0.0 1.0))
-   (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec2 1.0 1.0))))
+   (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec2 1.0 1.0))
+
+   ;; for now we directly couple animation with the rectangle
+   (animation-state :type animation :initform (make-animation) :reader animation-state)))
+
 
 ;; TODO: add texture coordinate to initilizations, providing a texture.png
 ;; and a fixed texture coordinate with texatl:with-sprite ?
@@ -265,10 +291,6 @@
 		      #(1.0 0.0   1.0 1.0   0.0 1.0
 			0.0 1.0   0.0 0.0   1.0 0.0)))
 
-;; TODO: remove this test data
-(when (< (hash-table-count (the-table *dynamic-rectangles*)) 1)
-  (add-rectangle-as :hero (make-rectangle)))
-
 ;;Texture-----------------------------------------------------------------------
 
 ;; TODO: integrate "texatl"
@@ -300,6 +322,8 @@
 (defvar *nyo-png* (opticl-utils:image-file->image-object "resources/nyo.png"))
 
 (defvar *global-texture* *nyo-png*)
+
+(defvar *global-spritesheet* tex::*nyo-spritesheet*)
 
 (defun update-rectangle-texture ()
   ;; make *tex-unit* the _current_ texture image unit, opengl 
@@ -339,19 +363,48 @@
   (let ((rectangle (gethash name (the-table *dynamic-rectangles*))))
     (move-rectangle rectangle direction-vec2)))
 
-;;Animation---------------------------------------------------------------------
 
-(defclass animation ()
-  ((start-time :initarg :start-time)
-   (spritesheet :type TEXATL.CL:TEXATL-SPRITESHEET)
-   (frames :type integer)
-   ;; idea is to pass those as arguments like so:
-   ;; (texatl.cl:sprite <spritesheet> '(<sprite-name> <mode> <direction>) 0)
-   ;; though it forces a particular kind of format for our spritesheet
-   (sprite-name :type keyword)
-   (mode :type keyword)
-   (direction :type keyword)
-   (up-animation :type keyword)))
 
-(defmethod animate ((a animation) )
-  a)
+;;;Animation
+
+
+(defun make-animation ()
+  (make-instance 'animation))
+
+(defun change-animation (rectangle new-mode new-direction &optional new-sprite-name)
+  (let ((animation-state (animation-state rectangle)))
+    (with-slots (sprite-name mode direction) animation-state
+      (setf mode new-mode
+	    direction new-direction)
+      (when new-sprite-name
+	(setf sprite-name new-sprite-name)))))
+
+;; (defmethod apply-animation-state ((rectangle rectangle))
+;;   (let ((animation-state (animation-state rectangle)))
+;;     (with-slots (sprite-name))
+;;     (texatl.cl:with-sprite (x0 y0 x1 y1)
+;; 	*global-spritesheet*)))
+
+(defmethod animate ((rectangle rectangle))
+  (when (slot-boundp (slot-value rectangle 'animation-state) 'spritesheet)
+    (apply-animation-state rectangle)))
+
+(defun print-animation-state (rectangle)
+  (let ((animation-state (slot-value rectangle 'animation-state)))
+    (with-slots (start-time frame sprite-name mode direction default-animation)
+	animation-state
+      ;; TODO: make a neat table
+      (format t "~&start-time:~a ~&frame:~a ~&sprite:~a ~&mode~a ~&direction:~a ~&default:~a~%"
+	      start-time frame sprite-name mode direction default-animation))))
+
+;; TODO: delete
+(defun tex (rectangle)
+  (with-slots (tex-x1 tex-x2 tex-y1 tex-y2) rectangle
+    (list tex-x1 tex-x2 tex-y1 tex-y2)))
+
+;;Test data---------------------------------------------------------------------
+
+;; TODO: remove this test data
+(when (< (hash-table-count (the-table *dynamic-rectangles*)) 1)
+  (add-rectangle-as :hero (make-rectangle)))
+
