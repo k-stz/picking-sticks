@@ -724,7 +724,7 @@
     (when (eq :scancode-escape scancode)
       (close-window window))
     (when (eq :scancode-t scancode)
-      (print ts cl:*standard-output*))))
+      (print (typep ts 'fixnum) cl:*standard-output*))))
 
 (defmethod mousebutton-event ((window game-window) state ts b x y)
   (format t "~A button: ~A at ~A, ~A~%" state b x y)

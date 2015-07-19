@@ -38,10 +38,10 @@
 
 ;;How to use:
 ;;the filenames in nyo/*.png implicate how to get the texture coordiantes like so:
-;;(texatl.cl:sprite *nyo* '(:nyo :walk :up) 2) will return the texture coordinate
+;;(texatl.cl:sprite *nyo-spritesheet* '(:nyo :walk :up) 2) will return the texture coordinate
 ;;that will encompass the pixels that're in "nyo:walk:up:2.png"
 
-(defparameter *nyo*
+(defparameter *nyo-spritesheet*
   (multiple-value-bind (surface spritesheet)
       (texatl:make-sprite-atlas 128 192 (directory (merge-pathnames "nyo/*.png" *resources-dir*)))
     (declare (ignore surface))

@@ -57,6 +57,10 @@
 		     (hash-table-count hash-table)))))))
 
 
+;; TODO: read into writing hygienic macros easily, try call-get-seq-hash approach again
+(defun get-seq-hash (key seq-hash-table &optional default)
+  (gethash key (the-table seq-hash-table) default))
+
 (defun clr-seq-hash (seq-hash-table)
   (setf (keys-in-order seq-hash-table) (make-array 0 :fill-pointer t))
   (clrhash (the-table seq-hash-table)))
@@ -295,6 +299,7 @@
 (defvar *foo-img-object* (opticl-utils:image-file->image-object "foo.png"))
 (defvar *nyo-png* (opticl-utils:image-file->image-object "resources/nyo.png"))
 
+(defvar *global-texture* *nyo-png*)
 
 (defun update-rectangle-texture ()
   ;; make *tex-unit* the _current_ texture image unit, opengl 
@@ -307,7 +312,7 @@
 
   ;; already done in game.lisp init code, TODO: need to change architecture here
   ;; (uniform :int :test-texture *tex-unit-1*)
-  (with-slots (width height pixels pos-ffi-array) *nyo-png*
+  (with-slots (width height pixels pos-ffi-array) *global-texture*
     (gl:tex-image-2d :texture-2d 0 :rgba8
 		     width
 		     height 0
@@ -315,8 +320,7 @@
 		     :unsigned-byte	;; normalized integer
 		     pos-ffi-array)))
 
-;;Transformations and changing data---------------------------------------------
-
+;;Transformations---------------------------------------------------------------
 
 ;; we can only move *dynamic-rectangles*
 (defun move-rectangle (rectangle direction-vec2)
@@ -330,11 +334,24 @@
       (setf y1 (vec2+ y1 direction-vec2))
       (setf y2 (vec2+ y2 direction-vec2)))))
 
-
-;; TODO: instead of writting a get-seq-hash and a SETFable version
-;; just make get-seq-hash expand into (gethash <key> (the-table <seq-has>))?
-
 (defun move (name direction-vec2)
   ;; for now we assume only *dynamic-rectangles* can be moved
   (let ((rectangle (gethash name (the-table *dynamic-rectangles*))))
     (move-rectangle rectangle direction-vec2)))
+
+;;Animation---------------------------------------------------------------------
+
+(defclass animation ()
+  ((start-time :initarg :start-time)
+   (spritesheet :type TEXATL.CL:TEXATL-SPRITESHEET)
+   (frames :type integer)
+   ;; idea is to pass those as arguments like so:
+   ;; (texatl.cl:sprite <spritesheet> '(<sprite-name> <mode> <direction>) 0)
+   ;; though it forces a particular kind of format for our spritesheet
+   (sprite-name :type keyword)
+   (mode :type keyword)
+   (direction :type keyword)
+   (up-animation :type keyword)))
+
+(defmethod animate ((a animation) )
+  a)
