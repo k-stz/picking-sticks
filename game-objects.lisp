@@ -27,7 +27,10 @@
 	   :x1 :x2 :y1 :y2
 	   :make-rectangle
 	   :add-rectangle-as
-	   :move))
+	   :move
+	   ;;animation
+	   :change-animation
+	   ))
 
 (in-package :game-objects)
 
@@ -139,8 +142,8 @@
    ;; (texatl.cl:sprite <spritesheet> '(<sprite-name> <mode> <direction>) 0)
    ;; though it forces a particular kind of format for our spritesheet
    (sprite-name :type keyword :initarg :sprite-name :initform :default-name)
-   (mode :type keyword)
-   (direction :type keyword)
+   (mode :type keyword :initform :walk)
+   (direction :type keyword :initform :down)
    (default-animation :type keyword :initform :walk)))
 
 (defmethod :after initialize-instance ((animation animation) &key)
@@ -379,11 +382,17 @@
       (when new-sprite-name
 	(setf sprite-name new-sprite-name)))))
 
-;; (defmethod apply-animation-state ((rectangle rectangle))
-;;   (let ((animation-state (animation-state rectangle)))
-;;     (with-slots (sprite-name))
-;;     (texatl.cl:with-sprite (x0 y0 x1 y1)
-;; 	*global-spritesheet*)))
+(defgeneric apply-animation-state (rectangle))
+
+(defmethod apply-animation-state ((rectangle rectangle))
+    (let ((animation-state (animation-state rectangle)))
+      (with-slots (sprite-name mode direction frame) animation-state
+	(print (list sprite-name mode direction frame))
+	(texatl.cl:with-sprite (x0 y0 x1 y1)
+	    (list sprite-name mode direction) frame *global-spritesheet*
+	  (with-slots (tex-x1 tex-x2 tex-y1 tex-y2) rectangle
+	    (setf tex-x1 #(0.0 0.0))
+	    (list x0 y0 x1 y1 (list tex-x1 tex-x2 tex-y1 tex-y2)))))))
 
 (defmethod animate ((rectangle rectangle))
   (when (slot-boundp (slot-value rectangle 'animation-state) 'spritesheet)
@@ -394,7 +403,7 @@
     (with-slots (start-time frame sprite-name mode direction default-animation)
 	animation-state
       ;; TODO: make a neat table
-      (format t "~&start-time:~a ~&frame:~a ~&sprite:~a ~&mode~a ~&direction:~a ~&default:~a~%"
+      (format t "~&start-time:~a ~&frame:~a ~&sprite:~a ~&mode:~a ~&direction:~a ~&default:~a~%"
 	      start-time frame sprite-name mode direction default-animation))))
 
 ;; TODO: delete

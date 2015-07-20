@@ -704,8 +704,12 @@
   (render window))
 
 
-(defvar *nyo-rectangle* (game-objects:make-rectangle 100.0 100.0 64.0 96.0))
-(game-objects:add-rectangle-as :nyo *nyo-rectangle*)
+(defun init-nyo-rectangle ()
+  (let ((nyo-rectangle (game-objects:make-rectangle 100.0 100.0 64.0 96.0)))
+    (game-objects:change-animation nyo-rectangle :walk :down :nyo)
+    (game-objects:add-rectangle-as :nyo nyo-rectangle)))
+
+(defparameter *nyo-rectangle* (init-nyo-rectangle))
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
