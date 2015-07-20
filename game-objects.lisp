@@ -385,14 +385,27 @@
 (defgeneric apply-animation-state (rectangle))
 
 (defmethod apply-animation-state ((rectangle rectangle))
-    (let ((animation-state (animation-state rectangle)))
-      (with-slots (sprite-name mode direction frame) animation-state
-	(print (list sprite-name mode direction frame))
-	(texatl.cl:with-sprite (x0 y0 x1 y1)
-	    (list sprite-name mode direction) frame *global-spritesheet*
+  (let ((animation-state (animation-state rectangle))
+	(width (slot-value *global-texture* 'width))
+	(height (slot-value *global-texture* 'height)))
+    (with-slots (sprite-name mode direction frame) animation-state
+      (print (list sprite-name mode direction frame))
+      (texatl.cl:with-sprite (x0 y0 x1 y1)
+	  (list sprite-name mode direction) frame *global-spritesheet*
+	(let ((x0 (/ x0 width))
+	      (y0 (/ y0 height))
+	      (x1 (/ x1 width))
+	      (y1 (/ y1 height)))
 	  (with-slots (tex-x1 tex-x2 tex-y1 tex-y2) rectangle
-	    (setf tex-x1 #(0.0 0.0))
-	    (list x0 y0 x1 y1 (list tex-x1 tex-x2 tex-y1 tex-y2)))))))
+	    ;; oh wow, the rectangle representation of the texatl system
+	    ;; might have some efficiency advantages, the disadvantage is that
+	    ;; it doesn't allow us to represent rectangles that aren't axis aligned
+	    (setf tex-x1 (vec2 x0 y0))
+	    (setf tex-x2 (vec2 x1 y0))
+    	    (setf tex-y1 (vec2 x0 y1))
+	    (setf tex-y2 (vec2 x1 y1))
+
+	    (list x0 y0 x1 y1 (list tex-x1 tex-x2 tex-y1 tex-y2))))))))
 
 (defmethod animate ((rectangle rectangle))
   (when (slot-boundp (slot-value rectangle 'animation-state) 'spritesheet)
