@@ -706,22 +706,25 @@
 
 (defun init-nyo-rectangle ()
   (let ((nyo-rectangle (game-objects:make-rectangle 100.0 100.0 64.0 96.0)))
-    (game-objects:change-animation nyo-rectangle :walk :down :nyo)
-    (game-objects:add-rectangle-as :nyo nyo-rectangle)))
+    (game-objects:add-rectangle-as :nyo nyo-rectangle)
+    (game-objects:set-animation :nyo :walk :down 0 :nyo)))
 
 (defparameter *nyo-rectangle* (init-nyo-rectangle))
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
-
     (when (eq :scancode-d scancode)
-      (game-objects:move :nyo (vec2 10.0 0.0)))
+      (game-objects:set-animation :nyo :walk :right)
+      (game-objects:move :nyo (vec2 1.0 0.0)))
     (when (eq :scancode-a scancode)
-      (game-objects:move :nyo (vec2 -10.0 0.0)))
+      (game-objects:set-animation :nyo :walk :left)
+      (game-objects:move :nyo (vec2 -1.0 0.0)))
     (when (eq :scancode-w scancode)
-      (game-objects:move :nyo (vec2 0.0 10.0)))
+      (game-objects:set-animation :nyo :walk :up)
+      (game-objects:move :nyo (vec2 0.0 20.0)))
     (when (eq :scancode-s scancode)
-      (game-objects:move :nyo (vec2 0.0 -10.0)))
+      (game-objects:set-animation :nyo :walk :down)
+      (game-objects:move :nyo (vec2 0.0 -20.0)))
     
     (when (eq :scancode-space scancode)
       (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
@@ -735,7 +738,8 @@
   (when (eq state :mousebuttondown)
 
     (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      (game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*)))))
+      (game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
+      )))
 
 
 
@@ -750,6 +754,9 @@
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0))
       ;; (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      ;; 	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*)))
+      ;; 	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
+      ;; 	;      (game-objects::move-to :nyo (vec2 x y))
+      ;; 	)
+
       )))
 

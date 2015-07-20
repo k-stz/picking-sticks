@@ -29,7 +29,7 @@
 	   :add-rectangle-as
 	   :move
 	   ;;animation
-	   :change-animation
+	   :set-animation
 	   ))
 
 (in-package :game-objects)
@@ -335,7 +335,7 @@
   (%gl:bind-sampler *tex-unit* *rectangle-sampler*)
   ;; TODO: each iteration or just on creation
   (gl:sampler-parameter *rectangle-sampler* :texture-mag-filter :nearest)
-  (gl:sampler-parameter *rectangle-sampler* :texture-min-filter :linear)
+  (gl:sampler-parameter *rectangle-sampler* :texture-min-filter :nearest)
 
   ;; already done in game.lisp init code, TODO: need to change architecture here
   ;; (uniform :int :test-texture *tex-unit-1*)
@@ -367,6 +367,17 @@
     (move-rectangle rectangle direction-vec2)))
 
 
+(defun move-to (name point-vec2)
+  (let ((rectangle (get-rectangle name)))
+    (macrolet ((vec2+ (v1 v2)
+	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
+		      (+ (aref ,v1 1) (aref ,v2 1)))))
+    (with-slots (x1 x2 y1 y2) rectangle
+      (setf x1 point-vec2)
+      ;; (setf x2 (vec2+ point-vec2))
+      ;; (setf y1 (vec2+ y1 point-vec2))
+      ;; (setf y2 (vec2+ y2 point-vec2))
+      ))))
 
 ;;;Animation
 
@@ -374,13 +385,25 @@
 (defun make-animation ()
   (make-instance 'animation))
 
-(defun change-animation (rectangle new-mode new-direction &optional new-sprite-name)
+;; TODO: operates only on rectangles in *dynamic-rectangles* due to GET-RECTANGLE, better
+;; design needed here
+(defun change-animation-state (rectangle new-mode new-direction &optional new-frame new-sprite-name)
+  (print (get-rectangle rectangle))
   (let ((animation-state (animation-state rectangle)))
-    (with-slots (sprite-name mode direction) animation-state
+    (with-slots (sprite-name mode direction frame) animation-state
+
       (setf mode new-mode
 	    direction new-direction)
       (when new-sprite-name
-	(setf sprite-name new-sprite-name)))))
+	(setf sprite-name new-sprite-name))
+      (when new-frame
+	(setf frame new-frame)))))
+
+(defun set-animation (name mode direction &optional (frame 0) sprite-name)
+  (let ((rectangle (get-rectangle name)))
+    (change-animation-state rectangle mode direction frame sprite-name)
+    (apply-animation-state rectangle)
+    ))
 
 (defgeneric apply-animation-state (rectangle))
 
