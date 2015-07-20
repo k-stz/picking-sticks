@@ -119,15 +119,15 @@
 
 (defun add-rectangle-as (name rectangle &key (as :dynamic))
   (let* ((seq-hash-table
-	 (ecase as
-	   (:dynamic *dynamic-rectangles*)
-	   (:static *static-rectangles*)))
-	(rectangles-container (the-table seq-hash-table)))
+	  (ecase as
+	    (:dynamic *dynamic-rectangles*)
+	    (:static *static-rectangles*)))
+	 (rectangles-container (the-table seq-hash-table)))
     (multiple-value-bind (value set?) (gethash name rectangles-container)
       (declare (ignore value))
       (if set?
-	(warn "The value under key: ~a was already set and has been now overwritten." name)
-	(vector-push-extend name (keys-in-order seq-hash-table))))
+	  (warn "The value under key: ~a was already set and has been now overwritten." name)
+	  (vector-push-extend name (keys-in-order seq-hash-table))))
     (setf (gethash name rectangles-container) rectangle)))
 
 
@@ -198,8 +198,8 @@
 (defun rectangle->tex-coord (rectangle)
   (with-slots (tex-x1 tex-x2 tex-y1 tex-y2) rectangle
     (concatenate 'vector
-		 tex-x1 tex-y1 tex-y2
-		 tex-y2 tex-x2 tex-x1)))
+		 tex-x2 tex-y2 tex-y1
+		 tex-y1 tex-x1 tex-x2)))
 
 (defun rectangle-seq-hash->pos-vector (rectangle-seq-hash)
   (apply 'concatenate 'vector
