@@ -737,7 +737,8 @@
       (game-objects:set-animation :nyo :walk :down (incframe))
       (game-objects:move :nyo (vec2 0.0 -5.0)))
     
-    (when (eq :scancode-space scancode)
+    (when (eq :scancode-c
+ scancode)
       (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
     (when (eq :scancode-escape scancode)
       (close-window window))
