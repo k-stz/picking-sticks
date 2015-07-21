@@ -20,7 +20,8 @@
 	:kit.gl.shader
 	:kit.math
 	:opticl
-	:opticl-utils)
+	:opticl-utils
+	:math)
   (:export :rectangle
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
@@ -156,6 +157,7 @@
   ;; TODO: instead of vec2 provide as seperate x1-x x1-y ? So that
   ;;       transforming into 1d-array is easier (to pass into foreign-array)
   (;; postions
+   ;; TODO: start counting at 0 ?
    (x1 :initarg :x1 :type vec2)
    (x2 :initarg :x2 :type vec2)
    (y1 :initarg :y1 :type vec2)
@@ -378,6 +380,17 @@
       ;; (setf y1 (vec2+ y1 point-vec2))
       ;; (setf y2 (vec2+ y2 point-vec2))
       ))))
+
+(defun scale (name factor)
+  (let ((rectangle (get-rectangle name)))
+    (with-slots (x1 x2 y1 y2) rectangle
+      (macrolet ((vec2- (v1 v2)
+		   `(vec2 (- (aref ,v1 0) (aref ,v2 0))
+			  (- (aref ,v1 1) (aref ,v2 1))))
+		 (vec2* (v1 scalar)
+		   `(vec2 (* ,scalar (aref ,v1 0))
+			  (* ,scalar (aref ,v1 1)))))
+	(setf y1 (vec2* (vec2- y1 x1) factor))))))
 
 ;;;Animation
 

@@ -328,7 +328,7 @@
   ;; TODO: clean this up and do the tests
   ;; enable v-sync 0, disable with 0 TODO: test with moving triangle at high velocity
   ;; if tearing disappears, or if it is an OS issue
-					; (sdl2:gl-set-swap-interval 1)
+					;; (sdl2:gl-set-swap-interval 1)
   )
 
 
@@ -715,16 +715,16 @@
   (let ((scancode (sdl2:scancode keysym)))
     (when (eq :scancode-d scancode)
       (game-objects:set-animation :nyo :walk :right)
-      (game-objects:move :nyo (vec2 1.0 0.0)))
+      (game-objects:move :nyo (vec2 5.0 0.0)))
     (when (eq :scancode-a scancode)
       (game-objects:set-animation :nyo :walk :left)
-      (game-objects:move :nyo (vec2 -1.0 0.0)))
+      (game-objects:move :nyo (vec2 -5.0 0.0)))
     (when (eq :scancode-w scancode)
       (game-objects:set-animation :nyo :walk :up)
-      (game-objects:move :nyo (vec2 0.0 20.0)))
+      (game-objects:move :nyo (vec2 0.0 5.0)))
     (when (eq :scancode-s scancode)
       (game-objects:set-animation :nyo :walk :down)
-      (game-objects:move :nyo (vec2 0.0 -20.0)))
+      (game-objects:move :nyo (vec2 0.0 -5.0)))
     
     (when (eq :scancode-space scancode)
       (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
