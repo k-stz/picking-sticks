@@ -711,19 +711,30 @@
 
 (defparameter *nyo-rectangle* (init-nyo-rectangle))
 
+
+;; TODO: delete, just for test:
+(defparameter *frame-map* 0)
+(defun incframe ()
+  (incf *frame-map*)
+  (cond ((< *frame-map* 2) 0)
+	((< *frame-map* 4) 1)
+	((< *frame-map* 6) 2)
+	((< *frame-map* 8) 3)
+	(t (setf *frame-map* 0))))
+
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
     (when (eq :scancode-d scancode)
-      (game-objects:set-animation :nyo :walk :right)
+      (game-objects:set-animation :nyo :walk :right (incframe))
       (game-objects:move :nyo (vec2 5.0 0.0)))
     (when (eq :scancode-a scancode)
-      (game-objects:set-animation :nyo :walk :left)
+      (game-objects:set-animation :nyo :walk :left (incframe))
       (game-objects:move :nyo (vec2 -5.0 0.0)))
     (when (eq :scancode-w scancode)
-      (game-objects:set-animation :nyo :walk :up)
+      (game-objects:set-animation :nyo :walk :up (incframe))
       (game-objects:move :nyo (vec2 0.0 5.0)))
     (when (eq :scancode-s scancode)
-      (game-objects:set-animation :nyo :walk :down)
+      (game-objects:set-animation :nyo :walk :down (incframe))
       (game-objects:move :nyo (vec2 0.0 -5.0)))
     
     (when (eq :scancode-space scancode)
