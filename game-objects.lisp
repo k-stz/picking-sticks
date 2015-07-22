@@ -384,13 +384,10 @@
 (defun scale (name factor)
   (let ((rectangle (get-rectangle name)))
     (with-slots (x1 x2 y1 y2) rectangle
-      (macrolet ((vec2- (v1 v2)
-		   `(vec2 (- (aref ,v1 0) (aref ,v2 0))
-			  (- (aref ,v1 1) (aref ,v2 1))))
-		 (vec2* (v1 scalar)
-		   `(vec2 (* ,scalar (aref ,v1 0))
-			  (* ,scalar (aref ,v1 1)))))
-	(setf y1 (vec2* (vec2- y1 x1) factor))))))
+      (setf x1 (math:vec2* x1 factor))
+      (setf x2 (math:vec2* x2 factor))
+      (setf y1 (math:vec2* y1 factor))
+      (setf y2 (math:vec2* y2 factor)))))
 
 ;;;Animation
 
