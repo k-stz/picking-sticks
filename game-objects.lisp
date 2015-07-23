@@ -369,6 +369,7 @@
     (move-rectangle rectangle direction-vec2)))
 
 
+;; NEXT-TODO: doesn't work yet!
 (defun move-to (name point-vec2)
   (let ((rectangle (get-rectangle name)))
     (macrolet ((vec2+ (v1 v2)
@@ -381,13 +382,20 @@
       ;; (setf y2 (vec2+ y2 point-vec2))
       ))))
 
+(defun get-position (rectangle-name)
+  (slot-value (get-rectangle rectangle-name) 'x1))
+
 (defun scale (name factor)
   (let ((rectangle (get-rectangle name)))
     (with-slots (x1 x2 y1 y2) rectangle
-      (setf x1 (math:vec2* x1 factor))
-      (setf x2 (math:vec2* x2 factor))
-      (setf y1 (math:vec2* y1 factor))
-      (setf y2 (math:vec2* y2 factor)))))
+      ;; move to origin (bottom left corner) apply scaling, move
+      ;; move back relative to bottom left corner of rectangle
+      (setf x2 (vec2+ (math:vec2* (math:vec2- x2 x1) factor)
+		      x1))
+      (setf y1 (vec2+ (math:vec2* (math:vec2- y1 x1) factor)
+		      x1))
+      (setf y2 (vec2+ (math:vec2* (math:vec2- y2 x1) factor)
+		      x1)))))
 
 ;;;Animation
 
