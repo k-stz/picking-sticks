@@ -136,9 +136,17 @@
 
 (defclass animation ()
   ((start-time :initarg :start-time :initform 0)
+   ;; used to determine how many times the animation state has been querried for
+   ;; an animation frame, to determine how to change the state. This effectively
+   ;; in what order the animation going to be showsn
+   (animation-querries  :type integer :initform 0)
+   ;; this determines how many aimation-querries are needed
+   (querries-per-frame :type integer)
    ;; hm this is the global-texture, so there should also be a global sprite sheet
    ;; (spritesheet :type TEXATL.CL:TEXATL-SPRITESHEET :initarg :spritesheet)
    (frame :type integer :initform 0)
+   ;; how many distinct frames are available for the aimation to cycle through
+   (frame-count :type integer :initform 3 :reader frame-count)
    ;; idea is to pass those as arguments like so:
    ;; (texatl.cl:sprite <spritesheet> '(<sprite-name> <mode> <direction>) 0)
    ;; though it forces a particular kind of format for our spritesheet
@@ -406,25 +414,24 @@
 ;; TODO: operates only on rectangles in *dynamic-rectangles* due to GET-RECTANGLE, better
 ;; design needed here
 (defun change-animation-state (rectangle new-mode new-direction &optional new-frame new-sprite-name)
-  (print (get-rectangle rectangle))
   (let ((animation-state (animation-state rectangle)))
-    (with-slots (sprite-name mode direction frame) animation-state
-
+    (with-slots (sprite-name mode direction frame frame-count) animation-state
       (setf mode new-mode
 	    direction new-direction)
       (when new-sprite-name
 	(setf sprite-name new-sprite-name))
       (when new-frame
-	(setf frame new-frame)))))
+	(setf frame new-frame))
+      (setf frame-count
+	    (texatl.cl:frame-count *global-spritesheet*
+				   (list sprite-name mode direction))))))
 
 (defun set-animation (name mode direction &optional (frame 0) sprite-name)
   (let ((rectangle (get-rectangle name)))
     (change-animation-state rectangle mode direction frame sprite-name)
-    (apply-animation-state rectangle)
-    ))
+    (apply-animation-state rectangle)))
 
 (defgeneric apply-animation-state (rectangle))
-
 (defmethod apply-animation-state ((rectangle rectangle))
   (let ((animation-state (animation-state rectangle))
 	(width (slot-value *global-texture* 'width))
@@ -452,8 +459,24 @@
   (when (slot-boundp (slot-value rectangle 'animation-state) 'spritesheet)
     (apply-animation-state rectangle)))
 
-(defun print-animation-state (rectangle)
-  (let ((animation-state (slot-value rectangle 'animation-state)))
+(defmethod next-rectangle-animation-frame ((rectangle rectangle))
+  (let* ((animation (animation-state rectangle))
+	 (max-frames (frame-count animation))
+	 (frame (slot-value animation 'frame)))
+    (if (>= frame (1- max-frames))
+	(setf (slot-value animation 'frame) 0)
+	(incf (slot-value animation 'frame)))
+    (apply-animation-state rectangle)))
+
+(defun next-animation-frame (rectangle-name)
+  "Advances the frame (picture) on the rectangle to the next, based on the
+animation state of the object."
+  (let ((rectangle (get-rectangle rectangle-name)))
+    (next-rectangle-animation-frame rectangle)))
+
+
+(defun print-animation-state (rectangle-name)
+  (let ((animation-state (slot-value (get-rectangle rectangle-name) 'animation-state)))
     (with-slots (start-time frame sprite-name mode direction default-animation)
 	animation-state
       ;; TODO: make a neat table
