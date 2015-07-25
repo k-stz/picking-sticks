@@ -1,0 +1,29 @@
+explicit representation,
+objects represented by polygons, through their points, edges and faces
+
+implicit representation,
+geometrical objects such as spheres, cones, cylinders, tori (pl. torus), etc. which
+can't be explicitly represented but implicitly through a mathamatical expression:
+
+implicit representation are usually represented as a mapping from 3d-space to 1d-real-numbers
+like so:
+
+[first, new, cool, math thing!]
+
+f:R^3 -> R, where points given:
+f(x,y,z) // our R^3
+will evaluate into three regions,
+zero:
+f(x,y,z) = 0 // boundry of the object
+f(x,y,z) > 0 // exterior of the object
+f(x,y,z) < 0 // interior of the object
+
+awesome!
+
+An object boundry definied in such a way is called an /implicit surface/!
+
+Advantages:
+- quick rejection culling (is it interior = CULL it out!)
+- fast intersection test: well simply feed a point into the f(x,y,z) function and you know
+  if it is inside or toughing the boundry: f(x,y,z) =< 0!
+

@@ -465,7 +465,7 @@
 
     ;; These last three parameters, of all the functions of the form gl:tex-image*, are special.
     ;; They tell opengl how to read the texture data in our array..
-    ;; - format         : component supplied to the "uniform sampler", ther are only certain
+    ;; - format         : component supplied to the "uniform sampler", there are only certain
     ;;                    arrangments: :red works, :blue doesn't, but :rgba does
     ;; - type           : type representation on the opengl side (as opposed to user data), OpenGL
     ;;                    will perform type conversions in the pixel transfer step
@@ -716,10 +716,10 @@
 (defparameter *next-frame-limit* 0)
 ;; TODO: make it a method?
 (defun next-frame ()
-  (incf *frame-map*)
-  (when (> *frame-map* 2)
+  (incf *next-frame-limit*)
+  (when (> *next-frame-limit* 2)
     (game-objects:next-animation-frame :nyo)
-    (setf *frame-map* 0)))
+    (setf *next-frame-limit* 0)))
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
