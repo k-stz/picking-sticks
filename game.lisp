@@ -713,28 +713,31 @@
 
 
 ;; TODO: delete, just for test:
-(defparameter *frame-map* 0)
-(defun incframe ()
+(defparameter *next-frame-limit* 0)
+;; TODO: make it a method?
+(defun next-frame ()
   (incf *frame-map*)
-  (cond ((< *frame-map* 3) 0)
-	((< *frame-map* 6) 1)
-	((< *frame-map* 9) 2)
-	((< *frame-map* 12) 3)
-	(t (setf *frame-map* 0))))
+  (when (> *frame-map* 2)
+    (game-objects:next-animation-frame :nyo)
+    (setf *frame-map* 0)))
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
   (let ((scancode (sdl2:scancode keysym)))
     (when (eq :scancode-d scancode)
-      (game-objects:set-animation :nyo :walk :right (incframe))
+      (game-objects:set-animation :nyo :walk :right)
+      (next-frame)
       (game-objects:move :nyo (vec2 5.0 0.0)))
     (when (eq :scancode-a scancode)
-      (game-objects:set-animation :nyo :walk :left (incframe))
+      (game-objects:set-animation :nyo :walk :left)
+      (next-frame)
       (game-objects:move :nyo (vec2 -5.0 0.0)))
     (when (eq :scancode-w scancode)
-      (game-objects:set-animation :nyo :walk :up (incframe))
+      (game-objects:set-animation :nyo :walk :up)
+      (next-frame)
       (game-objects:move :nyo (vec2 0.0 5.0)))
     (when (eq :scancode-s scancode)
-      (game-objects:set-animation :nyo :walk :down (incframe))
+      (game-objects:set-animation :nyo :walk :down)
+      (next-frame)
       (game-objects:move :nyo (vec2 0.0 -5.0)))
     
     (when (eq :scancode-c

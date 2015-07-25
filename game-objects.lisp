@@ -31,7 +31,7 @@
 	   :move
 	   ;;animation
 	   :set-animation
-	   ))
+	   :next-animation-frame))
 
 (in-package :game-objects)
 
@@ -426,7 +426,7 @@
 	    (texatl.cl:frame-count *global-spritesheet*
 				   (list sprite-name mode direction))))))
 
-(defun set-animation (name mode direction &optional (frame 0) sprite-name)
+(defun set-animation (name mode direction &optional frame sprite-name)
   (let ((rectangle (get-rectangle name)))
     (change-animation-state rectangle mode direction frame sprite-name)
     (apply-animation-state rectangle)))
