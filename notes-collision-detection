@@ -23,6 +23,9 @@ awesome!
 Example for a sphere:
 x^2 + y^2 + z^2 <= r^2    // works!
 
+This is like a double Pythagorean theorem on the left side the resulting
+distance is, if equal r^2, a point _on_ the sphere
+
 (defun sphere-collision-p (x y z sphere-radius)
   "Returns true if the point P(x,y,z) lies within or touches the sphere of radius:
    sphere-radius."
@@ -31,6 +34,9 @@ x^2 + y^2 + z^2 <= r^2    // works!
 		     (list x y z)))
       (expt sphere-radius 2)))
 
+Through understanding that this is just a double-pythagoras we can formulate a collision
+test for a 2d-circle easily:
+x^2 + y^2 <= r^2  (awesome number two!)
 
 An object boundary defined in such a way is called an /implicit surface/!
 
