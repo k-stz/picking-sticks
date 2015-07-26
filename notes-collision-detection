@@ -3,7 +3,7 @@ objects represented by polygons, through their points, edges and faces
 
 implicit representation,
 geometrical objects such as spheres, cones, cylinders, tori (pl. torus), etc. which
-can't be explicitly represented but implicitly through a mathamatical expression:
+can't be explicitly represented but implicitly through a mathematical expression:
 
 implicit representation are usually represented as a mapping from 3d-space to 1d-real-numbers
 like so:
@@ -12,18 +12,50 @@ like so:
 
 f:R^3 -> R, where points given:
 f(x,y,z) // our R^3
-will evaluate into three regions,
-zero:
-f(x,y,z) = 0 // boundry of the object
+will evaluate into three regions zero, positive and negative:
+
+f(x,y,z) = 0 // boundary of the object
 f(x,y,z) > 0 // exterior of the object
 f(x,y,z) < 0 // interior of the object
 
 awesome!
 
-An object boundry definied in such a way is called an /implicit surface/!
+Example for a sphere:
+x^2 + y^2 + z^2 <= r^2    // works!
+
+(defun sphere-collision-p (x y z sphere-radius)
+  "Returns true if the point P(x,y,z) lies within or touches the sphere of radius:
+   sphere-radius."
+  (<= (apply #'+
+	     (mapcar #'(lambda (x) (expt x 2))
+		     (list x y z)))
+      (expt sphere-radius 2)))
+
+
+An object boundary defined in such a way is called an /implicit surface/!
 
 Advantages:
 - quick rejection culling (is it interior = CULL it out!)
 - fast intersection test: well simply feed a point into the f(x,y,z) function and you know
-  if it is inside or toughing the boundry: f(x,y,z) =< 0!
+  if it is inside or toughing the boundary: f(x,y,z) =< 0!
+
+half-space,
+we cut space in two along an infinite plane. The resulting two spaces left and right of
+the plane are infinitely large but still just half-spaces of a bigger infinity!
+
+convex objects (polygon),
+any two points within this object can connect in a straight line without leaving the region of
+the object. We need this word because collision tests are much easier with such objects!
+Foreshadowing: we will probably try to break concave polygons into smaller convex objects?
+
+concave polygon object,
+opposite of convex object. Contains an interior angle greater than 180-degrees.
+
+half-space intersection representation (convex objects only),
+another way to represent polygonal objects, here we cut away some space with planes and use
+the resulting half-space intersections to represent an object. An example would be to represent
+a rectangle in 2d by using two x-axis values to cut away the two sides - resulting in an
+infinitely long rectangle along the y axis- then provide two y-axis to encompass a finitely
+big rectangle! (see texatl.cl:space for this kind of rectangle representation!)
+This is reminiscent of the aabb test!
 
