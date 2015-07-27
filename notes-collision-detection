@@ -41,7 +41,7 @@ x^2 + y^2 <= r^2  (awesome number two!)
 An object boundary defined in such a way is called an /implicit surface/!
 
 Advantages:
-- quick rejection culling (is it interior = CULL it out!)
+- quick rejection culling (is it in the interior = CULL it out!)
 - fast intersection test: well simply feed a point into the f(x,y,z) function and you know
   if it is inside or toughing the boundary: f(x,y,z) =< 0!
 
@@ -65,3 +65,48 @@ infinitely long rectangle along the y axis- then provide two y-axis to encompass
 big rectangle! (see texatl.cl:space for this kind of rectangle representation!)
 This is reminiscent of the aabb test!
 
+--------------------------------------------------------------------------------
+We won't usually use the same geometry for collision as for rendering
+Pros:
+- it is usually to complex, and collision test don't need to be that precise
+- the usual triangle representation of objets are harder to querry for collision
+  then other shapes like spheres, for example
+- rendering data may be organized in a quite a different way than is useful for
+  collision. Collision tests probably want spatial hierarchical relationships
+  whereas rendering data will create topologies for adjacent vertices at best
+  and material attributes, color and texture coordinates at worst (useless for
+  collision tests!)
+- orgainising for collision tests makes the data smaller hence more efficient to
+  use and coherent in memory and useful for further extension and tests tailored
+  for collision
+- sometimes you want to explicitly differ, for example the plane representing
+  snow might be intentionally lowered in the proxy geometry to allow knee-deep
+  movement in the snow. Instead for exclusion tests, just use a differnt geometry
+  to begin with.
+- even if rendering data is not needed because an object is not visible it is
+  still needed for collision. Just imagine walking behind a wall, where the
+  camera sees the wall it will usually cull out everything behind it, you should
+  however still follow the law's of physics even when nobody is around to see it!
+
+Cons:
+- Data duplication. Could be solved by inferring the proxy geometry from the rendering
+  geometry (through linearization caching)!!
+- time to build the tools that generate the geometry or more time for the designer
+  to create the his models
+- visual consistency may suffer: objects may float above others, or fully intersect
+  (surely you seen the animations which simply move through anything when they parts
+   of it move outside the hitbox)
+- interdependency problems: if the rendering geometry changes, the collision geometry
+  might also have to change, and how is this process automated. Which of the two
+  geometry comes first?
+
+we use, hence, another geometry instead.. as a proxy:
+
+proxy geometry,
+the collision test geometry for objects. This usually reduces the complex rendering
+geometry by encapsulating a object of intrest into a:
+
+bounding volume,
+a simpler geometrical object like a box or a sphere representing the object in a
+simpler way than the actual rendering geometry for the sake of a simpler easier
+collision test!
