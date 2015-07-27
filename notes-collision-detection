@@ -110,3 +110,13 @@ bounding volume,
 a simpler geometrical object like a box or a sphere representing the object in a
 simpler way than the actual rendering geometry for the sake of a simpler easier
 collision test!
+
+--------------------------------------------------------------------------------
+Types of queries:
+
+interference detection or intersection testing,
+yes/no did the objects collide, do they intersect?
+Easy to implement, commonly used
+
+intersection finding,
+WHERE did they intersect?

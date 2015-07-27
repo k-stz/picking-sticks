@@ -7,3 +7,9 @@ v-sync can be had by (sdl2:gl-set-swap-interval 1) or -1
 
 
 google: "opengl picking" and implement the simplest approach
+
+
+ideas---------------------------------------------------------------------------
+
+rubber like rectangle, can stretch along axis at first, shouldn't be too hard
+for a collision test

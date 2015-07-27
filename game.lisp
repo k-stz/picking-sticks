@@ -593,8 +593,8 @@
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
 
-  ;; makes the keyboard state global, so we can access it whenever we want
-  ;; in the rendering loop
+  ;; makes the keyboard state global in the window object, so we can access
+  ;; it whenever we want in the rendering loop
   (keystate-update (keystate-tracker window) state repeat-p keysym)
   
   (let ((scancode (sdl2:scancode keysym)))
