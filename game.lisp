@@ -64,7 +64,9 @@
    (one-frame-time :initform (get-internal-real-time))
    (frames :initform 0)
    (width :accessor window-width)
-   (height :accessor window-height)))
+   (height :accessor window-height)
+   (keystate-tracker :initform (make-instance 'keystate-tracker)
+		     :reader keystate-tracker)))
 
 (defvar *game-window*)
 
@@ -545,11 +547,135 @@
     (setf *texture* m-texture)))
 
 
-;;Rendering----------------------------------------------------------------------
+
+
+
+;;Events------------------------------------------------------------------------
+
+
+(defmethod close-window ((window game-window))
+  (format t "Bye!~%")
+  ;; To _actually_ destroy the GL context and close the window,
+  ;; CALL-NEXT-METHOD.  You _may_ not want to do this, if you wish to
+  ;; prompt the user!
+  (call-next-method))
+
+(defparameter *width-height* 50.0)
+
+(defmethod mousewheel-event ((window game-window) ts x y)
+  ;; zoom in/out
+  (cond ((= y 1) (incf *zoom-z* 0.2)
+	 (progn (incf *width-height* 1.0)))
+	((= y -1)
+	 (progn (decf *zoom-z* 0.2) (decf *width-height* 1.0))))
+  (when (< *width-height* 1.0)
+    (setf *width-height* 1.0))
+  (render window))
+
+
+(defun init-nyo-rectangle ()
+  (let ((nyo-rectangle (game-objects:make-rectangle 100.0 100.0 64.0 96.0)))
+    (game-objects:add-rectangle-as :nyo nyo-rectangle)
+    (game-objects:set-animation :nyo :walk :down 0 :nyo)))
+
+(defparameter *nyo-rectangle* (init-nyo-rectangle))
+
+
+;; TODO: delete, just for test:
+(defparameter *next-frame-limit* 0)
+;; TODO: make it a method?
+(defun next-frame ()
+  (incf *next-frame-limit*)
+  (when (> *next-frame-limit* 2)
+    (game-objects:next-animation-frame :nyo)
+    (setf *next-frame-limit* 0)))
+
+
+(defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
+
+  ;; makes the keyboard state global, so we can access it whenever we want
+  ;; in the rendering loop
+  (keystate-update (keystate-tracker window) state repeat-p keysym)
+  
+  (let ((scancode (sdl2:scancode keysym)))
+    (when (eq :scancode-d scancode)
+      (game-objects:set-animation :nyo :walk :right)
+      (next-frame)
+      (game-objects:move :nyo (vec2 5.0 0.0)))
+    (when (eq :scancode-a scancode)
+      (game-objects:set-animation :nyo :walk :left)
+      (next-frame)
+      (game-objects:move :nyo (vec2 -5.0 0.0)))
+    (when (eq :scancode-w scancode)
+      (game-objects:set-animation :nyo :walk :up)
+      (next-frame)
+      (game-objects:move :nyo (vec2 0.0 5.0)))
+    (when (eq :scancode-s scancode)
+      (game-objects:set-animation :nyo :walk :down)
+      (next-frame)
+      (game-objects:move :nyo (vec2 0.0 -5.0)))
+    
+    (when (eq :scancode-c scancode)
+      (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
+    (when (eq :scancode-escape scancode)
+      (close-window window))
+    (when (eq :scancode-t scancode)
+      (print (typep ts 'fixnum) cl:*standard-output*))))
+
+(defgeneric using-keyboard-state (game-window))
+(defmethod using-keyboard-state ((window game-window))
+  (when (key-down-p (keystate-tracker window) :scancode-d)
+      (game-objects:set-animation :nyo :walk :right)
+      (next-frame)
+      (game-objects:move :nyo (vec2 5.0 0.0)))
+  (when (key-down-p (keystate-tracker window) :scancode-a)
+      (game-objects:set-animation :nyo :walk :left)
+      (next-frame)
+      (game-objects:move :nyo (vec2 -5.0 0.0)))
+  (when (key-down-p (keystate-tracker window) :scancode-w)
+      (game-objects:set-animation :nyo :walk :up)
+      (next-frame)
+      (game-objects:move :nyo (vec2 0.0 5.0)))
+  (when (key-down-p (keystate-tracker window) :scancode-s)
+      (game-objects:set-animation :nyo :walk :down)
+      (next-frame)
+      (game-objects:move :nyo (vec2 0.0 -5.0)))
+
+  (when (key-down-p (keystate-tracker window) :scancode-n)
+    (print "Nyo!")
+    (init-nyo-rectangle)))
+
+(defmethod mousebutton-event ((window game-window) state ts b x y)
+  (format t "~A button: ~A at ~A, ~A~%" state b x y)
+  (when (eq state :mousebuttondown)
+
+    (let* ((x (float x)) (y  (- (window-height window) (float y))))
+      (game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
+      )))
+
+
 
 (defparameter *rotate-x* 1.0)
 (defparameter *rotate-y* 0.0)
 (defparameter *zoom-z* -2.0)
+
+(defmethod mousemotion-event ((window game-window) ts mask x y xr yr)
+  ;; TODO reverse x y position for more intuitve cartesian, bottom left, orientation
+  (flet ((left-mouse-button-clicked-p ()
+	   (= mask 1)))
+    ;; TODO: allow with some keybinding
+    ;; rotate x, y axis
+    (when (left-mouse-button-clicked-p)
+      (incf *rotate-y* (/ xr 100.0))
+      (incf *rotate-x* (/ yr 100.0))
+      (let* ((x (float x)) (y  (- (window-height window) (float y))))
+      	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
+      	;      (game-objects::move-to :nyo (vec2 x y))
+       	)
+      )))
+
+
+;;Rendering----------------------------------------------------------------------
 
 (defvar *use-texture-number* 1) ;; for live-coding tests
 
@@ -672,6 +798,8 @@
   ;; after RENDER.
   (gl:clear :color-buffer)
 
+  (using-keyboard-state window)
+
   (draw-cube)
 
   (draw-rectangles)
@@ -680,98 +808,4 @@
   (framelimit window 60))
 
 
-
-
-;;Events------------------------------------------------------------------------
-
-(defmethod close-window ((window game-window))
-  (format t "Bye!~%")
-  ;; To _actually_ destroy the GL context and close the window,
-  ;; CALL-NEXT-METHOD.  You _may_ not want to do this, if you wish to
-  ;; prompt the user!
-  (call-next-method))
-
-(defparameter *width-height* 50.0)
-
-(defmethod mousewheel-event ((window game-window) ts x y)
-  ;; zoom in/out
-  (cond ((= y 1) (incf *zoom-z* 0.2)
-	 (progn (incf *width-height* 1.0)))
-	((= y -1)
-	 (progn (decf *zoom-z* 0.2) (decf *width-height* 1.0))))
-  (when (< *width-height* 1.0)
-    (setf *width-height* 1.0))
-  (render window))
-
-
-(defun init-nyo-rectangle ()
-  (let ((nyo-rectangle (game-objects:make-rectangle 100.0 100.0 64.0 96.0)))
-    (game-objects:add-rectangle-as :nyo nyo-rectangle)
-    (game-objects:set-animation :nyo :walk :down 0 :nyo)))
-
-(defparameter *nyo-rectangle* (init-nyo-rectangle))
-
-
-;; TODO: delete, just for test:
-(defparameter *next-frame-limit* 0)
-;; TODO: make it a method?
-(defun next-frame ()
-  (incf *next-frame-limit*)
-  (when (> *next-frame-limit* 2)
-    (game-objects:next-animation-frame :nyo)
-    (setf *next-frame-limit* 0)))
-
-(defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
-  (let ((scancode (sdl2:scancode keysym)))
-    (when (eq :scancode-d scancode)
-      (game-objects:set-animation :nyo :walk :right)
-      (next-frame)
-      (game-objects:move :nyo (vec2 5.0 0.0)))
-    (when (eq :scancode-a scancode)
-      (game-objects:set-animation :nyo :walk :left)
-      (next-frame)
-      (game-objects:move :nyo (vec2 -5.0 0.0)))
-    (when (eq :scancode-w scancode)
-      (game-objects:set-animation :nyo :walk :up)
-      (next-frame)
-      (game-objects:move :nyo (vec2 0.0 5.0)))
-    (when (eq :scancode-s scancode)
-      (game-objects:set-animation :nyo :walk :down)
-      (next-frame)
-      (game-objects:move :nyo (vec2 0.0 -5.0)))
-    
-    (when (eq :scancode-c
- scancode)
-      (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
-    (when (eq :scancode-escape scancode)
-      (close-window window))
-    (when (eq :scancode-t scancode)
-      (print (typep ts 'fixnum) cl:*standard-output*))))
-
-(defmethod mousebutton-event ((window game-window) state ts b x y)
-  (format t "~A button: ~A at ~A, ~A~%" state b x y)
-  (when (eq state :mousebuttondown)
-
-    (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      (game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
-      )))
-
-
-
-
-(defmethod mousemotion-event ((window game-window) ts mask x y xr yr)
-  ;; TODO reverse x y position for more intuitve cartesian, bottom left, orientation
-  (flet ((left-mouse-button-clicked-p ()
-	   (= mask 1)))
-    ;; TODO: allow with some keybinding
-    ;; rotate x, y axis
-    (when (left-mouse-button-clicked-p)
-      (incf *rotate-y* (/ xr 100.0))
-      (incf *rotate-x* (/ yr 100.0))
-      ;; (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      ;; 	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
-      ;; 	;      (game-objects::move-to :nyo (vec2 x y))
-      ;; 	)
-
-      )))
 

@@ -46,11 +46,15 @@
     vector))
 
 
-(defun image-file->image-object (path)
+(defun image-file->image-object (path &optional (format :png))
   ;; TODO: bad style?
   ;; special-variables are special for this reason:
   (let* ((*default-pathname-defaults* (asdf/system:system-source-directory "picking-sticks"))
-	 (img (convert-image-to-rgba (read-png-file path))))
+	 (img (convert-image-to-rgba
+	       (ecase format
+		 (:png (read-png-file path))
+		 (:jpeg (read-jpeg-file path))
+		 (:tiff (read-tiff-file path))))))
     ;; first dim: height then width then length of pixel, here 4 because rgba
     (with-image-bounds (height width) img
       (make-instance 'image-object :height height :width width
