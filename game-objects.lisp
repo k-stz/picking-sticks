@@ -437,7 +437,7 @@
 	(width (slot-value *global-texture* 'width))
 	(height (slot-value *global-texture* 'height)))
     (with-slots (sprite-name mode direction frame) animation-state
-      (print (list sprite-name mode direction frame))
+     ; (print (list sprite-name mode direction frame))
       (texatl.cl:with-sprite (x0 y0 x1 y1)
 	  (list sprite-name mode direction) frame *global-spritesheet*
 	(let ((x0 (/ x0 width))
