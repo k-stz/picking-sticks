@@ -145,3 +145,18 @@ in both the disjoint object A and B to each other. There can be infinite cloest 
 
 ETA, /estimated time of arrival/, or, more dramatic, TOI, /time of impact/
 
+--------------------------------------------------------------------------------
+pairwise collision tests for n objects, take O(n^2) time - every objects with
+every other object n x n!
+But we can use a divide and conquer approach:
+
+broad phase or n-<body> processing,
+use a rule to decide which objects /may/ collide. For example devide a scene into
+square regions, and whenever an object is inside a given region it is mapped to
+some square-region datastructure. This datastructure can then exclude all the
+objects that are sole inhabitants of a region from any collision test. The
+other objects under go the
+
+narrow phase (pair processing),
+perform all the pairwise test on the unconquered parts (those objects
+sharing the same square region!).
