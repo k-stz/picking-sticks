@@ -173,10 +173,10 @@
 
    ;; texture coordinates              ;; init is whole texture
                                        ;; on rectangle
-   (tex-x1 :initarg :tex-x1 :type vec2 :initform (vec3 0.0 0.0))
-   (tex-x2 :initarg :tex-x2 :type vec2 :initform (vec3 1.0 0.0))
-   (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec3 0.0 1.0))
-   (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec3 1.0 1.0))
+   (tex-x1 :initarg :tex-x1 :type vec2 :initform (vec2 0.0 0.0))
+   (tex-x2 :initarg :tex-x2 :type vec2 :initform (vec2 1.0 0.0))
+   (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec2 0.0 1.0))
+   (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec2 1.0 1.0))
 
    ;; for now we directly couple animation with the rectangle
    (animation-state :type animation :initform (make-animation) :reader animation-state)))

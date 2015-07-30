@@ -9,14 +9,6 @@
 
 (in-package :math)
 
-;; alas :kit.math though has a macro to build these automatically, it doesn't export
-;; them
-(deftype vec2 ()
-  `(SIMPLE-ARRAY SINGLE-FLOAT (2)))
-
-(deftype vec3 ()
-  `(SIMPLE-ARRAY SINGLE-FLOAT (3)))
-
 (defun vec2+ (v1 v2)
   (vec2 (+ (aref v1 0) (aref v2 0))
 	(+ (aref v1 1) (aref v2 1))))
