@@ -306,6 +306,12 @@
   (gl:cull-face :back)
   (gl:front-face :cw)
 
+  ;; with depth-buffer
+  (gl:enable :depth-test)
+  (gl:depth-mask :true)
+  (%gl:depth-func :lequal)
+  (gl:depth-range 0.0 1.0)
+  
   (initialize-program)
   (initialize-vao)
 
@@ -808,8 +814,8 @@
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
-  (gl:clear :color-buffer)
-
+  (gl:clear :color-buffer :depth-buffer-bit)
+  
   (using-keyboard-state window)
 
   (draw-cube)
