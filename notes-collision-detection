@@ -69,19 +69,19 @@ This is reminiscent of the aabb test!
 We won't usually use the same geometry for collision as for rendering
 Pros:
 - it is usually to complex, and collision test don't need to be that precise
-- the usual triangle representation of objets are harder to querry for collision
+- the usual triangle representation of ob jets are harder to query for collision
   then other shapes like spheres, for example
 - rendering data may be organized in a quite a different way than is useful for
   collision. Collision tests probably want spatial hierarchical relationships
   whereas rendering data will create topologies for adjacent vertices at best
   and material attributes, color and texture coordinates at worst (useless for
   collision tests!)
-- orgainising for collision tests makes the data smaller hence more efficient to
+- organizing for collision tests makes the data smaller hence more efficient to
   use and coherent in memory and useful for further extension and tests tailored
   for collision
 - sometimes you want to explicitly differ, for example the plane representing
   snow might be intentionally lowered in the proxy geometry to allow knee-deep
-  movement in the snow. Instead for exclusion tests, just use a differnt geometry
+  movement in the snow. Instead for exclusion tests, just use a different geometry
   to begin with.
 - even if rendering data is not needed because an object is not visible it is
   still needed for collision. Just imagine walking behind a wall, where the
@@ -104,7 +104,7 @@ we use, hence, another geometry instead.. as a proxy:
 
 proxy geometry,
 the collision test geometry for objects. This usually reduces the complex rendering
-geometry by encapsulating a object of intrest into a:
+geometry by encapsulating a object of interest into a:
 
 bounding volume,
 a simpler geometrical object like a box or a sphere representing the object in a
@@ -118,5 +118,30 @@ interference detection or intersection testing,
 yes/no did the objects collide, do they intersect?
 Easy to implement, commonly used
 
-intersection finding,
-WHERE did they intersect?
+intersection finding - WHERE did they intersect?
+One contact point may sometimes suffice other times, as in rigid body simulations,
+we need to detect a whole set of contact points /the contact manifold/!
+Calculating the contact manifold may be difficult, and approximations may be used -
+a common practice in games.
+
+collision properties,
+special collision queries, taking surface properties into account like slipperiness of a
+road and climbability of a wall
+
+penetration depth,
+how deep are two objects overlapping. The problem here is what start and end point to
+use to measure this. A solution to this can be the shortest movement vector needed
+to separate the already interpenetrated objects. Its computation is also a difficult
+problem.
+
+/separation distance/, has a beautiful definition:
+"The separation distance between two disjoint objects A and B is defined as _the minimum
+of the distances between points in A and points in B_"!
+Needed the predict the time (WHEN) two objects will collide. Also it poses another
+problem of finding the
+
+closest point,
+in both the disjoint object A and B to each other. There can be infinite cloest points!
+
+ETA, /estimated time of arrival/, or, more dramatic, TOI, /time of impact/
+

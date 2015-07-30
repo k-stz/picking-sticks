@@ -166,16 +166,17 @@
   ;;       transforming into 1d-array is easier (to pass into foreign-array)
   (;; postions
    ;; TODO: start counting at 0 ?
-   (x1 :initarg :x1 :type vec2)
-   (x2 :initarg :x2 :type vec2)
-   (y1 :initarg :y1 :type vec2)
-   (y2 :initarg :y2 :type vec2)
+   (x1 :initarg :x1 :type vec3)
+   (x2 :initarg :x2 :type vec3)
+   (y1 :initarg :y1 :type vec3)
+   (y2 :initarg :y2 :type vec3)
+
    ;; texture coordinates              ;; init is whole texture
                                        ;; on rectangle
-   (tex-x1 :initarg :tex-x1 :type vec2 :initform (vec2 0.0 0.0))
-   (tex-x2 :initarg :tex-x2 :type vec2 :initform (vec2 1.0 0.0))
-   (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec2 0.0 1.0))
-   (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec2 1.0 1.0))
+   (tex-x1 :initarg :tex-x1 :type vec2 :initform (vec3 0.0 0.0))
+   (tex-x2 :initarg :tex-x2 :type vec2 :initform (vec3 1.0 0.0))
+   (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec3 0.0 1.0))
+   (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec3 1.0 1.0))
 
    ;; for now we directly couple animation with the rectangle
    (animation-state :type animation :initform (make-animation) :reader animation-state)))
@@ -187,16 +188,18 @@
 			 (x 0.0)
 			 (y 0.0)
 			 (width 100.0)
-			 (height 100.0))
-  (let ((position (vec2 x y)))
-    (macrolet ((vec2+ (v1 v2)
-		 `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
-			(+ (aref ,v1 1) (aref ,v2 1)))))
+			 (height 100.0)
+			 (depth 0.0))
+  (let ((position (vec3 x y depth)))
+    (macrolet ((vec3+ (v1 v2)
+		 `(vec3 (+ (aref ,v1 0) (aref ,v2 0))
+			(+ (aref ,v1 1) (aref ,v2 1))
+			(+ (aref ,v1 2) (aref ,v2 2)))))
       (make-instance 'rectangle
 		     :x1 position
-		     :x2 (vec2+ position (vec2 width 0.0))
-		     :y1 (vec2+ position (vec2 0.0 height))
-		     :y2 (vec2+ position (vec2 width height))))))
+		     :x2 (vec3+ position (vec3 width 0.0 depth))
+		     :y1 (vec3+ position (vec3 0.0 height depth))
+		     :y2 (vec3+ position (vec3 width height depth))))))
 
 
 (defun rectangle->verts (rectangle)
@@ -223,7 +226,6 @@
 	    collect (rectangle->tex-coord
 		     (gethash key (the-table rectangle-seq-hash))))))
 
-;(defun move (rectangle))
 
 (defvar *vao*)
 (defvar *position-vbo*)
@@ -241,8 +243,7 @@
     ;;postion
     (gl:bind-buffer :array-buffer position-vbo)
     (%gl:enable-vertex-attrib-array 0)
-    ;; TODO: size 3 for depth?
-    (%gl:vertex-attrib-pointer 0 2 :float :false 0 0)
+    (%gl:vertex-attrib-pointer 0 3 :float :false 0 0)
 
     ;;texCoord
     (gl:bind-buffer :array-buffer tex-coord-vbo)
@@ -360,16 +361,19 @@
 ;;Transformations---------------------------------------------------------------
 
 ;; we can only move *dynamic-rectangles*
-(defun move-rectangle (rectangle direction-vec2)
-  (assert (typep direction-vec2 '(simple-array single-float (2))))
-  (macrolet ((vec2+ (v1 v2)
-	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
-		      (+ (aref ,v1 1) (aref ,v2 1)))))
+(defun move-rectangle (rectangle direction-vec2-or-vec3)
+  (let ((direction-vec3
+	 (cond ((typep direction-vec2-or-vec3 '(SIMPLE-ARRAY SINGLE-FLOAT (2)))
+		(vec3 (aref direction-vec2-or-vec3 0)
+		      (aref direction-vec2-or-vec3 1)
+		      0.0))
+	       ((typep direction-vec2-or-vec3 '(SIMPLE-ARRAY SINGLE-FLOAT (3)))
+		direction-vec2-or-vec3))))
     (with-slots (x1 x2 y1 y2) rectangle
-      (setf x1 (vec2+ x1 direction-vec2))
-      (setf x2 (vec2+ x2 direction-vec2))
-      (setf y1 (vec2+ y1 direction-vec2))
-      (setf y2 (vec2+ y2 direction-vec2)))))
+      (setf x1 (vec3+ x1 direction-vec3))
+      (setf x2 (vec3+ x2 direction-vec3))
+      (setf y1 (vec3+ y1 direction-vec3))
+      (setf y2 (vec3+ y2 direction-vec3)))))
 
 (defun move (name direction-vec2)
   ;; for now we assume only *dynamic-rectangles* can be moved
@@ -378,17 +382,18 @@
 
 
 ;; NEXT-TODO: doesn't work yet!
-(defun move-to (name point-vec2)
-  (let ((rectangle (get-rectangle name)))
-    (macrolet ((vec2+ (v1 v2)
-	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
-		      (+ (aref ,v1 1) (aref ,v2 1)))))
-    (with-slots (x1 x2 y1 y2) rectangle
-      (setf x1 point-vec2)
-      ;; (setf x2 (vec2+ point-vec2))
-      ;; (setf y1 (vec2+ y1 point-vec2))
-      ;; (setf y2 (vec2+ y2 point-vec2))
-      ))))
+;; REWRITE for VEC3 usage
+;; (defun move-to (name point-vec2)
+;;   (let ((rectangle (get-rectangle name)))
+;;     (macrolet ((vec2+ (v1 v2)
+;; 	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
+;; 		      (+ (aref ,v1 1) (aref ,v2 1)))))
+;;     (with-slots (x1 x2 y1 y2) rectangle
+;;       (setf x1 point-vec2)
+;;       ;; (setf x2 (vec2+ point-vec2))
+;;       ;; (setf y1 (vec2+ y1 point-vec2))
+;;       ;; (setf y2 (vec2+ y2 point-vec2))
+;;       ))))
 
 (defun get-position (rectangle-name)
   (slot-value (get-rectangle rectangle-name) 'x1))
