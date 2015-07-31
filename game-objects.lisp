@@ -403,11 +403,11 @@
     (with-slots (x1 x2 y1 y2) rectangle
       ;; move to origin (bottom left corner) apply scaling, move
       ;; move back relative to bottom left corner of rectangle
-      (setf x2 (vec2+ (math:vec2* (math:vec2- x2 x1) factor)
+      (setf x2 (vec3+ (math:vec3* (math:vec3- x2 x1) factor)
 		      x1))
-      (setf y1 (vec2+ (math:vec2* (math:vec2- y1 x1) factor)
+      (setf y1 (vec3+ (math:vec3* (math:vec3- y1 x1) factor)
 		      x1))
-      (setf y2 (vec2+ (math:vec2* (math:vec2- y2 x1) factor)
+      (setf y2 (vec3+ (math:vec3* (math:vec3- y2 x1) factor)
 		      x1)))))
 
 ;;;Animation
