@@ -1,3 +1,5 @@
+Notes on: "real-time collision detection" by Christer Ericson
+
 explicit representation,
 objects represented by polygons, through their points, edges and faces
 
@@ -194,3 +196,64 @@ sequential motion benefits include easy penetration resolution: just undo the si
 motion during the small time step, this is to be contrasted by the simultaneous where we
 have to undo motion during the a time step for _all_ the objects (possible minus some
 broad phase excluded ones)!
+
+--------------------------------------------------------------------------------
+Discrete vs continuous motion
+
+Discrete motion - static collision detection,
+Collision detection is meassured at a specific time, and the objects are treated as if
+they're frozen in said time (This is much cheaper than dynamic collision detection below)
+The object effectively teleports from time step to time step, the collision test is hence
+less precise. On the note of teleportation: the time step teleportation distance has to be
+smaller than the objects spatial extend or else the object might teleport through other
+objects with no collision detected, this is aptly called /tunneling/!!!
+
+Excursion on tunneling:
+To have more fun memorizing this, in quantum mechanics teleportation is an everyday thing
+performed by particles all the time, called quantum tunneling. According to QM electrons
+perform quantum leaps to move between between states around in an atom, as the
+wave(wave-particle duality) travels around the nuclei of the atom it reinforces itself on
+each iteration thereby maintaining its energy level.
+Another exciting thing: scientist were able to quantum tunnel a particle over the distance
+of 9meters. But this doesn't mean teleportation of humans is gonna happen soon, when prompted
+for this an expert said that they had to get the particle in a particular state before
+performing this, and the particles in human bodies just can't be manipulated into such
+a state anytime soon.
+/Excursion
+
+dynamic collision detection,
+we detect the collision by considering the continuous motion - meaning over a given time
+interval or between start and end of a time step. This is both more accurate and more
+expensive. More accurate because we can usually tell the exact time and point(s) of first
+contact.
+
+swept volume,
+in contiuous motion, this is what we refer to the space carved out by an object as it
+moves in the extend of a single time step! This can be used for the broad phase: only if
+the two objects' swept volumes do intersect do they become member of the same narrow phase
+group. Of course even then collision is not guaranteed (should be easy to imagine
+why). But imagine an object moving in a non-trivial path during the time step, the swept
+volume can then be hard to compute and work with! Fortunately such accuracy is rarely
+needed, and can be reduced for simplification to a linear motion.
+
+speedbox,
+in games the swept volume is usually simplified to an elongated box covering the objects
+full range of otion (or some similarly simple proxy object).
+
+
+relative motion,
+what-is (high-level explanation):
+substracting two motion vectors hence one being stationary and the other moving towards it
+for simpler intersection finding of the swept volumes. Consider v1 v2, for v1-v2, v2 is
+the stationary "observer" where v1-v2 is the vector that moves towards it from v1 while,
+again, v2 can't move. This explanation though is enough to work abstractly I want to
+understand this at a visceral - intuitive level.
+how-to (how to implement it): (TODO: test this)
+given two motion vectors v1 and v2 it is virtually always better to consider the relative
+motion:
+vp1 vp2 are position vectors, and v1 v2 are these vectors' motion (direction) vectors
+the relative motion is the substraction: v1-v2
+The observer is the right-hand vector: vp2
+it is immobile as vp1+(v1-v2) moves towards it (as far as the time step allows).
+This is better because we now only have the swept volume carved out by vp1+(v1-v2)
+
