@@ -160,3 +160,37 @@ other objects under go the
 narrow phase (pair processing),
 perform all the pairwise test on the unconquered parts (those objects
 sharing the same square region!).
+
+--------------------------------------------------------------------------------
+Sequential vs simultaneous motion,
+for both we break down movement to the unit of _time step_(!). Simultaneous motion
+is more realistic but more expensive to compute:
+(1) determine earliest time of contact
+(2) move all objects for the extend of the no-contact-time
+(3) resolve the collision
+(4) repeat for the extend of the time step
+A problem occurs when the object moves along a surface, then a collision resolution
+would take place all the time and the simulation would only advance by a small
+fraction.
+While broad phase grouping can help divide and conquer the problem.
+
+An alternative simultaneous motion solution: advance the objects by a fixed small time
+step, when an interpenetration of objects during a timestep occurs restore the state
+before the timestep. This is also expensive.
+
+
+The accuracy of simultaneous motion should be reserved for rigid-body simulations.
+For most program sequential motion suffices (including games).
+
+Sequential motion accuracy problems:
+(1) Two objects during motion, in a sequential approach one object might move past the
+collision point, then the other object also moves past it -> no collision occurs. (2) One
+object is just behind another object, when it moves first it will catch up but if both
+move at the same speed this catching up wouldn't make sense.  Both these issues _can be
+solved by just making the time step smaller_!
+In games the small time step is easily provided by the _high frame rate_(!)
+
+sequential motion benefits include easy penetration resolution: just undo the single
+motion during the small time step, this is to be contrasted by the simultaneous where we
+have to undo motion during the a time step for _all_ the objects (possible minus some
+broad phase excluded ones)!
