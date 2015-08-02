@@ -257,3 +257,17 @@ The observer is the right-hand vector: vp2
 it is immobile as vp1+(v1-v2) moves towards it (as far as the time step allows).
 This is better because we now only have the swept volume carved out by vp1+(v1-v2)
 
+Optimization,
+is mainly achived by the broad phase, putting objects into regions or regio hierarchies that
+may even be recursively extended when more objects govern a certain region (implementation
+example: quadtree).
+
+Robustness,
+two problems: floating point inprecision and geometry nonsense through transformation. One
+can give rise to other, for example: space inverting on itself, through interpolation
+off-by-one bug turning into extrapolation; or trasformation order is violated and rotation
+scaling distorts the geometry, or transforming normals on a non-uniform object (transpose
+(inverse norm-matrix)), or systems prone to gimbal lock may have unexpected orientation at
+certain stages of interpolation.  The collision system must be prepare and avoid those for..
+robustness!
+
