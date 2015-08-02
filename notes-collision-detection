@@ -45,7 +45,7 @@ An object boundary defined in such a way is called an /implicit surface/!
 Advantages:
 - quick rejection culling (is it in the interior = CULL it out!)
 - fast intersection test: well simply feed a point into the f(x,y,z) function and you know
-  if it is inside or toughing the boundary: f(x,y,z) =< 0!
+  if it is inside or touching the boundary: f(x,y,z) =< 0!
 
 half-space,
 we cut space in two along an infinite plane. The resulting two spaces left and right of
@@ -70,10 +70,10 @@ This is reminiscent of the aabb test!
 --------------------------------------------------------------------------------
 We won't usually use the same geometry for collision as for rendering
 Pros:
-- it is usually to complex, and collision test don't need to be that precise
-- the usual triangle representation of ob jets are harder to query for collision
+- it is usually too complex, and collision test don't need to be that precise
+- the usual triangle representation of objects are harder to query for collision
   then other shapes like spheres, for example
-- rendering data may be organized in a quite a different way than is useful for
+- rendering data may be organized in quite a different way than is useful for
   collision. Collision tests probably want spatial hierarchical relationships
   whereas rendering data will create topologies for adjacent vertices at best
   and material attributes, color and texture coordinates at worst (useless for
@@ -94,9 +94,9 @@ Cons:
 - Data duplication. Could be solved by inferring the proxy geometry from the rendering
   geometry (through linearization caching)!!
 - time to build the tools that generate the geometry or more time for the designer
-  to create the his models
+  to create his models
 - visual consistency may suffer: objects may float above others, or fully intersect
-  (surely you seen the animations which simply move through anything when they parts
+  (surely you seen the animations which simply move through anything when parts
    of it move outside the hitbox)
 - interdependency problems: if the rendering geometry changes, the collision geometry
   might also have to change, and how is this process automated. Which of the two
@@ -153,9 +153,9 @@ every other object n x n!
 But we can use a divide and conquer approach:
 
 broad phase or n-<body> processing,
-use a rule to decide which objects /may/ collide. For example devide a scene into
+use a rule to decide which objects /may/ collide. For example divide a scene into
 square regions, and whenever an object is inside a given region it is mapped to
-some square-region datastructure. This datastructure can then exclude all the
+some square-region data structure. This data structure can then exclude all the
 objects that are sole inhabitants of a region from any collision test. The
 other objects under go the
 
@@ -174,11 +174,11 @@ is more realistic but more expensive to compute:
 A problem occurs when the object moves along a surface, then a collision resolution
 would take place all the time and the simulation would only advance by a small
 fraction.
-While broad phase grouping can help divide and conquer the problem.
 
-An alternative simultaneous motion solution: advance the objects by a fixed small time
-step, when an interpenetration of objects during a timestep occurs restore the state
-before the timestep. This is also expensive.
+While broad phase grouping can help divide and conquer the problem.  An alternative
+simultaneous motion solution: advance the objects by a fixed small time step, when an
+interpenetration of objects during a time step occurs restore the state before the
+time step. This is also expensive.
 
 
 The accuracy of simultaneous motion should be reserved for rigid-body simulations.
@@ -194,31 +194,32 @@ In games the small time step is easily provided by the _high frame rate_(!)
 
 sequential motion benefits include easy penetration resolution: just undo the single
 motion during the small time step, this is to be contrasted by the simultaneous where we
-have to undo motion during the a time step for _all_ the objects (possible minus some
+have to undo motion during a time step for _all_ the objects (possibly minus some
 broad phase excluded ones)!
 
 --------------------------------------------------------------------------------
 Discrete vs continuous motion
 
 Discrete motion - static collision detection,
-Collision detection is meassured at a specific time, and the objects are treated as if
+Collision detection is measured at a specific time, and the objects are treated as if
 they're frozen in said time (This is much cheaper than dynamic collision detection below)
 The object effectively teleports from time step to time step, the collision test is hence
 less precise. On the note of teleportation: the time step teleportation distance has to be
 smaller than the objects spatial extend or else the object might teleport through other
-objects with no collision detected, this is aptly called /tunneling/!!!
+objects with no collision being detected, this is aptly called /tunneling/!!!
 
 Excursion on tunneling:
 To have more fun memorizing this, in quantum mechanics teleportation is an everyday thing
 performed by particles all the time, called quantum tunneling. According to QM electrons
-perform quantum leaps to move between between states around in an atom, as the
-wave(wave-particle duality) travels around the nuclei of the atom it reinforces itself on
-each iteration thereby maintaining its energy level.
+perform quantum leaps to move between energy states in atom, as the wave(wave-particle
+duality) travels around the nuclei of the atom it reinforces itself on each iteration
+thereby maintaining its energy level.
+
 Another exciting thing: scientist were able to quantum tunnel a particle over the distance
-of 9meters. But this doesn't mean teleportation of humans is gonna happen soon, when prompted
-for this an expert said that they had to get the particle in a particular state before
-performing this, and the particles in human bodies just can't be manipulated into such
-a state anytime soon.
+of 9 meters. But this doesn't mean teleportation of humans is gonna any time happen soon,
+when prompted for this an expert said that they had to get the particle in a particular
+state before performing this, and the particles in human bodies just can't be manipulated
+into such a state anytime soon.
 /Excursion
 
 dynamic collision detection,
@@ -228,8 +229,8 @@ expensive. More accurate because we can usually tell the exact time and point(s)
 contact.
 
 swept volume,
-in contiuous motion, this is what we refer to the space carved out by an object as it
-moves in the extend of a single time step! This can be used for the broad phase: only if
+in continuous motion, this is what we refer to the space carved out by an object as it
+moves for the extend of a single time step! This can be used for the broad phase: only if
 the two objects' swept volumes do intersect do they become member of the same narrow phase
 group. Of course even then collision is not guaranteed (should be easy to imagine
 why). But imagine an object moving in a non-trivial path during the time step, the swept
@@ -238,34 +239,34 @@ needed, and can be reduced for simplification to a linear motion.
 
 speedbox,
 in games the swept volume is usually simplified to an elongated box covering the objects
-full range of otion (or some similarly simple proxy object).
+full range of motion (or some similarly simple proxy object).
 
 
 relative motion,
 what-is (high-level explanation):
-substracting two motion vectors hence one being stationary and the other moving towards it
+subtracting two motion vectors hence one being stationary and the other moving towards it
 for simpler intersection finding of the swept volumes. Consider v1 v2, for v1-v2, v2 is
 the stationary "observer" where v1-v2 is the vector that moves towards it from v1 while,
 again, v2 can't move. This explanation though is enough to work abstractly I want to
 understand this at a visceral - intuitive level.
-how-to (how to implement it): (TODO: test this)
+how-to (how to implement it explanation): (TODO: test this)
 given two motion vectors v1 and v2 it is virtually always better to consider the relative
 motion:
 vp1 vp2 are position vectors, and v1 v2 are these vectors' motion (direction) vectors
-the relative motion is the substraction: v1-v2
+the relative motion is the subtraction: v1-v2
 The observer is the right-hand vector: vp2
 it is immobile as vp1+(v1-v2) moves towards it (as far as the time step allows).
 This is better because we now only have the swept volume carved out by vp1+(v1-v2)
 
 Optimization,
-is mainly achived by the broad phase, putting objects into regions or regio hierarchies that
+is mainly achieved by the broad phase, putting objects into regions or region hierarchies that
 may even be recursively extended when more objects govern a certain region (implementation
 example: quadtree).
 
 Robustness,
-two problems: floating point inprecision and geometry nonsense through transformation. One
-can give rise to other, for example: space inverting on itself, through interpolation
-off-by-one bug turning into extrapolation; or trasformation order is violated and rotation
+two problems: floating point imprecision and geometry nonsense through transformation. One
+can give rise to the other, for example: space inverting on itself, through interpolation
+off-by-one bug turning into extrapolation; or transformation order is violated and rotation
 scaling distorts the geometry, or transforming normals on a non-uniform object (transpose
 (inverse norm-matrix)), or systems prone to gimbal lock may have unexpected orientation at
 certain stages of interpolation.  The collision system must be prepare and avoid those for..
