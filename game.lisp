@@ -41,7 +41,7 @@
 ;;;
 ;;; First, run this. It is SAFE to run repeatedly:
 ;;;
-   (sdl2.kit:start)
+;   (sdl2.kit:start)
 
 ;;;
 ;;; Then, make a window.
@@ -74,6 +74,8 @@
 (defvar *game-window*)
 
 (defun main ()
+  ;; TODO: intefers with other sdl2 using applications once executed!
+  (sdl2.kit:start)
   (setf *game-window* (make-instance 'game-window)))
 
 
