@@ -274,7 +274,7 @@ robustness!
 
 
 ------------------------------------------------------------------------------
-Math primer
+Math and geometry primer
 
 
 transpose matrix of A: A^t
@@ -411,3 +411,63 @@ the object (when being multiplied). Now how can we restore the "aspect" ratio of
 object back to identity iw have lost the leverage, the dimension, to do so? We have no information
 to make it back. This is why we can't inverse this such a matrix. (this might be related to
 "covering map" and "homomorphism" and probably also with "gimbal lock").
+
+
+
+crossproduct parallelogram,
+the magnitude of the crossproduct is equal to the parallelogram with the vectors used for sides
+but that's nothing:
+
+signed area and determinant,
+the determinant corresponds to the
+- singed length (1d-matrix determinant)
+- signed area of the parallelogram (2 x 2)
+- signed volume of the parallelepiped of the (3 x 3)
+- or the signed hyper-volume (!) of the n-dimensional hyper-parallelpiped
+
+The parallelogram takes the two vector rows unites them at origin (0,0) and projects the paralleogram
+from their respective tips. The parallelepiped is that parallelogram plus the columns from the
+third vector on top of it. The hyper-parallelpiped would be a n-dimensional beast unfathomable for
+us humans.
+
+again note how we can't build any of these objects when a dimension is lacking: det(A)=0
+
+--------------------------------------------------------------------------------
+Determinant identities
+
+|A| = |A^t|   ;; should be obvious now with the above signed area explanation
+
+If B is obtained by interchaing the two rows or two columns of A, then |B| = -|A|
+again obvious now, when we consider that v x w, w x v, an opposing vector
+(use the _right-hand rule_!!)
+
+This one is difficult to wrap my head around for now, makes sense for translating rotating
+but not quite for scaling. Apparently multipying two matrices and yielding the determinant
+produces the same parallelepiped as just multiplying the determinants of both matrices:
+
+|A|*|B| = |A*B|
+
+
+Another novelty:
+You can objtain B from A by multiplying _a single column/row_ by a scalar k. This can't be
+done with matrix with matrix multiplication. This method of matrix permutation is new to me
+and must be noted!
+Given this, the following is trivial:
+|B| = s*|A|    ;; s being the scalar
+We can easily imagine just growing a single vector is growing the parallelepiped by the same
+factor as just multiplying the whole thing by the factor that grew the individual vector.
+They're both just factors in a formular comprised of only mutliplictionsequation
+So a cube of side 3*3*3 = 27, we grow a single vector 3*3*4 = 36, now growing the vector
+required a factor of 4/3 because 4/3 * 3 = 4. And now the determinant muliplication:
+(3*3*3)=27 * 4/3 = also 36
+
+if A contains rows who are multiplies of colums or vice verse then |A|=0. Trivial, if they're
+muliplies then they're lineraly dependent -> freedom loss -> no dimension to span a plane or
+grow a parallelepiped -> volume,area,segment = 0 = determinant
+
+is any column/row zero then ofc |A|=0, again dimensions drop -> ..
+
+--------------------------------------------------------------------------------
+Another way to calculate determinants:
+_"use column and row operations"_(?) on the matrix to reduce it to a triangular matrix.
+Now the product is then the product of the main diagonal entries!!
