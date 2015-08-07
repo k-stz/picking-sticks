@@ -272,3 +272,142 @@ scaling distorts the geometry, or transforming normals on a non-uniform object (
 certain stages of interpolation.  The collision system must be prepare and avoid those for..
 robustness!
 
+
+------------------------------------------------------------------------------
+Math primer
+
+
+transpose matrix of A: A^t
+
+/skew symetric/ or /antisymetric/ matrix,
+when A^t = -A. For example rotation about the x-axis, then the antisymetric matrix
+would be a 180-degree turn around the x-axis
+
+;; 90-degrees              ;; 180-degree of 90-degrees turn before
+#<[1.0, 0.0, 0.0, 0.0]     #<[1.0, 0.0, 0.0, 0.0]
+  [0.0, 0.0, -1.0, 0.0]	     [0.0, 0.0, 1.0, 0.0]
+  [0.0, 1.0, 0.0, 0.0]	     [0.0, -1.0, 0.0, 0.0]
+  [0.0, 0.0, 0.0, 1.0]>	     [0.0, 0.0, 0.0, 1.0]>
+
+matrix addition,
+pairwise addition of correspoing positions. Given matrix A=[a.ij] and B=[b.ij]
+then the sum matrix C=[c.ij] = A+B is defined as the pairwise addition of elemens:
+c.ij = a.ij + b.ij
+
+
+lower trianglular matrix,
+all the entries of the matrix above the main diagonal are zero
+
+upper triangular matrix,
+opposite of lower triangular matrix
+
+row/column vector or row/column matrix,
+an m x n (m by n) matrix is comprixed of smaller row/column matrices that make
+up the eponymous rows/columns of the matrix. Also called the row/column vector.
+
+singular (or noninvertible),
+matrices that do _not_ have an inverse. For example: any matrix that has an all-zero
+row.
+Or more formally: if the determinant of matrix is 0, then the matrix is noninvertiable.
+
+
+Algebraic identites involvoing matricies,
+given scalar r and s and matrices A, B and C (of appropriate sizes required to perofrm
+the operations) the following identities hold:
+
+s(A+B) = s*A + s*B     ;; i.e. scalars can be factored out
+A(s+r) = r*A + s*A     ;; matrices too
+
+scalar*matrix multiplications are associative
+r(s*A) = s(r*A) = (r*s)A
+
+A(B+C) = AB + AC
+
+(s*A)*B = s(A*B) = A(s*B)  ;; tricky
+
+transposing,
+(A+B)^t = A^t + B^t  ;; is distributive:
+(s*A)^t = s*A^t      ;; doesn't mind scalars
+(A*B)^t = B^t*A^t    ;; switches the order when dissolving parens! tricky!!
+
+
+--------------------------------------------------------------------------------
+Determinants det(A) or |A|
+it is a _single number_ associated with the matrix and it tells us if the systems of
+linear equations, that matrix is comprised of, is _solvable_. It is solvable when the
+values is det(A) != 0. One of the things we want to solve is if the matrix is
+_invertible_.
+
+We will mainly need to calculate the determinant of 2 x 2 and 3 x 3 matrices
+
+2 x 2: simply multiplying the values in the diagonals and substracting them.
+
+|A| = |u1 u2| = u1*v2 - u2*v1   (imagine how you take out the values diagonally squish
+      |v1 v2|                    them in your palm, finally you make them fight substracing
+                                 each others troups)
+
+before the awesome 3 x 2, check out the single element matrix:
+
+|A| = |u1| = u1   which makes sense, since the identity matrix would be 1, and you can't
+                  perform any transformations(arithmetic opereations) that could convince a 0
+		  to be a one (remember det(A)=0 means, unsolvable as far as we're concerned)
+
+finally, the cool one:
+
+|A| = |u1 u1 u1| = u1(v2*w3-v3*w2) + u2*(v3*w1-v1*w3) + u3(v1*w2-v2*w1)
+      |v1 v1 v1|
+      |w1 w1 w1|
+
+
+
+yeah.. never mind that, check this out this is an identity of the above:
+
+|A| = |u1 u1 u1| = u · ( v x w)
+      |v1 v1 v1|     ^     ^
+      |w1 w1 w1|     |     cross-product
+                     dot-product
+
+
+		     
+v x w returns a vector perpendicular to the plane that v and w span. Now the dot-product
+of this perpendicular vector with u determines the cos angle between the two. Remember how
+a determinant of (0.0, 1.0] means the the matrix equations are solvable? Well guess what,
+this is the case when u and the plane-normal (from v x w) are perpendicular!  And this is
+exactly the case if u lies in the same plane as v and w! Visually this is simply the case
+when all three vectors share the same plane - or - if we _lose a degree of freedom (make
+the gimbal mind mapping here!) (dimension) because one of the vectors collapses into the
+plane of one of other two!!
+
+note also how the cross-product for two linearly dependent vectors (parallel to each
+other: either face the same direction or the opposite) is also 0! Which makes sense no
+plane is being span, we lose a degree of freedom! Now a dot-product with vec(0,0,0) - a
+point - is always 0 (we failed to span the initial plane, no 3rd dimension for you!).
+
+Now we can see the broad pattern here: Whenever we lose one of our total number of
+available dimension/degree of freedom the determinant is equal to 0! You should be able to
+see it clearly now before your eye:
+
+1 x 1 matrix: a single vector is 1 dimensional, if it equal ot 0, it no longer has extend in
+any dimension geometrically and is just a point
+
+2 x 2 matrix, we can quickly see if we have linearly dependent vectors or, if a row is 0,
+a point and a vector and hence lacking the ability to span plane.
+
+3 x 3 like described above
+
+Finally, imagining the inverse matrix solution:
+If we try to yield an identity matrix why is a determinant of 0 indicating that there won't
+be a solution? What is the big deal with lacking a degree of freedom there? We can imagine
+this using 1d-matrix that is just a vector whose determinant != 0 which is the case if
+vector is "line". Now if were to transform an object using this 1d-matrix which is basically
+a scalar, we could streth the object or shrink it in this one dimension. And because we
+have the maginitutde with which we stretch the object - the scalar - we can transform it
+back to an identity matrix:
+scalar 3 ; /3
+scalar 1 <- identity matrix
+
+But what happens if the degree of freedom drops to zero? The vector (0) copletely annhiliates
+the object (when being multiplied). Now how can we restore the "aspect" ratio of such an
+object back to identity iw have lost the leverage, the dimension, to do so? We have no information
+to make it back. This is why we can't inverse this such a matrix. (this might be related to
+"covering map" and "homomorphism" and probably also with "gimbal lock").
