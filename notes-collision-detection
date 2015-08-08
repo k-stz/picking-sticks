@@ -470,4 +470,26 @@ is any column/row zero then ofc |A|=0, again dimensions drop -> ..
 --------------------------------------------------------------------------------
 Another way to calculate determinants:
 _"use column and row operations"_(?) on the matrix to reduce it to a triangular matrix.
-Now the product is then the product of the main diagonal entries!!
+Now the product of the main diagonal entries is the determinant. BUT the regular u · w x v
+STILL works!!
+
+Now how can this be that we can willy-nilly add,substract and multiply rows to each other
+and still yield the same determinant? If we consider the cross-product and the
+parallelogram that the resulting vectors magnitutde represent we can test that these kind
+of reduction operations hold true
+
+(cross-product (vec3 3.0 0.0 0.0)
+	       (vec3 0.0 3.0 0.0)) ==> #(0.0 0.0 9.0) ;; clearly the magnitude is 3*3=9
+
+now adding one row to another is directly pertaining these vectors so:
+
+(cross-product (vec+ (vec3 3.0 0.0 0.0)
+		     (vec3 0.0 3.0 0.0)) ;; adding b to a here, just like adding for example  row 1 to 2 
+	       (vec3 0.0 3.0 0.0)) ==> #(0.0 0.0 9.0)  ;; it still holds true!!
+
+;; now adding -0.5 the b to a+b
+(cross-product (vec+
+		(vec* (vec3 0.0 3.0 0.0) -0.5) ;; -0.5 b
+		(vec3 3.0 3.0 0.0)) ;; already a+b
+	       (vec3 0.0 3.0 0.0)) ==> #(0.0 0.0 9.0)  ;; still identity!!
+
