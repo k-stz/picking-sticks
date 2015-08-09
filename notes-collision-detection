@@ -538,3 +538,70 @@ this is what it looks in action:
 		       this is because, again, /minor/ _are_ determinants of sub-matrices defined as
 		       the matrix yielded by removing one row and column from A.
 	       =  -80   -    16     +  72  = -24 ;;<- and indeed the determinant is -24
+
+--------------------------------------------------------------------------------
+Determinant applications!
+
+Cramer's rule
+
+solving a system of linear equations
+
+ax+by=e  
+cx+dy=f  can be expressed as:
+
+A = [a b  , X = [x   , B = [e
+     c d]        y]         f]
+
+
+where A is the /coefficient matrix/
+X is the /solution vector/
+B is the /constant vector/
+
+above linear equation system can be now written as:
+  AX=B ;; x A⁻¹ <- inverse
+and solving for X, ideally the single point where two lines intersect:
+  X=A⁻¹*x
+From this we can see that to get the solution we must know of A is actually _invertible_!
+
+That's all well and good, but let's first consider how do we actually represent lines
+using the above two linear equations?
+Most people will be familiar with the slope-intercept notation:
+
+y=xm+b  ;; where m is the slope and b the intercept (the point where the line crosses the y-axis)
+
+Real example m=0 and b=1
+y=1 which is a line parallel parallel to the coordinate x axis and offset by one, and it can
+be easily formulated into a function f(x)=1
+But how do we use this representation with a form like:
+
+  ax+by=e
+
+First of what's up with the a, b and e? Well that's what you get when you algebraically manipulate
+our fine slope-intercept form:
+
+ax+by=c ;-ax
+by = -ax + c  ;; and there is out "y=mx+b"
+
+Now lets try to transform these slope-intercept form into general linear equations
+
+(1) y=2     ->   0*x+1*y=2
+(2) y=x ;;-x -> -1*x+1*y=0
+which have a point in common at P(2,2), so let's see if we can find a solution using the matrix
+form
+
+ 0*x+1*y=2 into matrix-form->  [ 0 1  x  [x    = [2
+-1*x+1*y=0                      -1 1]     y]      0]
+                                 A    *   X    =  B
+So lets see if A is invertible, so we can solve for X:
+|A| = | 0 1| = -1 invertible!!
+      |-1 1|
+
+well lets cheat here and get inverse matrix without a formal way:
+A⁻¹= [1.0 -1.0
+      1.0 0.0]
+
+Now we plug this into the equation X =A⁻¹B
+[1.0 -1.0 x [2  = [2
+ 1.0 0.0]    0]    2]   and indeed X = [2
+                                        2]
+Which is the intersecting point of y=2, y=x!!!					
