@@ -143,7 +143,7 @@ Needed the predict the time (WHEN) two objects will collide. Also it poses anoth
 problem of finding the
 
 closest point,
-in both the disjoint object A and B to each other. There can be infinite cloest points!
+in both the disjoint object A and B to each other. There can be infinite closest points!
 
 ETA, /estimated time of arrival/, or, more dramatic, TOI, /time of impact/
 
@@ -279,8 +279,8 @@ Math and geometry primer
 
 transpose matrix of A: A^t
 
-/skew symetric/ or /antisymetric/ matrix,
-when A^t = -A. For example rotation about the x-axis, then the antisymetric matrix
+/skew symmetric/ or /antisemitic/ matrix,
+when A^t = -A. For example rotation about the x-axis, then the antisemitic matrix
 would be a 180-degree turn around the x-axis
 
 ;; 90-degrees              ;; 180-degree of 90-degrees turn before
@@ -291,28 +291,28 @@ would be a 180-degree turn around the x-axis
 
 matrix addition,
 pairwise addition of correspoing positions. Given matrix A=[a.ij] and B=[b.ij]
-then the sum matrix C=[c.ij] = A+B is defined as the pairwise addition of elemens:
+then the sum matrix C=[c.ij] = A+B is defined as the pairwise addition of elements:
 c.ij = a.ij + b.ij
 
 
-lower trianglular matrix,
+lower triangular matrix,
 all the entries of the matrix above the main diagonal are zero
 
 upper triangular matrix,
 opposite of lower triangular matrix
 
 row/column vector or row/column matrix,
-an m x n (m by n) matrix is comprixed of smaller row/column matrices that make
+an m x n (m by n) matrix is comprised of smaller row/column matrices that make
 up the eponymous rows/columns of the matrix. Also called the row/column vector.
 
 singular (or noninvertible),
 matrices that do _not_ have an inverse. For example: any matrix that has an all-zero
 row.
-Or more formally: if the determinant of matrix is 0, then the matrix is noninvertiable.
+Or more formally: if the determinant of matrix is 0, then the matrix is noninvertible.
 
 
-Algebraic identites involvoing matricies,
-given scalar r and s and matrices A, B and C (of appropriate sizes required to perofrm
+Algebraic identities involving matrices,
+given scalar r and s and matrices A, B and C (of appropriate sizes required to perform
 the operations) the following identities hold:
 
 s(A+B) = s*A + s*B     ;; i.e. scalars can be factored out
@@ -340,16 +340,16 @@ _invertible_.
 
 We will mainly need to calculate the determinant of 2 x 2 and 3 x 3 matrices
 
-2 x 2: simply multiplying the values in the diagonals and substracting them.
+2 x 2: simply multiplying the values in the diagonals and subtracting them.
 
 |A| = |u1 u2| = u1*v2 - u2*v1   (imagine how you take out the values diagonally squish
-      |v1 v2|                    them in your palm, finally you make them fight substracing
-                                 each others troups)
+      |v1 v2|                    them in your palm, finally you make them fight subtracting
+                                 each others troops)
 
 before the awesome 3 x 2, check out the single element matrix:
 
 |A| = |u1| = u1   which makes sense, since the identity matrix would be 1, and you can't
-                  perform any transformations(arithmetic opereations) that could convince a 0
+                  perform any transformations(arithmetic operations) that could convince a 0
 		  to be a one (remember det(A)=0 means, unsolvable as far as we're concerned)
 
 finally, the cool one:
@@ -368,7 +368,7 @@ yeah.. never mind that, check this out this is an identity of the above:
                      dot-product
 
 
-		     
+
 v x w returns a vector perpendicular to the plane that v and w span. Now the dot-product
 of this perpendicular vector with u determines the cos angle between the two. Remember how
 a determinant of (0.0, 1.0] means the the matrix equations are solvable? Well guess what,
@@ -387,7 +387,7 @@ Now we can see the broad pattern here: Whenever we lose one of our total number 
 available dimension/degree of freedom the determinant is equal to 0! You should be able to
 see it clearly now before your eye:
 
-1 x 1 matrix: a single vector is 1 dimensional, if it equal ot 0, it no longer has extend in
+1 x 1 matrix: a single vector is 1 dimensional, if it equal to 0, it no longer has extend in
 any dimension geometrically and is just a point
 
 2 x 2 matrix, we can quickly see if we have linearly dependent vectors or, if a row is 0,
@@ -400,22 +400,22 @@ If we try to yield an identity matrix why is a determinant of 0 indicating that 
 be a solution? What is the big deal with lacking a degree of freedom there? We can imagine
 this using 1d-matrix that is just a vector whose determinant != 0 which is the case if
 vector is "line". Now if were to transform an object using this 1d-matrix which is basically
-a scalar, we could streth the object or shrink it in this one dimension. And because we
-have the maginitutde with which we stretch the object - the scalar - we can transform it
+a scalar, we could stretch the object or shrink it in this one dimension. And because we
+have the magnitude with which we stretch the object - the scalar - we can transform it
 back to an identity matrix:
 scalar 3 ; /3
 scalar 1 <- identity matrix
 
-But what happens if the degree of freedom drops to zero? The vector (0) copletely annhiliates
+But what happens if the degree of freedom drops to zero? The vector (0) completely annihilates
 the object (when being multiplied). Now how can we restore the "aspect" ratio of such an
-object back to identity iw have lost the leverage, the dimension, to do so? We have no information
+object back to identity if we have lost the leverage, the dimension, to do so? We have no information
 to make it back. This is why we can't inverse this such a matrix. (this might be related to
 "covering map" and "homomorphism" and probably also with "gimbal lock").
 
 
 
-crossproduct parallelogram,
-the magnitude of the crossproduct is equal to the parallelogram with the vectors used for sides
+cross product parallelogram,
+the magnitude of the cross product is equal to the parallelogram with the vectors used for sides
 but that's nothing:
 
 signed area and determinant,
@@ -423,11 +423,11 @@ the determinant corresponds to the
 - singed length (1d-matrix determinant)
 - signed area of the parallelogram (2 x 2)
 - signed volume of the parallelepiped of the (3 x 3)
-- or the signed hyper-volume (!) of the n-dimensional hyper-parallelpiped
+- or the signed hyper-volume (!) of the n-dimensional hyper-parallelepiped
 
-The parallelogram takes the two vector rows unites them at origin (0,0) and projects the paralleogram
+The parallelogram takes the two vector rows unites them at origin (0,0) and projects the parallelogram
 from their respective tips. The parallelepiped is that parallelogram plus the columns from the
-third vector on top of it. The hyper-parallelpiped would be a n-dimensional beast unfathomable for
+third vector on top of it. The hyper-parallelepiped would be a n-dimensional beast unfathomable for
 us humans.
 
 again note how we can't build any of these objects when a dimension is lacking: det(A)=0
@@ -437,35 +437,35 @@ Determinant identities
 
 |A| = |A^t|   ;; should be obvious now with the above signed area explanation
 
-If B is obtained by interchaing the two rows or two columns of A, then |B| = -|A|
+If B is obtained by interchanging the two rows or two columns of A, then |B| = -|A|
 again obvious now, when we consider that v x w, w x v, an opposing vector
 (use the _right-hand rule_!!)
 
 This one is difficult to wrap my head around for now, makes sense for translating rotating
-but not quite for scaling. Apparently multipying two matrices and yielding the determinant
+but not quite for scaling. Apparently multiplying two matrices and yielding the determinant
 produces the same parallelepiped as just multiplying the determinants of both matrices:
 
 |A|*|B| = |A*B|
 
 
 Another novelty:
-You can objtain B from A by multiplying _a single column/row_ by a scalar k. This can't be
+You can obtain B from A by multiplying _a single column/row_ by a scalar k. This can't be
 done with matrix with matrix multiplication. This method of matrix permutation is new to me
 and must be noted!
 Given this, the following is trivial:
 |B| = s*|A|    ;; s being the scalar
 We can easily imagine just growing a single vector is growing the parallelepiped by the same
 factor as just multiplying the whole thing by the factor that grew the individual vector.
-They're both just factors in a formular comprised of only mutliplictionsequation
+They're both just factors in a formula comprised of only multiplication equation
 So a cube of side 3*3*3 = 27, we grow a single vector 3*3*4 = 36, now growing the vector
-required a factor of 4/3 because 4/3 * 3 = 4. And now the determinant muliplication:
+required a factor of 4/3 because 4/3 * 3 = 4. And now the determinant multiplication:
 (3*3*3)=27 * 4/3 = also 36
 
-if A contains rows who are multiplies of colums or vice verse then |A|=0. Trivial, if they're
-muliplies then they're lineraly dependent -> freedom loss -> no dimension to span a plane or
+if A contains rows who are multiplies of columns or vice verse then |A|=0. Trivial, if they're
+multiplies then they're linearly dependent -> freedom loss -> no dimension to span a plane or
 grow a parallelepiped -> volume,area,segment = 0 = determinant
 
-is any column/row zero then ofc |A|=0, again dimensions drop -> ..
+is any column/row zero then of course |A|=0, again dimensions drop -> ..
 
 --------------------------------------------------------------------------------
 Another way to calculate determinants:
@@ -473,9 +473,9 @@ _"use column and row operations"_(?) on the matrix to reduce it to a triangular 
 Now the product of the main diagonal entries is the determinant. BUT the regular u · w x v
 STILL works!!
 
-Now how can this be that we can willy-nilly add,substract and multiply rows to each other
+Now how can this be that we can willy-nilly add,subtract and multiply rows to each other
 and still yield the same determinant? If we consider the cross-product and the
-parallelogram that the resulting vectors magnitutde represent we can test that these kind
+parallelogram that the resulting vectors magnitude represent we can test that these kind
 of reduction operations hold true
 
 (cross-product (vec3 3.0 0.0 0.0)
@@ -484,7 +484,7 @@ of reduction operations hold true
 now adding one row to another is directly pertaining these vectors so:
 
 (cross-product (vec+ (vec3 3.0 0.0 0.0)
-		     (vec3 0.0 3.0 0.0)) ;; adding b to a here, just like adding for example  row 1 to 2 
+		     (vec3 0.0 3.0 0.0)) ;; adding b to a here, just like adding for example  row 1 to 2
 	       (vec3 0.0 3.0 0.0)) ==> #(0.0 0.0 9.0)  ;; it still holds true!!
 
 ;; now adding -0.5 the b to a+b
@@ -493,3 +493,48 @@ now adding one row to another is directly pertaining these vectors so:
 		(vec3 3.0 3.0 0.0)) ;; already a+b
 	       (vec3 0.0 3.0 0.0)) ==> #(0.0 0.0 9.0)  ;; still identity!!
 
+But the thing to remember here is that while we can perform these identity reductions
+we can't use those when dealing with matrices that are used for rendering and the transformations:
+
+(1 0 0
+ 0 1 0  ;; identity matrix, now lets add the upper one to the lower one
+ 0 0 1)
+
+(1 0 0
+ 1 1 0  det(*) => 1.0 "nothing happens" determinant wise, but as you can clearly see the
+ 0 0 1)               base vectors aren't all perpendicular and you get a distortion when you
+                      use this matrix to render objects by multiplying a stream of vertices with it
+
+
+/expansion by cofactor/,
+the final procedure to calculate co-factors. We need a minor, which is a sub-matrix which we get
+when we remove row i, and column j. Now we kind of cheat because we calculate the determinant
+of the sub-matrix called /minor/ like described above (maybe the idea here is that it is much easier to calculate
+the determinant from a lower dimension matrix). Then we detriment the algebraic sign depending on
+the column/rows and pack it with the /minor/ to form the /cofactor/:
+c.ij = (-1)^i+j*minor-matrix   ;; <- cofactor
+
+Now all we need is to iterate through the matrix either column- or row-wise
+
+     n             n
+|A|= Σ a.rj*c.rj = Σ a.ik+c.ik
+    j=1           i=1
+
+a.rj just represents the element from matrix A at row column r,j or i,k
+left: row-version, r corresponds to a row
+right: column-version, k column
+
+this is what it looks in action:
+
+                        row=1 is cut out for all /minor/ -the determinant sub-matrix- and
+                        we iterate through the columns i, this is the 2nd iteration so
+			c.1,2=(-1)... and this -1 is taking its action as the sign for the whole
+		a.rj    part here
+    | 4 -2  6|  ↓       ↓
+|A|=| 2	 5  0| =4|5  0|	-(-2)| 2  0|+6| 2 5|
+    |-2  1 -4|	 |1 -4|	     |-2 -4|  |-2 1|
+		 ^^^^^ at these we cheat and either just perform the det(*) tests described above
+                       or we recursively apply the same trick (remember there can be n x n matrices)
+		       this is because, again, /minor/ _are_ determinants of sub-matrices defined as
+		       the matrix yielded by removing one row and column from A.
+	       =  -80   -    16     +  72  = -24 ;;<- and indeed the determinant is -24
