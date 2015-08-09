@@ -568,6 +568,7 @@ using the above two linear equations?
 Most people will be familiar with the slope-intercept notation:
 
 y=xm+b  ;; where m is the slope and b the intercept (the point where the line crosses the y-axis)
+        ;; note: the slope-intercept form _can't represent vertical lines!_ 
 
 Real example m=0 and b=1
 y=1 which is a line parallel parallel to the coordinate x axis and offset by one, and it can
@@ -605,6 +606,38 @@ Now we plug this into the equation X =A⁻¹B
  1.0 0.0]    0]    2]   and indeed X = [2
                                         2]
 Which is the intersecting point of y=2, y=x!!!
+
+--------------------------------------------------------------------------------
+An intuitive explanation of ax+by=c
+the general form of a line above, the linear equation of two unknowns x and y
+has, thanks goodness, a visual and intuitive explanation!
+
+Consider the line
+y=x+2  and its linear equation representation:
+-2+y=2
+
+What we first want to do is get the matrix row out of there
+   a b c into
+ [-2 1 2]
+
+the first two values a and b form a 2d-vector [-2 1] which is _perpendicular to the line we're
+defining here_(!), while c tells us _where the perpendicular line intersect with the
+line we're defining here_(!).
+Now you should see the perpendicular line and how it raises to y=2 and the line
+perpendicular to it is indeed y=x+2!!
+
+
+delving into the third dimension..
+
+the form can be extended to three unknown, but this is _not a 3d line_ it is a plane(!)
+
+  ax+by+cz = d
+
+here the vector [a,b,c] is perpendicular to the plane. To get a line, we need to
+intersect two planes, for which we need two equations:
+
+TODO
+
 
 --------------------------------------------------------------------------------
 Now let's see what this would look like for a linear equation with infinite solutions
@@ -647,9 +680,9 @@ _whether_ a collision has occured is already solved when det(matrix) != 0 is tru
 
 --------------------------------------------------------------------------------
 Cramer's rule,
-solves linear equatino system of arbitrary size (for example also 3 x 3). It
-tells us if a collision between lines of the same arbitrary dimensions has occured
-and tells us where.
+solves linear equation system of arbitrary size (for example also 3 x 3). It tells us if a
+collision between objects represented by those equations the same arbitrary dimensions has
+occured and tells us where.
 
 The If: when the coeffiecient matrix determinant is non-zero
 
@@ -673,10 +706,15 @@ In the above examples we solved this with X=A⁻¹*B where B would be the vector
 rule allows us to get the individual elements of the unique point P(x,y,z) by
 providing equations that solve for each of the points.
 
+Getting the points is just replacing the column in order of the component one
+wishes to compute by the constant vector, compute the determinant from that and
+devide have it be divided by the coefficent matrix' determinant.
+
 Performance notes: for systems with more than 3, 4 equations /Cramer's rule/'s
 amount of work increases drastiacally. The auther recommends using the
 /Gaussian elimination algorithm/(!!) But for smaller system of linear equations
 the rule is recommended as it is easy to apply, also the ability to calculate
 individual components of the unique point is stressed.
-
+Just to compute the solution 4 linear equations 360 multiplications, 4 divisions
+and 115 additions are necessary.
 
