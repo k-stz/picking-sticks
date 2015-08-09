@@ -542,7 +542,7 @@ this is what it looks in action:
 --------------------------------------------------------------------------------
 Determinant applications!
 
-Cramer's rule
+Cramer's rule - introduction work:
 
 solving a system of linear equations
 
@@ -604,7 +604,8 @@ Now we plug this into the equation X =A⁻¹B
 [1.0 -1.0 x [2  = [2
  1.0 0.0]    0]    2]   and indeed X = [2
                                         2]
-Which is the intersecting point of y=2, y=x!!!					
+Which is the intersecting point of y=2, y=x!!!
+
 --------------------------------------------------------------------------------
 Now let's see what this would look like for a linear equation with infinite solutions
 (parallel + coinciding lines)
@@ -614,7 +615,7 @@ Now let's see what this would look like for a linear equation with infinite solu
 |0 1 = determinant is 0!
  0 1|  no plane is span!
 
-So we can't even caculate the inverse for the X=A⁻¹*x. Let's solve these equations the
+So we can't even caculate the inverse for the X=A⁻¹*B. Let's solve these equations the
 old fashioned way:
 
 (1) 0*x+1*y=2 => y=2
@@ -640,6 +641,42 @@ and we can already see nothing changed on the left side in this particular examp
 but the determinant is 0.0 and again the above x solution is going to be a division
 by 0.
 
-conclusion: If the determinant is not zero, then the linear equation system has
-one single point in common. This also means that the collision test of _whether_
-a collision has occured is already solved when det(matrix) != 0 is true!
+conclusion: If the determinant, of the coefficnet matrix, is not zero, then the linear
+equation system has one unique point in common. This also means that the collision test of
+_whether_ a collision has occured is already solved when det(matrix) != 0 is true!
+
+--------------------------------------------------------------------------------
+Cramer's rule,
+solves linear equatino system of arbitrary size (for example also 3 x 3). It
+tells us if a collision between lines of the same arbitrary dimensions has occured
+and tells us where.
+
+The If: when the coeffiecient matrix determinant is non-zero
+
+The where:
+
+given an linear equation system,
+a1x+b1x+c1x=d1
+a2x+b2x+c2x=d2
+a3x+b3x+c3x=d3
+
+
+
+represented as a matrix, and in determinant form:
+
+|a1 a2 a3| 
+|b1 b2 b3|   = our coefficient matrix d,
+|c1 c2 c3|
+
+In the above examples we solved this with X=A⁻¹*B where B would be the vector
+[d1,d2,d3]. We need to keep this in mind as for performance reasons. But Cramer's
+rule allows us to get the individual elements of the unique point P(x,y,z) by
+providing equations that solve for each of the points.
+
+Performance notes: for systems with more than 3, 4 equations /Cramer's rule/'s
+amount of work increases drastiacally. The auther recommends using the
+/Gaussian elimination algorithm/(!!) But for smaller system of linear equations
+the rule is recommended as it is easy to apply, also the ability to calculate
+individual components of the unique point is stressed.
+
+
