@@ -605,3 +605,41 @@ Now we plug this into the equation X =A⁻¹B
  1.0 0.0]    0]    2]   and indeed X = [2
                                         2]
 Which is the intersecting point of y=2, y=x!!!					
+--------------------------------------------------------------------------------
+Now let's see what this would look like for a linear equation with infinite solutions
+(parallel + coinciding lines)
+
+(1)y=2, (2)y=2 both's general linear equation is: both: 0*x+1*y=2
+
+|0 1 = determinant is 0!
+ 0 1|  no plane is span!
+
+So we can't even caculate the inverse for the X=A⁻¹*x. Let's solve these equations the
+old fashioned way:
+
+(1) 0*x+1*y=2 => y=2
+(2)     "        y=2
+(1)-(2): 0=0 and indeed, "infinite solutions"
+
+The book derives the AX=B form by stating that
+x = (de-bf)/(ad-bc)
+where a,b,c,d are the elements of the A matrix and e="c" of (1) and f="c" of (2)
+so we can substitute
+x = (1*2-1*2)/(0*1-1*0)
+x =  2-2     / 0  ;;<- boom division by zero!! In this case, geometrically,
+                  ;;   the lines have infinite common points, or every point of one
+		  ;;   line is common with the other line
+                 
+--------------------------------------------------------------------------------
+Now the two parallel, non coinciding lines
+(1) y=2 (2) y=3
+
+(1) 0*x+1*y=2
+(2) 0*x+1*y=3
+and we can already see nothing changed on the left side in this particular example
+but the determinant is 0.0 and again the above x solution is going to be a division
+by 0.
+
+conclusion: If the determinant is not zero, then the linear equation system has
+one single point in common. This also means that the collision test of _whether_
+a collision has occured is already solved when det(matrix) != 0 is true!
