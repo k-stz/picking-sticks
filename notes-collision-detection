@@ -631,13 +631,43 @@ delving into the third dimension..
 
 the form can be extended to three unknown, but this is _not a 3d line_ it is a plane(!)
 
-  ax+by+cz = d
+  Ax+By+Cz = d
 
-here the vector [a,b,c] is perpendicular to the plane. To get a line, we need to
-intersect two planes, for which we need two equations:
+here the vector [A,B,C] is perpendicular to the plane, like the normal of a surface. To
+get a line, we need to intersect two planes, for which we need two equations:
 
-TODO
+aka two planes make a line. A plane can be represented by 3 non-colinear points, but we
+the method above, where we take a vector (x,y,z) and the normal to of the plane (A,B,C)
+and this also is enough to represent a plane. The vector (x,y,z) is on the plane if the
+dot-product, which is implied being calculated in Ax+By+Cz, between (A,B,C) and it
+equals 0 (d = 0). So now if we plug in values for x,y,z we can test if they're on the plane
+if the equation equals 0. Now to get a line we want to plug in the same values into another
+plane definition of the form Ax+By+Cz=d if they're also equal d=0 for the same values
+then we'd have found a point in common on both planes. Good, good. Now to get a line of
+points in common is also the definition of a plane.
 
+(1) A1x+B1y+C1z=d1
+(2) A2x+B2y+C2z=d2    How do we solve this _linear equation system_? Well forget that for
+                      now. We have the normals for both planes readily available all
+we need to do is just calculate the cross-product of the two [A1..]x[A2..] and we get
+a vector that is colinear with our line!! Now we just need to put this line somewhere,
+a point to center it on. This can be calculated by solving for a point they have in common.
+A solution involves just taking in one of the summands and set its coeffiecient x,y or z
+to 0, and solve the equation such that we get a point to center our cross-product line
+on it.
+
+See below why a point and the colinear line suffices for the representation.
+
+
+--------------------------------------------------------------------------------
+Geometric representation of lines with vectors
+   
+v1=[x,y,z] v2[x2,y2,z2]
+
+the set of lines, L, would be represented as: L={v1+s*(v1-v2)| s ∈ R}
+If we write this in parametric form:
+  x = v1.x e+t*(v1.x-v2.x)
+and analogous for the other coordinates
 
 --------------------------------------------------------------------------------
 Now let's see what this would look like for a linear equation with infinite solutions
