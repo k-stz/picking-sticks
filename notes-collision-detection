@@ -760,3 +760,28 @@ cross-product:
 (- 24 36) -12
 
 --------------------------------------------------------------------------------
+Inverse, defined as:
+
+A⁻¹= 1/det(A) ;; <- again the determinant being the denominator cannot be zero
+
+--------------------------------------------------------------------------------
+Determinant predicate,
+like in cl predicate implies that we will test for something, as seen with the sphere
+formular or if something is solvable like with inverting or solutions to linear
+equation systems with Cramer's rule.
+_Most geometrical tests can be cast in determinant form_(!) Because of this determinants
+have been heavily studied including performance computing solution.
+
+sign of the determinant (+,-),
+plays an important role and can imply:
+- orientation (of the parallelepiped)
+- sidedness (ORIENT2D function below)
+- inclusion of points (sphere)
+
+performance correctness trickery:
+- look out floating point error amounting from arithmetic operations that are part of the
+  determinant calculation
+- going straight for the determinant is performance-wise usually a bad idea, better:
+  divide-and-conquer or subexpression elimination like in Cramer's rule
+
+
