@@ -658,14 +658,13 @@ on it.
 
 See below why a point and the colinear line suffices for the representation.
 
-
 --------------------------------------------------------------------------------
 Geometric representation of lines with vectors
    
 v1=[x,y,z] v2[x2,y2,z2]
 
 the set of lines, L, would be represented as: L={v1+s*(v1-v2)| s ∈ R}
-If we write this in parametric form:
+If we write this in _parametric form_:
   x = v1.x e+t*(v1.x-v2.x)
 and analogous for the other coordinates
 
@@ -748,3 +747,16 @@ individual components of the unique point is stressed.
 Just to compute the solution 4 linear equations 360 multiplications, 4 divisions
 and 115 additions are necessary.
 
+--------------------------------------------------------------------------------
+cross-product:
+
+[4      [12     \       ;; where i is repeating {1,2,3}      /
+ 3   x    6      \                                          /
+ 2]       9]      *---> v1.i * v2.i+1  - v2.i * v1.i+1 <---*
+                      = v1⨯v2.i+2
+
+(- 27 12)  15
+(- 24 36) -12
+(- 24 36) -12
+
+--------------------------------------------------------------------------------
