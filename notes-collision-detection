@@ -774,8 +774,8 @@ have been heavily studied including performance computing solution.
 
 sign of the determinant (+,-),
 plays an important role and can imply:
-- orientation (of the parallelepiped)
-- sidedness (ORIENT2D function below)
+- orientation (ORIENT2D function below)
+- sidedness (also ORIENT2D)
 - inclusion of points (sphere)
 
 performance correctness trickery:
@@ -784,4 +784,25 @@ performance correctness trickery:
 - going straight for the determinant is performance-wise usually a bad idea, better:
   divide-and-conquer or subexpression elimination like in Cramer's rule
 
+--------------------------------------------------------------------------------
+orient2d(A,B,C), 
+takes 2d-points A,B,C ; is an example of a predicate determinant for sidedness AND
+orientation of points
 
+calculates a determinant predicate:
+
+                  |ax ay 1|
+orient2d(A,B,C) = |bx by 1| = |ax - cx   ay - cy|
+                  |cx cy 1|   |bx - cx   by - cy|
+
+Which has _many_ properties:
+		  
+orient2d(A,B,C) > 0, C lies to the left of the directed line AB. And as a plus this
+also means the triangle is oriented counterclockwise (ccw).
+
+orient2d(A,B,C) < 0, C right of the line; triangle CW.
+
+orient2d(A,B,C) = 0, points are all collinear!
+
+the actual value returned corresponds to twice the signed area of the triangle (negative
+if triangle is CW)!
