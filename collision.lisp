@@ -18,3 +18,30 @@ The returned value is also the signed are of the triangle*2"
 	     (v b 0) (v b 1) 1.0 0.0
 	     (v c 0) (v c 1) 1.0 0.0
 	     0.0     0.0     0.0 1.0))))
+
+
+(defun 2x2-det (mat2x2)
+  "Calculate determinant of row-major matrix"
+  (let ((a (aref mat2x2 0))
+	(b (aref mat2x2 1))
+	(c (aref mat2x2 2))
+	(d (aref mat2x2 2)))
+    (- (* a d)
+       (* b c))))
+
+;; from arcsynthesis' glm
+(defun mat3->-mat4 (mat3)
+  "Put mat3 into top-left corner of an identity mat4"
+  (make-array 16 :element-type 'single-float
+	      :initial-contents
+	      (append 
+	       (loop for i across mat3
+		  for x = 1 then (1+ x)
+		  if (= (mod x 3) 0)
+		  collect i and collect 0.0
+		  else collect i)
+	       '(0.0 0.0 0.0 1.0))))
+
+(defun 3x3-det (mat3x3)
+  "Calculate determinant of row-major matrix"
+  (matrix-determinant (mat4->mat3 mat3x3)))
