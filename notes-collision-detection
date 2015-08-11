@@ -806,3 +806,20 @@ orient2d(A,B,C) = 0, points are all collinear!
 
 the actual value returned corresponds to twice the signed area of the triangle (negative
 if triangle is CW)!
+
+
+orient3d(A,B,C,D),
+here we deal with supporting plane of the triangle ABC.
+"above the plane" means that from D view the triangle is counterclockwise
+< 0 :  D is above the ABC plane
+> 0 : below
+= 0 : coplanar
+
+It is the calculation of the 4d-matrix determinant where the first three columns are
+Point's x,y,z values and the 4th being 1.
+
+|a.x a.y a.z 1|
+..
+|d.x d.y d.z 1|
+
+The value returned is _six_ times the signed are of the tetrahedron formed by A,B,C,D
