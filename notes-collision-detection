@@ -807,7 +807,7 @@ orient2d(A,B,C) = 0, points are all collinear!
 the actual value returned corresponds to twice the signed area of the triangle (negative
 if triangle is CW)!
 
-
+--------------------------------------------------------------------------------
 orient3d(A,B,C,D),
 here we deal with supporting plane of the triangle ABC.
 "above the plane" means that from D view the triangle is counterclockwise
@@ -823,3 +823,27 @@ Point's x,y,z values and the 4th being 1.
 |d.x d.y d.z 1|
 
 The value returned is _six_ times the signed are of the tetrahedron formed by A,B,C,D
+
+--------------------------------------------------------------------------------
+incircle2D(A,B,C,D),
+the points of the CCW triangle ABC are on a circle, then
+> 0 means that D lies inside the circle 
+< 0 D lies outside
+= 0 the four points are cocircular!
+If the triangle is CW (same as orient2d(A,B,C) < 0) then the results are reversed
+
+computation:
+
+incircle2d(a,b,c,d) = |a.x ay a².x+ a².y 1|
+                      |b.x by b².x+ b².y 1|
+                      |c.x cy c².x+ c².y 1|
+                      |d.x dy d².x+ d².y 1|
+
+--------------------------------------------------------------------------------
+insphere(A,B,C,D,E),
+the tetrahedron's ABCD points lie and define the surface of the sphere, like
+with incircle depending on orient3d(..) the opposite holds:
+
+> 0 E lies iside the spere
+< 0 E outside
+= 0 all points are /cospherical/
