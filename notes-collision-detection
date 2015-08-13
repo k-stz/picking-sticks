@@ -847,3 +847,7 @@ with incircle depending on orient3d(..) the opposite holds:
 > 0 E lies iside the spere
 < 0 E outside
 = 0 all points are /cospherical/
+
+For INSPHERE and INCIRCLE2D the actual value has no special value.
+
+--------------------------------------------------------------------------------

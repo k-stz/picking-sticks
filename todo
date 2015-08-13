@@ -11,5 +11,5 @@ google: "opengl picking" and implement the simplest approach
 
 ideas---------------------------------------------------------------------------
 
-rubber like rectangle, can stretch along axis at first, shouldn't be too hard
+rubber like rectangle, can stretch along base axis at first, shouldn't be too hard
 for a collision test
