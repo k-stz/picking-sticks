@@ -290,7 +290,7 @@ would be a 180-degree turn around the x-axis
   [0.0, 0.0, 0.0, 1.0]>	     [0.0, 0.0, 0.0, 1.0]>
 
 matrix addition,
-pairwise addition of correspoing positions. Given matrix A=[a.ij] and B=[b.ij]
+pairwise addition of corresponding positions. Given matrix A=[a.ij] and B=[b.ij]
 then the sum matrix C=[c.ij] = A+B is defined as the pairwise addition of elements:
 c.ij = a.ij + b.ij
 
