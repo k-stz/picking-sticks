@@ -58,6 +58,15 @@ The returned value is also the signed are of the tetrahedron*6"
 		  else collect i)
 	       '(0.0 0.0 0.0 1.0))))
 
+(defun mat4->mat3 (mat4)
+  (let ((mat4s-inner-mat3
+	 (loop for i below (- (length mat4) 4)
+	    unless (= 0 (mod (1+ i) 4))
+	    collecting (aref mat4 i))))
+    (make-array 9 :element-type 'single-float
+		:initial-contents mat4s-inner-mat3)))
+
+
 (defun 3x3-det (mat3x3)
   "Calculate determinant of row-major matrix"
   (matrix-determinant (mat4->mat3 mat3x3)))

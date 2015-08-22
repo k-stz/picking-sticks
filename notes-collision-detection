@@ -851,3 +851,7 @@ with incircle depending on orient3d(..) the opposite holds:
 For INSPHERE and INCIRCLE2D the actual value has no special value.
 
 --------------------------------------------------------------------------------
+(2d) /pseudo cross product/, also: /pseudo dot-product/,
+u⟂⋅v, where u⟂ (read: "u-perp" is the CCW perpendicular vector to u.
+corresponds to: the signed area of the parallelogram formed by u⋅v. Positive
+if v is CCW from u. Zero if they're collinear.
