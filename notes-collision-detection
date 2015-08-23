@@ -855,3 +855,21 @@ For INSPHERE and INCIRCLE2D the actual value has no special value.
 u⟂⋅v, where u⟂ (read: "u-perp" is the CCW perpendicular vector to u.
 corresponds to: the signed area of the parallelogram formed by u⋅v. Positive
 if v is CCW from u. Zero if they're collinear.
+
+--------------------------------------------------------------------------------
+Scalar Triple Product, or /triple scalar prodct/, or /box product/ [u v w],
+because the operation:
+  (u ⨯ v) ⋅ w
+occurs alot, it has its own name. Note that this is our determinant computation
+of a 3x3 matrix from before(!) yielding the singed area of a parallelepiped,
+also six times the size spanned u,v,w tetrahedron, using an additional point
+to unite them at origin we recognize our oriend3d() function.
+
+It also written as [u v w] and it holds true for any cyclic permutation
+
+  (u⨯v)⋅w = (w⨯u)⋅v = (v⨯w)⋅u  !
+
+note permute the vectors and then cycle the negations the following holds true
+
+ -[uwv] =  -[vuw] =  -[wvu]
+
