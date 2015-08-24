@@ -873,3 +873,20 @@ note permute the vectors and then cycle the negations the following holds true
 
  -[uwv] =  -[vuw] =  -[wvu]
 
+--------------------------------------------------------------------------------
+/barycentric coordinates/,
+we use reference points to represent points in the space enclosed by them "parameterize
+the space". Two points form a line, three a triangle. The representation allows then to
+get at the points on the line or on the surface of the triangle.
+
+A triangle ABC:
+  A + u(B-A)*v(B-C)   ;;<- (u,v) are the barycentric coordinates, where
+                      ;; 0 <= u,v <= 1.0
+
+Imagine A to be the origin of a coordinate system of base vectors AB and BC.  Remember the
+notes in arcsynthesis on the sin/cos brothers who when they work together give and take in
+equal amounts: Imagine as u shrinks the resulting vectors gets more directional and
+magnitude influence from the CB part and vice versa. See how it all grows out from the tip
+of the A vector!
+It should be easy now to see if a point is within the triangle, that is, whenever
+0 <= u,v <= 1.0 is satisfied.
