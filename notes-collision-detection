@@ -710,8 +710,8 @@ _whether_ a collision has occured is already solved when det(matrix) != 0 is tru
 --------------------------------------------------------------------------------
 Cramer's rule,
 solves linear equation system of arbitrary size (for example also 3 x 3). It tells us if a
-collision between objects represented by those equations the same arbitrary dimensions has
-occured and tells us where.
+collision between objects represented by those equations of the same arbitrary dimensions
+has occured and tells us where.
 
 The If: when the coeffiecient matrix determinant is non-zero
 
@@ -731,20 +731,20 @@ represented as a matrix, and in determinant form:
 |c1 c2 c3|
 
 In the above examples we solved this with X=A⁻¹*B where B would be the vector
-[d1,d2,d3]. We need to keep this in mind as for performance reasons. But Cramer's
-rule allows us to get the individual elements of the unique point P(x,y,z) by
-providing equations that solve for each of the points.
+[d1,d2,d3]. We need to keep this in mind as for performance reasons. But Cramer's rule
+allows us to get the individual elements of the unique point P(x,y,z), the point that
+solves all equations, by providing equations that solve for each of the points.
 
-Getting the points is just replacing the column in order of the component one
-wishes to compute by the constant vector, compute the determinant from that and
-devide have it be divided by the coefficent matrix' determinant.
+Getting the points is just replacing the column in order of the component one wishes to
+compute by the constant vector, compute the determinant from that and have it be divided
+by the coefficent matrix' determinant.
 
 Performance notes: for systems with more than 3, 4 equations /Cramer's rule/'s
 amount of work increases drastiacally. The auther recommends using the
 /Gaussian elimination algorithm/(!!) But for smaller system of linear equations
 the rule is recommended as it is easy to apply, also the ability to calculate
 individual components of the unique point is stressed.
-Just to compute the solution 4 linear equations 360 multiplications, 4 divisions
+Just to compute the solution of 4 linear equations 360 multiplications, 4 divisions
 and 115 additions are necessary.
 
 --------------------------------------------------------------------------------
@@ -886,7 +886,7 @@ A triangle ABC:
 Imagine A to be the origin of a coordinate system of base vectors AB and BC.  Remember the
 notes in arcsynthesis on the sin/cos brothers who when they work together give and take in
 equal amounts: Imagine as u shrinks the resulting vectors gets more directional and
-magnitude influence from the CB part and vice versa. See how it all grows out from the tip
+magnitude influence from the BC part and vice versa. See how it all grows out from the tip
 of the A vector!
 It should be easy now to see if a point is within the triangle, that is, whenever
 0 <= u,v <= 1.0 is satisfied.
