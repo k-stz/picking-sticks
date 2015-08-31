@@ -890,3 +890,10 @@ influence from the BC vector and vice versa. See how it all grows out from the t
 A vector!
 It should be easy now to see if a point is within the triangle, that is, whenever
 0 <= u,v <= 1.0 is satisfied.
+
+Uses of barycentric coordinates:
+Given the BARYCENTRIC implementation we can test if a point P is inside a triangle ABC.
+Also the use by opengl should be intuitive by now. All the things encountered in the
+Arcsynthesis-study, or simply put whenever we needed the interpolated values from a
+triangle like colors (Gouraud shading), normals (Phong shading) or texture texels/pixels
+(texture mapping)!

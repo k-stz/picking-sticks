@@ -111,3 +111,11 @@ The returned value is also the signed are of the tetrahedron*6"
 	    v (* nv ood)
 	    w (- 1.0 u v))
       (values u v w))))
+
+(defun inside-triangle? (P A B C)
+  "Tests _containment_ of a Point P in a triangle ABC."
+  (multiple-value-bind (u v w) (barycentric A B C P)
+    (declare (ignore u))
+    (and (>= v 0.0)
+	 (>= w 0.0)
+	 (<= (+ v w) 1.0))))
