@@ -885,8 +885,8 @@ A triangle ABC:
 
 Imagine A to be the origin of a coordinate system of base vectors AB and BC.  Remember the
 notes in arcsynthesis on the sin/cos brothers who when they work together give and take in
-equal amounts: Imagine as u shrinks the resulting vectors gets more directional and
-magnitude influence from the BC part and vice versa. See how it all grows out from the tip
-of the A vector!
+equal amounts: Imagine as u shrinks the AB vectors gets more directional and magnitude
+influence from the BC vector and vice versa. See how it all grows out from the tip of the
+A vector!
 It should be easy now to see if a point is within the triangle, that is, whenever
 0 <= u,v <= 1.0 is satisfied.

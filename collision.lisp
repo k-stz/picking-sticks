@@ -70,3 +70,44 @@ The returned value is also the signed are of the tetrahedron*6"
 (defun 3x3-det (mat3x3)
   "Calculate determinant of row-major matrix"
   (matrix-determinant (mat4->mat3 mat3x3)))
+
+
+;; TODO: this returns double the area; see ORIENT2D
+(defun tri-area-2d (x1 y1 x2 y2 x3 y3)
+  (- (* (- x1 x2)
+	(- y2 y3))
+     (* (- x2 x3)
+	(- y1 y2))))
+
+;; straightforward translation from "Real-time Collision Detection"
+(defun barycentric (A B C P)
+  "Returns the barycentric coordinates of triangle ABC in respect to point P in order: (u, v, w)"
+  (let* (;; Unnormalized triangle normal
+	 (m (cross-product (vec- B A) (vec- C A)))
+	 ;; Nominators and one-over-denminator for u and v ratios
+	 nu nv ood
+	 ;; Absolute components for determining projection plane
+	 (x (abs (aref m 0)))
+	 (y (abs (aref m 1)))
+	 (z (abs (aref m 2))))
+    (cond ((and (>= x y)
+		(>= x z))
+	   (setf nu (tri-area-2d (aref p 1) (aref p 2) (aref b 1) (aref b 2) (aref c 1) (aref c 2)))
+	   (setf nv (tri-area-2d (aref p 1) (aref p 2) (aref c 1) (aref c 2) (aref a 1) (aref a 2)))
+	   (setf ood (/ (aref m 0))))
+	  ;; else if
+	  ((and (>= y x)
+		(>= y z))
+	   (setf nu (tri-area-2d (aref p 0) (aref p 2) (aref b 0) (aref b 2) (aref c 0) (aref c 2)))
+	   (setf nv (tri-area-2d (aref p 0) (aref p 2) (aref c 0) (aref c 2) (aref a 0) (aref a 2)))
+	   (setf ood (/ (- (aref m 1)))))
+	  ;; else
+	  (t
+	   (setf nu (tri-area-2d (aref p 0) (aref p 1) (aref b 0) (aref b 1) (aref c 0) (aref c 1)))
+	   (setf nv (tri-area-2d (aref p 0) (aref p 1) (aref c 0) (aref c 1) (aref a 0) (aref a 1)))
+	   (setf ood (/ (aref m 2)))))
+    (let (u v w)
+      (setf u (* nu ood)
+	    v (* nv ood)
+	    w (- 1.0 u v))
+      (values u v w))))
