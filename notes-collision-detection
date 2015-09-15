@@ -636,7 +636,7 @@ the form can be extended to three unknown, but this is _not a 3d line_ it is a p
 here the vector [A,B,C] is perpendicular to the plane, like the normal of a surface. To
 get a line, we need to intersect two planes, for which we need two equations:
 
-aka two planes make a line. A plane can be represented by 3 non-colinear points, but we
+aka two planes make a line. A plane can be represented by 3 non-collinear points, but we
 the method above, where we take a vector (x,y,z) and the normal to of the plane (A,B,C)
 and this also is enough to represent a plane. The vector (x,y,z) is on the plane if the
 dot-product, which is implied being calculated in Ax+By+Cz, between (A,B,C) and it
@@ -650,13 +650,13 @@ points in common is also the definition of a plane.
 (2) A2x+B2y+C2z=d2    How do we solve this _linear equation system_? Well forget that for
                       now. We have the normals for both planes readily available all
 we need to do is just calculate the cross-product of the two [A1..]x[A2..] and we get
-a vector that is colinear with our line!! Now we just need to put this line somewhere,
+a vector that is collinear with our line!! Now we just need to put this line somewhere,
 a point to center it on. This can be calculated by solving for a point they have in common.
-A solution involves just taking in one of the summands and set its coeffiecient x,y or z
+A solution involves just taking in one of the summands and set its coefficient x,y or z
 to 0, and solve the equation such that we get a point to center our cross-product line
 on it.
 
-See below why a point and the colinear line suffices for the representation.
+See below why a point and the collinear line suffices for the representation.
 
 --------------------------------------------------------------------------------
 Geometric representation of lines with vectors
@@ -672,12 +672,12 @@ and analogous for the other coordinates
 Now let's see what this would look like for a linear equation with infinite solutions
 (parallel + coinciding lines)
 
-(1)y=2, (2)y=2 both's general linear equation is: both: 0*x+1*y=2
+(1)y=2, (2)y=2 both's general linear equation is: 0*x+1*y=2
 
 |0 1 = determinant is 0!
  0 1|  no plane is span!
 
-So we can't even caculate the inverse for the X=A⁻¹*B. Let's solve these equations the
+So we can't even calculate the inverse for the X=A⁻¹*B. Let's solve these equations the
 old fashioned way:
 
 (1) 0*x+1*y=2 => y=2
@@ -703,17 +703,17 @@ and we can already see nothing changed on the left side in this particular examp
 but the determinant is 0.0 and again the above x solution is going to be a division
 by 0.
 
-conclusion: If the determinant, of the coefficnet matrix, is not zero, then the linear
+conclusion: If the determinant, of the coefficient matrix, is not zero, then the linear
 equation system has one unique point in common. This also means that the collision test of
-_whether_ a collision has occured is already solved when det(matrix) != 0 is true!
+_whether_ a collision has occurred is already solved when det(matrix) != 0 is true!
 
 --------------------------------------------------------------------------------
 Cramer's rule,
 solves linear equation system of arbitrary size (for example also 3 x 3). It tells us if a
 collision between objects represented by those equations of the same arbitrary dimensions
-has occured and tells us where.
+has occurred and tells us where.
 
-The If: when the coeffiecient matrix determinant is non-zero
+The If: when the coefficient matrix determinant is non-zero
 
 The where:
 
@@ -737,10 +737,10 @@ solves all equations, by providing equations that solve for each of the points.
 
 Getting the points is just replacing the column in order of the component one wishes to
 compute by the constant vector, compute the determinant from that and have it be divided
-by the coefficent matrix' determinant.
+by the coefficient matrix' determinant.
 
 Performance notes: for systems with more than 3, 4 equations /Cramer's rule/'s
-amount of work increases drastiacally. The auther recommends using the
+amount of work increases drastically. The author recommends using the
 /Gaussian elimination algorithm/(!!) But for smaller system of linear equations
 the rule is recommended as it is easy to apply, also the ability to calculate
 individual components of the unique point is stressed.
@@ -767,7 +767,7 @@ A⁻¹= 1/det(A) ;; <- again the determinant being the denominator cannot be zer
 --------------------------------------------------------------------------------
 Determinant predicate,
 like in cl predicate implies that we will test for something, as seen with the sphere
-formular or if something is solvable like with inverting or solutions to linear
+formula or if something is solvable like with inverting or solutions to linear
 equation systems with Cramer's rule.
 _Most geometrical tests can be cast in determinant form_(!) Because of this determinants
 have been heavily studied including performance computing solution.
@@ -844,7 +844,7 @@ insphere(A,B,C,D,E),
 the tetrahedron's ABCD points lie and define the surface of the sphere, like
 with incircle depending on orient3d(..) the opposite holds:
 
-> 0 E lies iside the spere
+> 0 E lies inside the sphere
 < 0 E outside
 = 0 all points are /cospherical/
 
@@ -857,13 +857,13 @@ corresponds to: the signed area of the parallelogram formed by u⋅v. Positive
 if v is CCW from u. Zero if they're collinear.
 
 --------------------------------------------------------------------------------
-Scalar Triple Product, or /triple scalar prodct/, or /box product/ [u v w],
+Scalar Triple Product, or /triple scalar product/, or /box product/ [u v w],
 because the operation:
   (u ⨯ v) ⋅ w
-occurs alot, it has its own name. Note that this is our determinant computation
+occurs a lot, it has its own name. Note that this is our determinant computation
 of a 3x3 matrix from before(!) yielding the singed area of a parallelepiped,
 also six times the size spanned u,v,w tetrahedron, using an additional point
-to unite them at origin we recognize our oriend3d() function.
+to unite them at origin we recognize our Orient3d() function.
 
 It also written as [u v w] and it holds true for any cyclic permutation
 
@@ -875,17 +875,17 @@ note permute the vectors and then cycle the negations the following holds true
 
 --------------------------------------------------------------------------------
 /barycentric coordinates/,
-we use reference points to represent points in the space enclosed by them "parameterize
+we use reference points to represent points in the space enclosed by them - "parameterize
 the space". Two points form a line, three a triangle. The representation allows then to
 get at the points on the line or on the surface of the triangle.
 
 A triangle ABC:
-  A + u(B-A)*v(B-C)   ;;<- (u,v) are the barycentric coordinates, where
-                      ;; 0 <= u,v <= 1.0
+  A + u(B-A)*v(B-C)   ;;<- (u,v) are the barycentric coordinates, where if
+                      ;; 0 <= u,v <= 1.0 the point is within the triangle
 
 Imagine A to be the origin of a coordinate system of base vectors AB and BC.  Remember the
 notes in arcsynthesis on the sin/cos brothers who when they work together give and take in
-equal amounts: Imagine as u shrinks the AB vectors gets more directional and magnitude
+equal amounts: Imagine as "u" shrinks the AB vectors gets more directional and magnitude
 influence from the BC vector and vice versa. See how it all grows out from the tip of the
 A vector!
 It should be easy now to see if a point is within the triangle, that is, whenever
@@ -893,7 +893,7 @@ It should be easy now to see if a point is within the triangle, that is, wheneve
 
 Uses of barycentric coordinates:
 Given the BARYCENTRIC implementation we can test if a point P is inside a triangle ABC.
-Also the use by opengl should be intuitive by now. All the things encountered in the
+Also the use by OpenGL should be intuitive by now. All the things encountered in the
 Arcsynthesis-study, or simply put whenever we needed the interpolated values from a
 triangle like colors (Gouraud shading), normals (Phong shading) or texture texels/pixels
 (texture mapping)!
