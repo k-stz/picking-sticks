@@ -897,3 +897,60 @@ Also the use by OpenGL should be intuitive by now. All the things encountered in
 Arcsynthesis-study, or simply put whenever we needed the interpolated values from a
 triangle like colors (Gouraud shading), normals (Phong shading) or texture texels/pixels
 (texture mapping)!
+
+--------------------------------------------------------------------------------
+Lines, Rays, and Segments
+
+consider the definition of a /line/ of two _distinct_ points
+
+L(t) = (1-t)*A+t*B
+
+the peculiar (1-t) indicates that if t=1 the point on the line is B:
+= (1-1)*A+1*B
+=   0  *A+B
+= B
+
+conversely if t = 0 the point on the line is A
+= (1-0)*A+0*B
+=   1  *A
+= A
+
+it should be easy to see how t grows, shrinks and inverts the A+B vector in effect
+pointing at any point on the line.
+
+
+/line segment/, or just /segment/,
+is the portion connecting A and B which when we look at the t=0 and t=1 value computed
+above is simply defined as the range
+  0 <= t <= 1 !
+
+  
+/directed segment/,
+if the endpoints A and B of the segment are given with a definite order in mind
+
+
+/ray/,
+is a /half-infinite/ line!! This is quite a helpful visual explanation because t is
+only limited by
+  t >= 0
+i.e. only one direction is limited, namely below 0, while the other is infinite -
+half-infinite!!
+
+
+The parametric equation of the line L(t) above can be rearranged into:
+= (1-t)*A+t*B
+=  A-tA+t*B
+=  A+tB-tA  //*swap*
+=  A+t(B-A)
+
+  hence we get:
+                         L(t) = A + t*v    (where v = B - A)
+                             ^^^^      
+_Rays are usually defined in this form above_!!
+
+
+parameteric equation of the line,
+the two representation of a line shown above:
+  L(t) = (1-t)*A+t*B
+and
+  L(t) = A + t*v

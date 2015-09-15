@@ -81,7 +81,8 @@ The returned value is also the signed are of the tetrahedron*6"
 
 ;; straightforward translation from "Real-time Collision Detection"
 (defun barycentric (A B C P)
-  "Returns the barycentric coordinates of triangle ABC in respect to point P in order: (u, v, w)"
+  "Returns the barycentric coordinates of triangle ABC in respect to point P in order: (u, v, w)
+Where: P = uA + vB + wC"
   (let* (;; Unnormalized triangle normal
 	 (m (cross-product (vec- B A) (vec- C A)))
 	 ;; Nominators and one-over-denminator for u and v ratios
