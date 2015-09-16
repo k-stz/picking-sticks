@@ -954,3 +954,27 @@ the two representation of a line shown above:
   L(t) = (1-t)*A+t*B
 and
   L(t) = A + t*v
+
+--------------------------------------------------------------------------------
+Planes,
+- represented by three non-collinear points: 
+
+P(u,v) = A + u(B-A)+v(C-A)            (parametric representation)
+
+remember the non-intuitive order of vector substraction "B-A" indicates a vector
+from _A_ to _B_, then, the above equation represents a flow from A into B and C
+spaning a plane, and triangle with parametrized B-A C-A sides by "u" and "v".
+
+
+/in front the plane/,
+given a triangle ABC the convention is that when viewed /in front/ 
+- the _points are CCW_ and
+- the _normal points towards the viewer
+
+conversely /behind/ the plane is the opposite
+In OpenGL we use this property to cull triangles from the rendering process. This
+is efficient as only one side of a triangle can be viewed and we can form meshes
+with clock-wise similar triangle arrangement on their surface so the rendering
+engine can safely cull the invisible insides from the computation.
+
+
