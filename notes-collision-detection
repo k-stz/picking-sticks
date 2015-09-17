@@ -963,7 +963,7 @@ P(u,v) = A + u(B-A)+v(C-A)            (parametric representation)
 
 remember the non-intuitive order of vector substraction "B-A" indicates a vector
 from _A_ to _B_, then, the above equation represents a flow from A into B and C
-spaning a plane, and triangle with parametrized B-A C-A sides by "u" and "v".
+spanning a plane, and triangle with parametrized B-A C-A sides by "u" and "v".
 
 
 /in front the plane/,
@@ -978,3 +978,38 @@ with clock-wise similar triangle arrangement on their surface so the rendering
 engine can safely cull the invisible insides from the computation.
 
 
+another representation is the:
+- normal and point on the plane representation
+
+I like the idea of it, it seems like the simplest intuitive representation of a plane
+to me.
+
+Anywho we can implicitly define a plane using a normal and a point on the plane.
+P = Point on the plane
+n = normal of the plane
+X = some point on the plane
+
+the following holds true:
+
+n⋅(X-P)=0
+
+see how the vector points from P to X would be perpendicular to the normal if the
+dot product is indeed 0?
+Given this representation we can easily test the containment of the point X in the plane
+(namely if the equation is true)!
+
+But wait there is more! The dot product is a /linear/ operation which is a fancy way
+to say it can be distributed across adition and.. muliplication hence:
+
+n⋅(X-P)=0
+n⋅X - n⋅P = 0
+n⋅X = n⋅P  
+
+and finally if we use d = n⋅X
+n⋅P = d                         // yeah, it's transposed
+
+which is called the /constant-normal form/!
+
+This form has some astonishing properties. When n is unit, |d| equals the distance of
+the plane from the origin, I think with the help of transformation we can hence with get
+the distance from any point.
