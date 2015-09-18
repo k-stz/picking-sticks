@@ -120,3 +120,23 @@ Where: P = uA + vB + wC"
     (and (>= v 0.0)
 	 (>= w 0.0)
 	 (<= (+ v w) 1.0))))
+
+
+;; Planes
+
+(defun make-plane (a b c)
+  "Expects points A, B and C to be CCW and returns a plane structure using the
+constant-normal form n⋅P = d or ax+by+cz-d=0"
+;; Builds a plane using the constant normal form: n⋅P = d, where d is (dot-product n P),
+;; where P is a given point on the plane.
+  (let* ((n (normalize (cross-product (vec- b a) (vec- c a))))
+	 (d (dot-product n a)))
+    (vector n d)))
+
+(defun plane-normal (plane)
+  (aref plane 0))
+
+(defun plane-d (plane)
+  (aref plane 1))
+
+

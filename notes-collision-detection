@@ -1013,3 +1013,24 @@ which is called the /constant-normal form/!
 This form has some astonishing properties. When n is unit, |d| equals the distance of
 the plane from the origin, I think with the help of transformation we can hence with get
 the distance from any point.
+
+But we're not done yet with equation transformations, the /constant-normal form/ can
+be rewritten by marrying n's components with X's without adding:
+
+ax+by+cz-d=0 ;; the ax.. cz part are the components of the normal, n = (a,b,c) and "P",
+             ;; X = (x,y,z) vector, "d" is ;; just moved back to the left-hand side of
+	     ;; the equation.
+
+This will be our plane form to go.
+
+/normalized/ plane,
+when the n normal in the above equation is of unit-length, we say the plane equation is
+/normalized/!
+It has the advantage of simplifying most operation involving the plane. A very useful
+operation using this form is solving for a point: the result will be the signed distance
+of the point to the plane! Again with the ORIENT3D-like properties(!):
+ negative result =  point is behind the plane
+               0 = coplanar
+        positive = in front
+
+
