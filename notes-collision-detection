@@ -999,7 +999,7 @@ Given this representation we can easily test the containment of the point X in t
 (namely if the equation is true)!
 
 But wait there is more! The dot product is a /linear/ operation which is a fancy way
-to say it can be distributed across adition and.. muliplication hence:
+to say it can be distributed across adition and subtraction hence:
 
 n⋅(X-P)=0
 n⋅X - n⋅P = 0
@@ -1034,3 +1034,30 @@ of the point to the plane! Again with the ORIENT3D-like properties(!):
         positive = in front
 
 
+/dihedral angle/,
+angle between two intersection planes
+
+/hyperplane/,
+This is how we refer to a plane in an arbitrary dimension. They always have one less dimension
+than the space they reside in. From this, strangely, follows that a hyperplane in 2d space
+is a line! And a hyperplane in 3d space is an ordinary plane.
+
+/halfspace/,
+furthermore, any hyperplane devides the space it is in into two sets of infinite points called
+/halfspaces/!
+If the points on the dividing hyperplane are included in the two halfspace sets then the
+halfspace is:
+
+/closed/ otherwise
+
+/open/!
+
+/positive halfspace/,
+the side to which the normal of the hyperplane points is the positive halfspace, otherswise
+it is the
+
+/negative halfspace/.
+
+/halfplane/,
+when a hyperplane divides a 2d space (a line in 2d space) the resulting halfspaces are also
+referred to as _halfplanes_. Indeed, because they are ordinary 2d-planes.
