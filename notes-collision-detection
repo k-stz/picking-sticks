@@ -1139,3 +1139,17 @@ convex hull -- the 1-simplex: "a line".
 Conversly this means that adding points to the set in question, or taking points from
 the set changes the dimensional of the simplex, and the shape of the simplex.
 Finally given 5-points who would have 3d affine hull would have a 4-simplex.
+
+
+/supporting point/ of a _convex_ set,
+given a direction and a convex set, it is the point furthest from this general direction.
+The math definition is rather helpful:
+given a direction d and a point P:  d⋅P=max{d⋅V : V ∈ <convex-set>};
+note that:
+(dot-product (vec3 1.0) (vec3 1.0)) ==> 1.0 ;; dot-product increases with "longer" vectors
+(dot-product (vec3 1.0) (vec3 2.0)) ==> 2.0 ;; don't just think of it as the cos-angle!
+
+It is also sometimes called /extreme point/ but it isn't necessarily unique: Imagine a
+convex polygon with the furthest point lying on a edge 90-degrees to the given direction,
+then all the points on the edge would be supporting points.
+If a supporting poit happens to be vector is aptly referred to as /supporting vertex/.
