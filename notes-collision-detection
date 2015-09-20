@@ -1061,3 +1061,42 @@ it is the
 /halfplane/,
 when a hyperplane divides a 2d space (a line in 2d space) the resulting halfspaces are also
 referred to as _halfplanes_. Indeed, because they are ordinary 2d-planes.
+
+/convex point set/,
+a set of points which when any two of them would form a segment, they wouldn't be contained
+in the same set.
+
+/convex hull/
+CH(<set>), the smallest convex point set fully containing the <set>
+
+/affine hull/
+lowest dimensional hyperplane containing the convex hull of a given set.
+
+---------------------------------------------------------------------------------
+Testing polygonal convexity,
+since collision systems dealing with convex polygons are rather faster, we want to
+test convexivity. Triangles are special in that they're the only polygon which
+is always convex! But it is usually more efficient to perform collision tests against
+a single concave n-gon then against multiple proxy-triangles mimicking the n-gons shape.
+We want hence to test all faces for convexivity either at run-time, or at "tool-time"
+--when the artists sculpture the objects in question.
+
+quads convexivity,
+a special case, usually supported next to triangles.
+(!) We assume the four points that make up the quadrilateral are coplanar!
+If its diagonals intersect = convex,
+If not, the quad is concave or self-intersecting
+But we won't actually compute the intersecting point but rather use the property of the
+intersection point of the two segments:
+each diagonal points are on the opposite side of the diagonal they intersect. This in
+turn makes the triangles in play BDA BDC have opposite winding orders, as well as
+ACD ACB. The opposite winding order can be computed with the cross-product and the
+resulting normals can be dot-product compared:
+if the dot-product is negative the normals point in different direction and hence
+stem from opposite winding-order triangles (remember we assumed from the very beginning
+that all points are coplanar!)
+
+Hence the quad is convex if:
+(BD x BA)⋅(BD x BC) < 0 and
+(AC x AD)⋅(AC x AB) < 0
+

@@ -140,3 +140,20 @@ constant-normal form n⋅P = d or ax+by+cz-d=0"
   (aref plane 1))
 
 
+(defun is-quad-convex? (a b c d)
+  "The quad is convex if:
+  (BD x BA)⋅(BD x BC) < 0 and
+  (AC x AD)⋅(AC x AB) < 0"
+  (let ((BD (vec- D B)) (BA (vec- A B)) (BC (vec- C B))
+	(AC (vec- C A)) (AD (vec- D A)) (AB (vec- B A)))
+    (if (and (< (dot-product (cross-product bd ba)
+			     (cross-product bd bc))
+		0)
+	     (< (dot-product (cross-product ac ad)
+			     (cross-product ac ab))
+		0))
+	;; convex
+	t
+	;; else non-convex
+	nil
+	)))
