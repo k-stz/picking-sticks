@@ -36,7 +36,7 @@ distance is, if equal r^2, a point _on_ the sphere
 		     (list x y z)))
       (expt sphere-radius 2)))
 
-Through understanding that this is just a double-pythagoras we can formulate a collision
+Through understanding that this is just a double Pythagoras we can formulate a collision
 test for a 2d-circle easily:
 x^2 + y^2 <= r^2  (awesome number two!)
 
@@ -949,7 +949,7 @@ The parametric equation of the line L(t) above can be rearranged into:
 _Rays are usually defined in this form above_!!
 
 
-parameteric equation of the line,
+parametric equation of the line,
 the two representation of a line shown above:
   L(t) = (1-t)*A+t*B
 and
@@ -961,7 +961,7 @@ Planes,
 
 P(u,v) = A + u(B-A)+v(C-A)            (parametric representation)
 
-remember the non-intuitive order of vector substraction "B-A" indicates a vector
+remember the non-intuitive order of vector subtraction "B-A" indicates a vector
 from _A_ to _B_, then, the above equation represents a flow from A into B and C
 spanning a plane, and triangle with parametrized B-A C-A sides by "u" and "v".
 
@@ -984,7 +984,7 @@ another representation is the:
 I like the idea of it, it seems like the simplest intuitive representation of a plane
 to me.
 
-Anywho we can implicitly define a plane using a normal and a point on the plane.
+Anyway we can implicitly define a plane using a normal and a point on the plane.
 P = Point on the plane
 n = normal of the plane
 X = some point on the plane
@@ -999,7 +999,7 @@ Given this representation we can easily test the containment of the point X in t
 (namely if the equation is true)!
 
 But wait there is more! The dot product is a /linear/ operation which is a fancy way
-to say it can be distributed across adition and subtraction hence:
+to say it can be distributed across addition and subtraction hence:
 
 n⋅(X-P)=0
 n⋅X - n⋅P = 0
@@ -1043,7 +1043,7 @@ than the space they reside in. From this, strangely, follows that a hyperplane i
 is a line! And a hyperplane in 3d space is an ordinary plane.
 
 /halfspace/,
-furthermore, any hyperplane devides the space it is in into two sets of infinite points called
+furthermore, any hyperplane divides the space it is in into two sets of infinite points called
 /halfspaces/!
 If the points on the dividing hyperplane are included in the two halfspace sets then the
 halfspace is:
@@ -1053,7 +1053,7 @@ halfspace is:
 /open/!
 
 /positive halfspace/,
-the side to which the normal of the hyperplane points is the positive halfspace, otherswise
+the side to which the normal of the hyperplane points is the positive halfspace, otherwise
 it is the
 
 /negative halfspace/.
@@ -1075,13 +1075,13 @@ lowest dimensional hyperplane containing the convex hull of a given set.
 ---------------------------------------------------------------------------------
 Testing polygonal convexity,
 since collision systems dealing with convex polygons are rather faster, we want to
-test convexivity. Triangles are special in that they're the only polygon which
+test convexity. Triangles are special in that they're the only polygon which
 is always convex! But it is usually more efficient to perform collision tests against
 a single concave n-gon then against multiple proxy-triangles mimicking the n-gons shape.
-We want hence to test all faces for convexivity either at run-time, or at "tool-time"
+We want hence to test all faces for convexity either at run-time, or at "tool-time"
 --when the artists sculpture the objects in question.
 
-quads convexivity,
+quads convexity,
 a special case, usually supported next to triangles.
 (!) We assume the four points that make up the quadrilateral are coplanar!
 If its diagonals intersect = convex,
@@ -1100,3 +1100,42 @@ Hence the quad is convex if:
 (BD x BA)⋅(BD x BC) < 0 and
 (AC x AD)⋅(AC x AB) < 0
 
+
+n-gon convexity,
+there is an easy intuitive solution: test for every edge if all the vertices lie on
+the same side of the edge, plus, for robustness, a check for coinciding vertices.
+With complexity O(n²) it becomes an issue for larger inputs. Heuristics exists with
+more favorable complexity but also with false positives (called a non-convex polygon
+convex and vice-versa).
+One such test is to test if the interior angle is < 180-degrees. Which fails for
+self-inserting polygons like the pentagram. With the assumption that self-insertion
+is not given it has linear complexity.
+Another algorithm tests the directional change from edge to edge, either we
+steer in one direction consistently or we have a concave n-gon. It fails for
+collinear points.
+But if we combine the two tests we get a rather robust and efficient algorithm!
+
+--------------------------------------------------------------------------------
+Polyhedra,
+"3d polygons". Made out of some flat polygons glued together at their edges (max and min 2
+polygons per edge). Polyhedra have vertices, edges, faces.
+Can be convex: if the point set they enclose is convex - i.e. the line of every two points
+contains points from the interior of the polyhedron. The boundary points of the polyhedron
+are part of the convex hull of the polyhedron and determine if the polyhedron is convex or
+not.
+Speaking of which, the polyhedron boundary divides space into two disjoint regions:
+the /interior/ and the /exterior/.
+
+/polytope/,
+a convex (bounded, i.e. faces have no indefinite extend) polyhedron
+
+/simplex/,
+like the affine hull of a set of points the simplex is the convex hull of a given set. But
+unlike the affine hull it doesn't aim for the minimal dimension possible, instead its
+dimension is directly linked to the magnitude of the point set:
+d-points are contained by a (d-1)-simplex, e.g. 2 points are contained by a 1-dimensional
+convex hull -- the 1-simplex: "a line".
+3-points are contained by a 2-simplex.
+Conversly this means that adding points to the set in question, or taking points from
+the set changes the dimensional of the simplex, and the shape of the simplex.
+Finally given 5-points who would have 3d affine hull would have a 4-simplex.
