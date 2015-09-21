@@ -1152,4 +1152,9 @@ note that:
 It is also sometimes called /extreme point/ but it isn't necessarily unique: Imagine a
 convex polygon with the furthest point lying on a edge 90-degrees to the given direction,
 then all the points on the edge would be supporting points.
-If a supporting poit happens to be vector is aptly referred to as /supporting vertex/.
+If a supporting point happens to be vector, it is aptly called a /supporting vertex/.
+
+
+/support, mapping/ or /support function/,
+a function that maps a direction "d" into a supporting of of a convex set C
+f(d)->C

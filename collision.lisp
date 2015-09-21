@@ -157,3 +157,11 @@ constant-normal form n⋅P = d or ax+by+cz-d=0"
 	;; else non-convex
 	nil
 	)))
+
+(defun sphere-support-point (sphere-origin radius direction)
+  "Returns the support point of the sphere at origin, sphere-origin, of the given
+radius and direction given. f(d)=O+rd/||d|| where d = direction,  O=origin, r=radius and
+||d|| = magnitude of d."
+  (vec+ sphere-origin
+	(vec/ (vec* direction radius)
+	      (vec-length direction))))
