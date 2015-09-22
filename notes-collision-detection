@@ -1173,3 +1173,40 @@ polygon best against impact-- for a collision test!
 /separating plane/,
 an open _halfplane_ separating _two_ _convex_ sets of points such that in one direction
 (positive/negative) of plane is one and on the other side the other convex point set.
+
+
+/surjection/,
+each element of the codomain is mapped to at least once (imagine a bunch of soldiers
+totally outnumbering the enemy and having every single one of them at gun point with
+one or more soldiers per enemy unit. The enemy must SURrender.)
+
+/injection/,
+each element of the codomain is mapped to at most once. (after an INJECTION the virus
+contaminates the body, but it never attacks single cells in pairs.)
+
+/bijection/,
+function is both surjective and injective
+
+/homeomorphic/,
+a function that maps two topological spaces is called homeomorphism if:
+- it is a bijection
+- it is continuous
+- its inverse is continuous
+Intuitively this means that you can morph one shape into the other without "non-linear"
+transformations (imagine kneading dough, it is all homeomorphic until somebody pulls it
+apart)
+
+/2-manifold/,
+the surface of a polyhedron is often referred to as a /2-maniford/! "This topological
+term implies that the neighborhood of each point of the surface is (...) [homeomorphic]
+to a disk.
+Informal explanation: Imagine being a point on a polyhedron surface, regardless which
+point you are, you are always surrdounded by neighboring points in a straight
+line. Whether your on an edge or your a vertex everywhere around you is a are points
+equidistantly and in "flat" relation to you -- your all on the surface of a flat plane for
+all you care)
+
+/Euler formula/,
+neat relation of vertices (v), faces (f) and edges (e) of a polyhedron etched into an
+equation:
+ v + f - e = 2

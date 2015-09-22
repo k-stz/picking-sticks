@@ -165,3 +165,10 @@ radius and direction given. f(d)=O+rd/||d|| where d = direction,  O=origin, r=ra
   (vec+ sphere-origin
 	(vec/ (vec* direction radius)
 	      (vec-length direction))))
+
+(defun polyhedra? (vertices faces edges)
+  "Vertices (V), Faces (F) and Edges (E) of a Polyhedron relate according to the 
+/Euler formula/: V + F - E = 2."
+  (= 2
+     (+ vertices
+	(- faces edges))))
