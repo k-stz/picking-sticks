@@ -1154,7 +1154,22 @@ convex polygon with the furthest point lying on a edge 90-degrees to the given d
 then all the points on the edge would be supporting points.
 If a supporting point happens to be vector, it is aptly called a /supporting vertex/.
 
+A supporting point can be understood as the first point to make contact with a force comming
+from the opposite direction (think: analogous to TOI - space of first impact).
 
 /support, mapping/ or /support function/,
 a function that maps a direction "d" into a supporting of of a convex set C
 f(d)->C
+Computing the supporting point for a polytope is a trivial O(n) algorithm that greedily finds
+ever more extremer points, while iterating through the vertices. It should be easy to picture
+why testing only the vertices suffices.
+
+/Supporting plane/,
+plane _through_ the /supporting point/ with the _direction as the normal_. Now it makes
+much more sense to think of "space of first impact". We will probably use this to expose
+the representation of an n-gon needed at the point of interest --the point supporting the
+polygon best against impact-- for a collision test!
+
+/separating plane/,
+an open _halfplane_ separating _two_ _convex_ sets of points such that in one direction
+(positive/negative) of plane is one and on the other side the other convex point set.
