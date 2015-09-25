@@ -1200,13 +1200,22 @@ apart)
 the surface of a polyhedron is often referred to as a /2-manifold/! "This topological
 term implies that the neighborhood of each point of the surface is (...) [homeomorphic]
 to a disk.
-Informal explanation: Imagine being a point on a polyhedron surface, regardless which
-point you are, you are always surrdounded by neighboring points in a straight
-line. Whether your on an edge or your a vertex everywhere around you are points
-equidistantly and in "flat" relation to you -- your all on the surface of a flat plane for
-all you care.
 
 /Euler formula/,
 neat relation of vertices (v), faces (f) and edges (e) of a polyhedron etched into an
 equation:
  v + f - e = 2
+
+
+/convex polyhedron/,
+for all the faces, the points of the polyhedron lie on the same side of the face.
+
+complexity:
+O(n²):
+when we test N faces against N points.
+
+O(n):
+Compute the centroid of a face (the mean of all position vectors), then take a neighboring
+face and compute its supporting plane. Now test if the cetroid is behind the supporting
+plane. If the test fails = concave, else = convex!
+I.e. we only need to test linearly through the faces
