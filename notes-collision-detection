@@ -1196,10 +1196,17 @@ Intuitively this means that you can morph one shape into the other without "non-
 transformations (imagine kneading dough, it is all homeomorphic until somebody pulls it
 apart)
 
-/2-manifold/,
-the surface of a polyhedron is often referred to as a /2-manifold/! "This topological
-term implies that the neighborhood of each point of the surface is (...) [homeomorphic]
-to a disk.
+/2-manifold/, also called /surface/,
+the surface of a polyhedron is often referred to as a /2-manifold/! "This topological term
+implies that the neighborhood of each point of the surface is (...) [homeomorphic] to a
+disk.
+From the perspective of a being living on the 2-manifold, on our polyhedron surface,
+everything around it would look flat. Furthemore wherever it would go everything would
+look flat and, this is important, it would never run into a wall (unbounded)!
+This is very similar to us living on earth: it looks flat most the time, and whereever we
+go we won't find a an edge to fall of the earth (no boundry). Another thing is also true:
+when we walk long enough in one direction, we end up in the same place.
+
 
 /Euler formula/,
 neat relation of vertices (v), faces (f) and edges (e) of a polyhedron etched into an
