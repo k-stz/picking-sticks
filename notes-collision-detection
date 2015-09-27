@@ -1226,3 +1226,18 @@ Compute the centroid of a face (the mean of all position vectors), then take a n
 face and compute its supporting plane. Now test if the cetroid is behind the supporting
 plane. If the test fails = concave, else = convex!
 I.e. we only need to test linearly through the faces
+
+--------------------------------------------------------------------------------
+/Computing Convex Hulls/,
+the convex hull can be used as a tight bounding volume -- when precise collision
+test are needed, instead of a more inacurrate but more efficient proxy shape (like
+a sphere). The following algorithms compute them:
+
+Andrew's Algorithm,
+robust and easy to implement _2D_ convex hull constructing algorithm.
+The points are sorted lexicographically by their coordinates (x-coordinate
+left-to-right). We start with the upper part of the hull and add the point A to the
+chain. We form an edge with B. With every subsequent point we test on which side it lies
+in respect to the last edge formed (AB). If it is on the right we add it to the chain, if
+it is on the left we remove the last point from the chain (B) and replace it with the new
+point (C). We fair analogously with the lower chain of the convex hull.
