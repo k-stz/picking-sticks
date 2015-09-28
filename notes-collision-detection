@@ -1233,7 +1233,7 @@ the convex hull can be used as a tight bounding volume -- when precise collision
 test are needed, instead of a more inacurrate but more efficient proxy shape (like
 a sphere). The following algorithms compute them:
 
-Andrew's Algorithm,
+Andrew's algorithm,
 robust and easy to implement _2D_ convex hull constructing algorithm.
 The points are sorted lexicographically by their coordinates (x-coordinate
 left-to-right). We start with the upper part of the hull and add the point A to the
@@ -1241,3 +1241,8 @@ chain. We form an edge with B. With every subsequent point we test on which side
 in respect to the last edge formed (AB). If it is on the right we add it to the chain, if
 it is on the left we remove the last point from the chain (B) and replace it with the new
 point (C). We fair analogously with the lower chain of the convex hull.
+
+Quickhull algorithm,
+works in 2d and 3d. 2d explanation: first we use the 4 cardinal directions and choose
+extreme points of each drawing a quadrilateral. Then we recursively add points furthest
+from each of the quadrilaterals edges until every point is enclosed by the convex hull.

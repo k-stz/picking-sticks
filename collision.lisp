@@ -172,3 +172,44 @@ radius and direction given. f(d)=O+rd/||d|| where d = direction,  O=origin, r=ra
   (= 2
      (+ vertices
 	(- faces edges))))
+
+
+(defun vec-perp (2d-vector)
+  "Returns the CCW perpendicular vector."
+  (vec2 (- (aref 2d-vector 1))
+	(aref 2d-vector 0)))
+
+
+(defun vec2- (a b)
+  (macrolet ((v (array subscript)
+	       `(aref ,array ,subscript)))
+    (vec2 (- (v a 0) (v b 0))
+	  (- (v a 1) (v b 1)))))
+
+(defun dot2d (a b)
+  "Calculates 2d dot product"
+  (+ (* (aref a 0) (aref b 0))
+     (* (aref a 1) (aref b 1))))
+
+;; the Quickhull algorithm needs a procedure calculating the furthes point from an edge
+(defun point-farthest-from-edge (A B points-list)
+  "Use 2d-vectors A and B to form an edge and return point furthest from said edge (CCW
+perpedicular)"
+  (let* ((edge (vec2- b a))
+	 ;; we will _project (!) the points perpedicular to the AB edge_(!!)
+	 ;; this way we have a scale from which we just have to read the extreme value!
+	 (edge-perpendicular (vec-perp edge))
+	 (max-value most-negative-single-float)
+	 (right-most-value most-negative-single-float)
+	 (return-value))
+    (loop for i in points-list 
+       :for d = (dot2d (vec2- i a)
+			  edge-perpendicular)
+       :for r  = (dot2d (vec2- i a)
+			   edge)
+	 ;; TODO: rewrite for clarity and style
+       :if (or (> d max-value) (and (= d max-value) (> r right-most-value))) :do
+	 (setf return-value i
+	       max-value d
+	       right-most-value r)
+	 :finally (return return-value))))
