@@ -1246,3 +1246,26 @@ Quickhull algorithm,
 works in 2d and 3d. 2d explanation: first we use the 4 cardinal directions and choose
 extreme points of each drawing a quadrilateral. Then we recursively add points furthest
 from each of the quadrilaterals edges until every point is enclosed by the convex hull.
+This can be extended to 3D (also even higher dimensions) by simply finding 6-extremepoints
+for the 3 perpendicular lines times its 2 directions. Now instead of edges we deal with
+polygon faces, hence adding points that are furthest from a given face adds 2 or more
+faces.
+/Qhull/ by "Brad Barber" is an implementation of the algorithm available for download.
+
+--------------------------------------------------------------------------------
+/Voronoi Regions/, also /Voronoi Cell/ or /Dirichlet Function/,
+given a set S of points P: the Voronoi region _of a particular point in S_ is the
+set of points closest to P THAN any OTHER point in S (P1, P2, ..., Pn).
+That means that if you take any point in the voronoi region, the distance to it
+from the Point P (the point the voronoi region is definined by) is always shorter
+than any other point Ps in S.
+/Voronoi feature regions/,
+will be used interchangeably with the above. It is important to note that a /feature/ of P
+(in the set S above) can be not only a point (vertex) but also an edge and face.
+
+/Voronoi diagrams/,
+these are the set of points who are equidistant to two or more points. Visually
+speaking the boarders of the Voronoi regions are voronoi diagrams, if they're
+surrounded by voronoi regions for other ponits and partially if they're on the
+fringe of voronoi region field (Since it only partially boarders to other regions
+and can hence not have _atleast two_ points equidistantly to it.
