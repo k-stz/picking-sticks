@@ -1269,3 +1269,55 @@ speaking the boarders of the Voronoi regions are voronoi diagrams, if they're
 surrounded by voronoi regions for other ponits and partially if they're on the
 fringe of voronoi region field (Since it only partially boarders to other regions
 and can hence not have _atleast two_ points equidistantly to it.
+
+--------------------------------------------------------------------------------
+/Minkowski Sum/,
+A, B ⊂ V where A and B are subelements of the Vector space V. Then the minkowski
+sum A+B or
+
+  A ⊕ B := {a+b : a ∈ A, b ∈ B}
+
+a + b, is the _vector sum_ of the positions vectors a and b
+
+This one has a nice visual interpretation: Imagine that A and B points each
+form a figure (a polygon when 2d). Now think of the concept of translation
+as in graphics transformation: if you use each point of B as origin for the
+translation of points A you get a bunch of new points. The swept region
+by the translation is the Minkowski sum!
+
+
+/Minkowski differece/,
+analogously:
+
+  A ⊖ B := {a+b : a ∈ A, b ∈ B}
+
+Geometrically we add A to -B, i.e. A ⊕ -B = A ⊖ B. Visually we sweep the
+region of a B relfected about the origin (-B) with the figure A.
+
+
+Because both the Minkowski difference can be interpreted as a sum they are often
+simply referred to as Minkowski sum.
+
+
+Minkowski sum useful properties:
+
+The Minkowski sum of two convex polygons and polyhedra is also a convex polygon or
+polyhedra (!), which should be easy to imagine using the swept region interpretation.
+
+Now for collision detection the visual interpretation makes extra sense as we basically
+build a proxy bounding volume about an object in regard to the other. This approach is
+useful when dealing with complex objects. The object we want to test for gets minkowski
+summed with another thereby we "grow" them, at the same time we "shrink" the other
+because:
+if A ⊖ B contains the origin => the objects collide!!!
+Simply because:
+Given a point (1,1) in both objects:
+(1,1) - (1,1) => (0.0)  <- origin!
+
+But that's not all! We can _compute the minimum distance between A and B_(!)_ which is
+simply computing the distance between (A ⊖ B) and the origin!!
+
+
+TCSO,
+Minkowski difference is also referred to as TCSO: /translational configuration space
+obstacle/. "Queries on TCSO are said to be performed in configuration space"
