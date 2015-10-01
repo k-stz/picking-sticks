@@ -39,7 +39,7 @@
 ;;Sequential HASH-TABLe---------------------------------------------------------
 
 ;; why can't (class-of <hash-table>) be the superclass?
-;; This provides a hash-table where the order in of the keys is specified. This is needed
+;; This provides a hash-table where the order of the keys is specified. This is needed
 ;; for associating other data with the rectangles that will be stored here (e.g. textures)
 (defclass sequential-hash-table ()
   ((hash-table :initform (make-hash-table) :reader the-table)
