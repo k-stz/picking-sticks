@@ -1,12 +1,15 @@
 ;; Idea: one array of static rectangles (background)
 ;;       and one array of constantly changing rectangles
-;;      => write all into one vbo (gl:buffe-data ...)
+;;      => write all into one vbo (gl:buffer-data ...)
 ;;      - draws all with one call
 ;;      - much better performance, less overhead with individual
 ;;      - gl:buffer-sub-data 
 ;;
 ;;      => change rectangle data (position,color) on cpu/cl side
 ;;         using simple arrays
+
+;; Possible problem: what if a rectangle disappears? How to remove it from
+;; the sequential hash-table?
 
 ;; TODO: texatl to get sprites and spritesheet integretation, maybe even text!!
 
@@ -27,7 +30,9 @@
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
 	   :x1 :x2 :y1 :y2
 	   :make-rectangle
+	   :make-rectangle-c
 	   :add-rectangle-as
+	   :get-rectangle
 	   :move
 	   ;;animation
 	   :set-animation
@@ -45,6 +50,7 @@
   ((hash-table :initform (make-hash-table) :reader the-table)
    (keys-in-order :initform (make-array 0 :fill-pointer 0) :accessor keys-in-order)))
 
+;; NEXT-TODO: add removing a single key+value operation!
 
 (defun make-seq-hash-table ()
   (make-instance 'sequential-hash-table))
@@ -171,6 +177,11 @@
    (y1 :initarg :y1 :type vec3)
    (y2 :initarg :y2 :type vec3)
 
+   ;; trying center-radius representation
+   (center-point :initarg :center-point :type vec3)
+   ;; {rx, ry, rz}
+   (radius :initarg :radius :type vec3)
+
    ;; texture coordinates              ;; init is whole texture
                                        ;; on rectangle
    (tex-x1 :initarg :tex-x1 :type vec2 :initform (vec2 0.0 0.0))
@@ -200,6 +211,22 @@
 		     :x2 (vec3+ position (vec3 width 0.0 depth))
 		     :y1 (vec3+ position (vec3 0.0 height depth))
 		     :y2 (vec3+ position (vec3 width height depth))))))
+
+(defun make-rectangle-c (&optional
+			   (center-point (vec3 0.0 0.0 0.0))
+			   (radius (vec3 50.0 50.0 0.0)))
+  "Make a rectangle using the center-radius representation. It uses less storage
+is more efficient in aabb collision tests!"
+  (let ((rx (aref radius 0))
+	(ry (aref radius 1))
+	(rz (aref radius 2)))
+    (make-instance 'rectangle
+		   :center-point center-point
+		   :radius radius
+		   :x1 (vec3- center-point (vec3 rx ry (- rz)))
+		   :x2 (vec3+ center-point (vec3 rx (- ry) rz))
+		   :y1 (vec3+ center-point (vec3 (- rx) ry rz))
+		   :y2 (vec3+ center-point radius))))
 
 
 (defun rectangle->verts (rectangle)

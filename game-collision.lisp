@@ -13,3 +13,9 @@
 
 (defmethod collision? ((r1 rectangle) (r2 rectangle))
   (list r1 r2))
+
+;; todo center point representation
+;; (defun test-aabb-aabb (r1 r2)
+;;   (with-slots (x1 x2 y1 y2) r1
+;;     (with-slots (x1 x2 y1 y2) r2
+;;       (list x1))))

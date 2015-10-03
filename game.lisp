@@ -585,7 +585,10 @@
 
 
 (defun init-nyo-rectangle ()
-  (let ((nyo-rectangle (game-objects:make-rectangle 100.0 100.0 64.0 96.0)))
+  (let ((nyo-rectangle ;(game-objects:make-rectangle 100.0 100.0 64.0 96.0)
+	 (game-objects:make-rectangle-c (vec3 100.0 100.0 0.0)
+					(vec3 32.0 48.0 0.0))
+	 ))
     (game-objects:add-rectangle-as :nyo nyo-rectangle)
     (game-objects:set-animation :nyo :walk :down 0 :nyo)))
 
@@ -670,7 +673,10 @@
   (when (eq state :mousebuttondown)
 
     (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      (game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
+      (game-objects::add-rectangle-as (gensym) (make-rectangle-c (vec3 x y 0.0)
+								 (vec3 (* *width-height* 0.5)
+								       (* *width-height* 0.5)
+								       0.0)))
       )))
 
 
@@ -689,9 +695,10 @@
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0))
       (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      	(game-objects::add-rectangle-as (gensym) (make-rectangle x y *width-height* *width-height*))
-      	;      (game-objects::move-to :nyo (vec2 x y))
-       	)
+      	(game-objects::add-rectangle-as (gensym) (make-rectangle-c (vec3 x y 0.0)
+								 (vec3 (* *width-height* 0.5)
+								       (* *width-height* 0.5)
+								       0.0))))
       )))
 
 
