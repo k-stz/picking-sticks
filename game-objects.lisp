@@ -444,15 +444,17 @@ is more efficient in aabb collision tests!"
 
 (defun scale (name factor)
   (let ((rectangle (get-rectangle name)))
-    (with-slots (x1 x2 y1 y2) rectangle
-      ;; move to origin (bottom left corner) apply scaling, move
-      ;; move back relative to bottom left corner of rectangle
-      (setf x2 (vec3+ (math:vec3* (math:vec3- x2 x1) factor)
-		      x1))
-      (setf y1 (vec3+ (math:vec3* (math:vec3- y1 x1) factor)
-		      x1))
-      (setf y2 (vec3+ (math:vec3* (math:vec3- y2 x1) factor)
-		      x1)))))
+    (with-slots (x1 x2 y1 y2 radius center-point) rectangle
+      (setf radius (vec3* radius factor))
+      (let ((rx (aref radius 0))
+	    (ry (aref radius 1))
+	    (rz (aref radius 2)))
+	(setf x1 (vec3+ center-point (vec3 (- rx) (- ry) 0.0)))
+	(setf x2 (vec3+ center-point (vec3 rx (- ry) 0.0)))
+	(setf y1 (vec3+ center-point (vec3 (- rx) ry 0.0)))
+	(setf y2 (vec3+ center-point (vec3 rx ry 0.0))))
+
+      )))
 
 ;;;Animation
 
