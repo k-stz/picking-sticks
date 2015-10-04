@@ -633,8 +633,10 @@
       (game-objects::clr-seq-hash game-objects::*dynamic-rectangles*))
     (when (eq :scancode-escape scancode)
       (close-window window))
+    ;; for tests
     (when (eq :scancode-t scancode)
-      (print (typep ts 'fixnum) cl:*standard-output*))))
+      (print (game-collision:collision? (get-rectangle :nyo)
+					(get-rectangle :hero))))))
 
 (defgeneric using-keyboard-state (game-window))
 

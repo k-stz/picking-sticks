@@ -1,6 +1,8 @@
 (defpackage :game-collision
   (:use :cl
-	:game-objects))
+	:kit.math
+	:game-objects)
+  (:export :collision?))
 
 (in-package :game-collision)
 
@@ -12,10 +14,24 @@
   nil)
 
 (defmethod collision? ((r1 rectangle) (r2 rectangle))
-  (list r1 r2))
+  (test-aabb-aabb r1 r2))
 
-;; todo center point representation
-;; (defun test-aabb-aabb (r1 r2)
-;;   (with-slots (x1 x2 y1 y2) r1
-;;     (with-slots (x1 x2 y1 y2) r2
-;;       (list x1))))
+(defun test-aabb-aabb (r1 r2)
+  "Perform AABB collision test."
+  (macrolet ((v (vec3 subscript)
+	       `(aref ,vec3 ,subscript)))
+    (with-slots ((a.c center-point) (a.r radius)) r1
+      (with-slots ((b.c center-point) (b.r radius)) r2
+	(cond ((> (abs (- (v a.c 0) (v b.c 0)))
+		  (abs (+ (v a.r 0) (v b.r 0))))
+	       nil)
+	      ((> (abs (- (v a.c 1) (v b.c 1)))
+		  (abs (+ (v a.r 1) (v b.r 1))))
+	       nil)
+	      ((> (abs (- (v a.c 2) (v b.c 2)))
+		  (abs (+ (v a.r 2) (v b.r 2))))
+	       nil)
+	      (t ;; all exclusionary conditionas failed i.e. the rectangles
+	       t ;; collide
+	       ))))))
+

@@ -28,7 +28,7 @@
   (:export :rectangle
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
-	   :x1 :x2 :y1 :y2
+	   :x1 :x2 :y1 :y2 :center-point :radius
 	   :make-rectangle
 	   :make-rectangle-c
 	   :add-rectangle-as
@@ -329,6 +329,8 @@ is more efficient in aabb collision tests!"
     (gl:bind-buffer :array-buffer 0)))
 
 
+;; It might be better to decouble *dynamic-rectangle* from this and rather create use a list
+;; of seq-hash-tables?
 (defun draw-rectangles ()
   (let ((dynamic-rectangle-size (* 6 (hash-table-count (the-table *dynamic-rectangles*)))))
     ;; TODO: :triangle-fan could be much easier, will texture coordinate mappinng work
@@ -409,11 +411,13 @@ is more efficient in aabb collision tests!"
 		      0.0))
 	       ((typep direction-vec2-or-vec3 '(SIMPLE-ARRAY SINGLE-FLOAT (3)))
 		direction-vec2-or-vec3))))
-    (with-slots (x1 x2 y1 y2) rectangle
+    (with-slots (x1 x2 y1 y2 center-point) rectangle
       (setf x1 (vec3+ x1 direction-vec3))
       (setf x2 (vec3+ x2 direction-vec3))
       (setf y1 (vec3+ y1 direction-vec3))
-      (setf y2 (vec3+ y2 direction-vec3)))))
+      (setf y2 (vec3+ y2 direction-vec3))
+      ;; central-radius representation
+      (setf center-point (vec3+ center-point direction-vec3)))))
 
 (defun move (name direction-vec2)
   ;; for now we assume only *dynamic-rectangles* can be moved
