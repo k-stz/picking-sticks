@@ -695,7 +695,8 @@
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0))
       (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      	(game-objects::add-rectangle-as (gensym) (make-rectangle-c (vec3 x y 0.0)
+	;; GENTEMP uses interned symbols, so you can actually (get-rectangle ..) them!
+      	(game-objects::add-rectangle-as (gentemp) (make-rectangle-c (vec3 x y 0.0)
 								 (vec3 (* *width-height* 0.5)
 								       (* *width-height* 0.5)
 								       0.0))))

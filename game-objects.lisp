@@ -201,16 +201,13 @@
 			 (width 100.0)
 			 (height 100.0)
 			 (depth 0.0))
-  (let ((position (vec3 x y depth)))
-    (macrolet ((vec3+ (v1 v2)
-		 `(vec3 (+ (aref ,v1 0) (aref ,v2 0))
-			(+ (aref ,v1 1) (aref ,v2 1))
-			(+ (aref ,v1 2) (aref ,v2 2)))))
-      (make-instance 'rectangle
-		     :x1 position
-		     :x2 (vec3+ position (vec3 width 0.0 depth))
-		     :y1 (vec3+ position (vec3 0.0 height depth))
-		     :y2 (vec3+ position (vec3 width height depth))))))
+  (let ((position (vec3 x y depth))
+	)
+    (make-instance 'rectangle
+		   :x1 position
+		   :x2 (vec3+ position (vec3 width 0.0 depth))
+		   :y1 (vec3+ position (vec3 0.0 height depth))
+		   :y2 (vec3+ position (vec3 width height depth)))))
 
 (defun make-rectangle-c (&optional
 			   (center-point (vec3 0.0 0.0 0.0))
@@ -228,6 +225,11 @@ is more efficient in aabb collision tests!"
 		   :y1 (vec3+ center-point (vec3 (- rx) ry rz))
 		   :y2 (vec3+ center-point radius))))
 
+(defun set-rectangle-depth (rectangle depth)
+  (setf (aref (slot-value rectangle 'x1) 2) depth)
+  (setf (aref (slot-value rectangle 'x2) 2) depth)
+  (setf (aref (slot-value rectangle 'y1) 2) depth)
+  (setf (aref (slot-value rectangle 'y2) 2) depth))
 
 (defun rectangle->verts (rectangle)
   (with-slots (x1 x2 y1 y2) rectangle
