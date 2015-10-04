@@ -179,7 +179,8 @@
 
    ;; trying center-radius representation
    (center-point :initarg :center-point :type vec3)
-   ;; {rx, ry, rz}
+   ;; {rx, ry, rz} rz is meaningless for 2d-rectangles, the "depth" attribute
+   ;; is the z-component of the center-point
    (radius :initarg :radius :type vec3)
 
    ;; texture coordinates              ;; init is whole texture
@@ -201,13 +202,23 @@
 			 (width 100.0)
 			 (height 100.0)
 			 (depth 0.0))
-  (let ((position (vec3 x y depth))
-	)
+  (let* ((position (vec3 x y depth))
+	(x1 position)
+	 (x2 (vec3+ position (vec3 width 0.0 depth)))
+	 (y1 (vec3+ position (vec3 0.0 height depth)))
+	 (y2 (vec3+ position (vec3 width height depth)))
+	 (rx (* width 0.5))
+	 (ry (* height 0.5))
+	 (rz 0.0))
     (make-instance 'rectangle
-		   :x1 position
-		   :x2 (vec3+ position (vec3 width 0.0 depth))
-		   :y1 (vec3+ position (vec3 0.0 height depth))
-		   :y2 (vec3+ position (vec3 width height depth)))))
+		   :x1 x1
+		   :x2 x2
+		   :y1 y1
+		   :y2 y2
+		   :center-point (vec3 (+ x rx)
+				       (+ y ry)
+				       depth)
+		   :radius (vec3 rx ry rz))))
 
 (defun make-rectangle-c (&optional
 			   (center-point (vec3 0.0 0.0 0.0))
