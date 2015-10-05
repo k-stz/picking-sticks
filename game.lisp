@@ -604,6 +604,13 @@
     (game-objects:next-animation-frame :nyo)
     (setf *next-frame-limit* 0)))
 
+(defun collision-test ()
+  ;; delete all rectangle that intersect with :Nyo
+  (game-objects:do-seq-hash (key value game-objects::*dynamic-rectangles*)
+	(when (not (equal key :nyo))
+	  (when (game-collision:collision? (get-rectangle :nyo) value)
+	    (game-objects:remove-rectangle key)))))
+
 
 (defmethod keyboard-event ((window game-window) state ts repeat-p keysym)
 
@@ -635,8 +642,11 @@
       (close-window window))
     ;; for tests
     (when (eq :scancode-t scancode)
-      (print (game-collision:collision? (get-rectangle :nyo)
-					(get-rectangle :hero))))))
+      (collision-test))
+
+    ;; runs only when a keyboard-event is issued
+      ;;   (collision-test) ;; causes some timing bugs
+    ))
 
 (defgeneric using-keyboard-state (game-window))
 
@@ -822,13 +832,14 @@
   (use-program *programs-dict* 0))
 
 (defmethod render ((window game-window))
-  
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
   (gl:clear :color-buffer :depth-buffer-bit)
   
   (using-keyboard-state window)
+
+  (collision-test) ;; test if this is bottleneck UPDATE: rendering seems to hog CPU time
 
   (draw-cube)
 

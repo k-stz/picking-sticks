@@ -32,11 +32,15 @@
 	   :make-rectangle
 	   :make-rectangle-c
 	   :add-rectangle-as
+	   :remove-rectangle
 	   :get-rectangle
 	   :move
+	   ;;utils
+	   :do-seq-hash
 	   ;;animation
 	   :set-animation
-	   :next-animation-frame))
+	   :next-animation-frame
+	   ))
 
 (in-package :game-objects)
 
