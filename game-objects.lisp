@@ -41,7 +41,7 @@
 (in-package :game-objects)
 
 
-;;Sequential HASH-TABLe---------------------------------------------------------
+;;Sequential HASH-TABLE---------------------------------------------------------
 
 ;; why can't (class-of <hash-table>) be the superclass?
 ;; This provides a hash-table where the order of the keys is specified. This is needed
@@ -78,7 +78,18 @@
   (setf (keys-in-order seq-hash-table) (make-array 0 :fill-pointer t))
   (clrhash (the-table seq-hash-table)))
 
-
+(defun rem-seq-hash (key seq-hash-table)
+  (remhash key (the-table seq-hash-table))
+  (with-slots (keys-in-order) seq-hash-table
+    (let* ((new-ordered-keys
+	    (remove-if (lambda (x) (equal x key))
+		       keys-in-order))
+	   (length (length new-ordered-keys)))
+      (setf keys-in-order
+	    (make-array length
+			:initial-contents new-ordered-keys
+			:fill-pointer length))))
+  seq-hash-table)
 
 ;; TODO:
 ;; > the-table/keys-in-order are also captured.. the rest are CL symbols
@@ -119,16 +130,17 @@
   (do-seq-hash (key value rectangle-hash-map)
     (format t "~&key:~a value:~a~%" key value)))
 
-
 (defun new-print-rectangles (rectangle-hash-map)
   (do-seq-hash (rectangle key rectangle-hash-map)
     (format t "~&key:~a value:~a~%" key rectangle)))
 
-(defun add-rectangle-as (name rectangle &key (as :dynamic))
+(defun add-rectangle-as (name rectangle &key (as :dynamic) to)
   (let* ((seq-hash-table
-	  (ecase as
-	    (:dynamic *dynamic-rectangles*)
-	    (:static *static-rectangles*)))
+	  (if to
+	      to
+	      (ecase as
+		(:dynamic *dynamic-rectangles*)
+		(:static *static-rectangles*))))
 	 (rectangles-container (the-table seq-hash-table)))
     (multiple-value-bind (value set?) (gethash name rectangles-container)
       (declare (ignore value))
@@ -439,6 +451,8 @@ is more efficient in aabb collision tests!"
 ;;       ;; (setf y2 (vec2+ y2 point-vec2))
 ;;       ))))
 
+
+
 (defun get-position (rectangle-name)
   (slot-value (get-rectangle rectangle-name) 'x1))
 
@@ -452,9 +466,7 @@ is more efficient in aabb collision tests!"
 	(setf x1 (vec3+ center-point (vec3 (- rx) (- ry) 0.0)))
 	(setf x2 (vec3+ center-point (vec3 rx (- ry) 0.0)))
 	(setf y1 (vec3+ center-point (vec3 (- rx) ry 0.0)))
-	(setf y2 (vec3+ center-point (vec3 rx ry 0.0))))
-
-      )))
+	(setf y2 (vec3+ center-point (vec3 rx ry 0.0)))))))
 
 ;;;Animation
 
