@@ -79,7 +79,6 @@
   (clrhash (the-table seq-hash-table)))
 
 (defun rem-seq-hash (key seq-hash-table)
-  (remhash key (the-table seq-hash-table))
   (with-slots (keys-in-order) seq-hash-table
     (let* ((new-ordered-keys
 	    (remove-if (lambda (x) (equal x key))
@@ -89,7 +88,12 @@
 	    (make-array length
 			:initial-contents new-ordered-keys
 			:fill-pointer length))))
-  seq-hash-table)
+  (remhash key (the-table seq-hash-table)))
+
+
+(defun remove-rectangle (name &optional (seq-hash-table *dynamic-rectangles*))
+  (rem-seq-hash name seq-hash-table))
+
 
 ;; TODO:
 ;; > the-table/keys-in-order are also captured.. the rest are CL symbols
