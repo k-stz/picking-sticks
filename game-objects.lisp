@@ -54,8 +54,6 @@
   ((hash-table :initform (make-hash-table) :reader the-table)
    (keys-in-order :initform (make-array 0 :fill-pointer 0) :accessor keys-in-order)))
 
-;; NEXT-TODO: add removing a single key+value operation!
-
 (defun make-seq-hash-table ()
   (make-instance 'sequential-hash-table))
 
@@ -213,6 +211,19 @@
    ;; for now we directly couple animation with the rectangle
    (animation-state :type animation :initform (make-animation) :reader animation-state)))
 
+
+;; NEXT-TODO: use to rewritte constructors. Use to write MOVE-TO
+(defun center-radius->vertices (center-point-vec3 radius-vec3)
+  "Returns the points of the 2d-rectangle of the center-radius representation given.
+Note the z-component of the radius-vec3 will decide the depth of all the points (along the z-axis)!"
+  (let* ((rx (aref radius-vec3 0))
+	 (ry (aref radius-vec3 1))
+	 (rz (aref radius-vec3 2))
+	 (x1 (vec3- center-point-vec3 (vec3 rx ry (- rz))))
+	 (x2 (vec3+ center-point-vec3 (vec3 rx (- ry) rz)))
+	 (y1 (vec3+ center-point-vec3 (vec3 (- rx) ry rz)))
+	 (y2 (vec3+ center-point-vec3 (vec3 rx ry rz))))
+    (values x1 x2 y1 y2)))
 
 ;; TODO: add texture coordinate to initilizations, providing a texture.png
 ;; and a fixed texture coordinate with texatl:with-sprite ?
@@ -447,17 +458,14 @@ is more efficient in aabb collision tests!"
 
 ;; NEXT-TODO: doesn't work yet!
 ;; REWRITE for VEC3 usage
-;; (defun move-to (name point-vec2)
+;; (defun move-to (name point)
 ;;   (let ((rectangle (get-rectangle name)))
-;;     (macrolet ((vec2+ (v1 v2)
-;; 	       `(vec2 (+ (aref ,v1 0) (aref ,v2 0))
-;; 		      (+ (aref ,v1 1) (aref ,v2 1)))))
 ;;     (with-slots (x1 x2 y1 y2) rectangle
-;;       (setf x1 point-vec2)
+      
 ;;       ;; (setf x2 (vec2+ point-vec2))
 ;;       ;; (setf y1 (vec2+ y1 point-vec2))
 ;;       ;; (setf y2 (vec2+ y2 point-vec2))
-;;       ))))
+;;       )))
 
 
 
