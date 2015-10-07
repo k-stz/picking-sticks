@@ -212,7 +212,7 @@
    (animation-state :type animation :initform (make-animation) :reader animation-state)))
 
 
-;; NEXT-TODO: use to rewritte constructors. Use to write MOVE-TO
+;; NEXT-TODO: Use to write MOVE-TO
 (defun center-radius->vertices (center-point-vec3 radius-vec3)
   "Returns the points of the 2d-rectangle of the center-radius representation given.
 Note the z-component of the radius-vec3 will decide the depth of all the points (along the z-axis)!"
@@ -233,39 +233,37 @@ Note the z-component of the radius-vec3 will decide the depth of all the points 
 			 (width 100.0)
 			 (height 100.0)
 			 (depth 0.0))
-  (let* ((position (vec3 x y depth))
-	(x1 position)
-	 (x2 (vec3+ position (vec3 width 0.0 depth)))
-	 (y1 (vec3+ position (vec3 0.0 height depth)))
-	 (y2 (vec3+ position (vec3 width height depth)))
-	 (rx (* width 0.5))
+  (let* ((rx (* width 0.5))
 	 (ry (* height 0.5))
-	 (rz 0.0))
-    (make-instance 'rectangle
-		   :x1 x1
-		   :x2 x2
-		   :y1 y1
-		   :y2 y2
-		   :center-point (vec3 (+ x rx)
-				       (+ y ry)
-				       depth)
-		   :radius (vec3 rx ry rz))))
+	 (rz depth)
+	 (radius (vec3 rx ry rz))
+	 (center-point (vec3 (+ x rx)
+			     (+ y ry)
+			     depth)))
+    (multiple-value-bind (x1 x2 y1 y2)
+	(center-radius->vertices center-point radius)
+      (make-instance 'rectangle
+		     :x1 x1
+		     :x2 x2
+		     :y1 y1
+		     :y2 y2
+		     :center-point center-point
+		     :radius radius))))
 
 (defun make-rectangle-c (&optional
 			   (center-point (vec3 0.0 0.0 0.0))
 			   (radius (vec3 50.0 50.0 0.0)))
   "Make a rectangle using the center-radius representation. It uses less storage
 is more efficient in aabb collision tests!"
-  (let ((rx (aref radius 0))
-	(ry (aref radius 1))
-	(rz (aref radius 2)))
+  (multiple-value-bind (x1 x2 y1 y2)
+      (center-radius->vertices center-point radius)
     (make-instance 'rectangle
 		   :center-point center-point
 		   :radius radius
-		   :x1 (vec3- center-point (vec3 rx ry (- rz)))
-		   :x2 (vec3+ center-point (vec3 rx (- ry) rz))
-		   :y1 (vec3+ center-point (vec3 (- rx) ry rz))
-		   :y2 (vec3+ center-point radius))))
+		   :x1 x1
+		   :x2 x2
+		   :y1 y1
+		   :y2 y2)))
 
 (defun set-rectangle-depth (rectangle depth)
   (setf (aref (slot-value rectangle 'x1) 2) depth)
