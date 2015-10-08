@@ -39,8 +39,7 @@
 	   :do-seq-hash
 	   ;;animation
 	   :set-animation
-	   :next-animation-frame
-	   ))
+	   :next-animation-frame))
 
 (in-package :game-objects)
 
@@ -454,21 +453,32 @@ is more efficient in aabb collision tests!"
     (move-rectangle rectangle direction-vec2)))
 
 
-;; NEXT-TODO: doesn't work yet!
-;; REWRITE for VEC3 usage
-;; (defun move-to (name point)
-;;   (let ((rectangle (get-rectangle name)))
-;;     (with-slots (x1 x2 y1 y2) rectangle
-      
-;;       ;; (setf x2 (vec2+ point-vec2))
-;;       ;; (setf y1 (vec2+ y1 point-vec2))
-;;       ;; (setf y2 (vec2+ y2 point-vec2))
-;;       )))
+(defun move-to (name point)
+  (let ((rectangle (get-rectangle name)))
+    (with-slots (x1 x2 y1 y2 radius center-point) rectangle
+      	;; this provides the following convenience:
+	;; vec2 input -> default z value to current depth
+	;; vec3 input -> new center-point of rectangle
+	(setf point
+	      (cond ((typep point 'vec2)
+		     (vec3 (aref point 0)
+			   (aref point 1)
+			   ;; depth value, the default 3 component if vec2 is provided
+			   (aref radius 2)))
+		    ((typep point 'vec3)
+		     point)))
+      (multiple-value-bind (n-x1 n-x2 n-y1 n-y2)
+	  (center-radius->vertices point radius)
+	(setf center-point point
+	      x1 n-x1
+	      x2 n-x2
+	      y1 n-y1
+	      y2 n-y2))))
 
 
 
-(defun get-position (rectangle-name)
-  (slot-value (get-rectangle rectangle-name) 'x1))
+  (defun get-position (rectangle-name)
+    (slot-value (get-rectangle rectangle-name) 'x1)))
 
 (defun scale (name factor)
   (let ((rectangle (get-rectangle name)))

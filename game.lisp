@@ -685,10 +685,10 @@
   (when (eq state :mousebuttondown)
 
     (let* ((x (float x)) (y  (- (window-height window) (float y))))
-      (game-objects::add-rectangle-as (gensym) (make-rectangle-c (vec3 x y 0.0)
-								 (vec3 (* *width-height* 0.5)
-								       (* *width-height* 0.5)
-								       0.0)))
+      (game-objects::add-rectangle-as (gentemp) (make-rectangle-c (vec3 x y 0.0)
+								  (vec3 (* *width-height* 0.5)
+									(* *width-height* 0.5)
+									0.0)))
       )))
 
 
