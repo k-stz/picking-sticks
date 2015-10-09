@@ -371,6 +371,7 @@ is more efficient in aabb collision tests!"
 ;; It might be better to decouple *dynamic-rectangle* from this and rather create use a list
 ;; of seq-hash-tables? ;;<- NEXT-TODO, good idea
 (defun draw-rectangles ()
+;;  (declare (optimize debug))
   (let ((dynamic-rectangle-size (* 6 (+ (hash-table-count (the-table *dynamic-rectangles*))
 					(hash-table-count (the-table *static-rectangles*))))))
     ;; TODO: :triangle-fan could be much easier, will texture coordinate mapping work

@@ -1,7 +1,5 @@
 ;; sbcl 2.6% mem
 
-(declaim (optimize (speed 0) (safety 3) (debug 3)))
-
 (defpackage :2d-texture
   ;; :use inherits all the exported symbols from the package given
   (:use :cl

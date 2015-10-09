@@ -1,3 +1,8 @@
+;; This command is package indepedent. (debug 3) will show you local variables
+;; of a function and even it's lexically scoped once (if they use a *special-variable*
+;; This pertains functions involved in a signalling error
+(declaim (optimize (speed 0) (safety 3) (debug 3)))
+
 ;; remember this is quickloadable when in quickloads path: (ql:quickload :picking-sticks)
 
 (defsystem #:picking-sticks
