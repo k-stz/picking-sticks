@@ -329,19 +329,31 @@ is more efficient in aabb collision tests!"
 (defun update-rectangle-vao ()
   (let* ((dynamic-verts
 	  (rectangle-seq-hash->pos-vector *dynamic-rectangles*))
+	 (static-verts
+	  (rectangle-seq-hash->pos-vector *static-rectangles*))
+	 (verts (concatenate 'vector
+			     dynamic-verts
+			     static-verts))
 	 (pos-ffi-array (cffi:foreign-alloc :float
-					    :initial-contents dynamic-verts))
-	 (tex-coordinates
+					    :initial-contents
+					    verts))
+	 (dynamic-tex-coordinates
 	  (rectangle-seq-hash->tex-vector *dynamic-rectangles*))
+	 (static-tex-coordinates
+	  (rectangle-seq-hash->tex-vector *static-rectangles*))
+	 (tex-coordinates (concatenate 'vector
+				       dynamic-tex-coordinates
+				       static-tex-coordinates))
 	 (tex-ffi-array (cffi:foreign-alloc :float
-					    :initial-contents tex-coordinates)))
+					    :initial-contents
+					    tex-coordinates)))
 
     (gl:bind-vertex-array *vao*)
 
     ;;position
     (gl:bind-buffer :array-buffer *position-vbo*)
     ;; size-of(flaot) => 4, hence we multiply with 4
-    (%gl:buffer-data :array-buffer (* 4 (length dynamic-verts)) pos-ffi-array :static-draw)
+    (%gl:buffer-data :array-buffer (* 4 (length verts)) pos-ffi-array :static-draw)
 
 
     ;;texture coordinates
@@ -352,16 +364,16 @@ is more efficient in aabb collision tests!"
     (cffi-sys:foreign-free pos-ffi-array)
     (cffi-sys:foreign-free tex-ffi-array)
 
-    
     (gl:bind-vertex-array 0)
     (gl:bind-buffer :array-buffer 0)))
 
 
-;; It might be better to decouble *dynamic-rectangle* from this and rather create use a list
-;; of seq-hash-tables?
+;; It might be better to decouple *dynamic-rectangle* from this and rather create use a list
+;; of seq-hash-tables? ;;<- NEXT-TODO, good idea
 (defun draw-rectangles ()
-  (let ((dynamic-rectangle-size (* 6 (hash-table-count (the-table *dynamic-rectangles*)))))
-    ;; TODO: :triangle-fan could be much easier, will texture coordinate mappinng work
+  (let ((dynamic-rectangle-size (* 6 (+ (hash-table-count (the-table *dynamic-rectangles*))
+					(hash-table-count (the-table *static-rectangles*))))))
+    ;; TODO: :triangle-fan could be much easier, will texture coordinate mapping work
     ;; straightforwardly too?
     (%gl:draw-arrays :triangles 0 dynamic-rectangle-size)))
 
@@ -430,6 +442,11 @@ is more efficient in aabb collision tests!"
 
 ;;Transformations---------------------------------------------------------------
 
+;; NEXT-TODO: remove this dogma, let all seq-hash-table have the same transformation
+;; function appliable. Either create rectangle subclasses or defer the decision to
+;; downstream.
+;; Problem: all the (foo <name> ...) functions, and GET-RECTANGLE preassume
+;; *dynamic-rectangles* which was a lot of fun to work with so far
 ;; we can only move *dynamic-rectangles*
 (defun move-rectangle (rectangle direction-vec2-or-vec3)
   (let ((direction-vec3
@@ -473,12 +490,12 @@ is more efficient in aabb collision tests!"
 	      x1 n-x1
 	      x2 n-x2
 	      y1 n-y1
-	      y2 n-y2))))
+	      y2 n-y2)))))
 
 
 
-  (defun get-position (rectangle-name)
-    (slot-value (get-rectangle rectangle-name) 'x1)))
+(defun get-position (rectangle-name)
+  (slot-value (get-rectangle rectangle-name) 'x1))
 
 (defun scale (name factor)
   (let ((rectangle (get-rectangle name)))
