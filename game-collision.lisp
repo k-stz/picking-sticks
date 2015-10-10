@@ -28,6 +28,8 @@
 	      ((> (abs (- (v a.c 1) (v b.c 1)))
 		  (abs (+ (v a.r 1) (v b.r 1))))
 	       nil)
+	      ;; perform z-test last, as the rectangles mainly
+	      ;; vary in their x,y values
 	      ((> (abs (- (v a.c 2) (v b.c 2)))
 		  (abs (+ (v a.r 2) (v b.r 2))))
 	       nil)

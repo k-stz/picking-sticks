@@ -264,6 +264,10 @@ is more efficient in aabb collision tests!"
 		   :y1 y1
 		   :y2 y2)))
 
+
+(defun get-position (rectangle-name &optional (seq-hash-table *dynamic-rectangles*))
+  (slot-value (get-rectangle rectangle-name seq-hash-table) 'x1))
+
 (defun set-rectangle-depth (rectangle depth)
   (setf (aref (slot-value rectangle 'x1) 2) depth)
   (setf (aref (slot-value rectangle 'x2) 2) depth)
@@ -443,12 +447,6 @@ is more efficient in aabb collision tests!"
 
 ;;Transformations---------------------------------------------------------------
 
-;; NEXT-TODO: remove this dogma, let all seq-hash-table have the same transformation
-;; function appliable. Either create rectangle subclasses or defer the decision to
-;; downstream.
-;; Problem: all the (foo <name> ...) functions, and GET-RECTANGLE preassume
-;; *dynamic-rectangles* which was a lot of fun to work with so far
-;; we can only move *dynamic-rectangles*
 (defun move-rectangle (rectangle direction-vec2-or-vec3)
   (let ((direction-vec3
 	 (cond ((typep direction-vec2-or-vec3 '(SIMPLE-ARRAY SINGLE-FLOAT (2)))
@@ -465,14 +463,14 @@ is more efficient in aabb collision tests!"
       ;; central-radius representation
       (setf center-point (vec3+ center-point direction-vec3)))))
 
-(defun move (name direction-vec2)
+(defun move (name direction-vec2 &optional (seq-hash-table *dynamic-rectangles*))
   ;; for now we assume only *dynamic-rectangles* can be moved
-  (let ((rectangle (gethash name (the-table *dynamic-rectangles*))))
+  (let ((rectangle (gethash name (the-table seq-hash-table))))
     (move-rectangle rectangle direction-vec2)))
 
 
-(defun move-to (name point)
-  (let ((rectangle (get-rectangle name)))
+(defun move-to (name point &optional (seq-hash-table *dynamic-rectangles*))
+  (let ((rectangle (get-rectangle name seq-hash-table)))
     (with-slots (x1 x2 y1 y2 radius center-point) rectangle
       	;; this provides the following convenience:
 	;; vec2 input -> default z value to current depth
@@ -493,13 +491,8 @@ is more efficient in aabb collision tests!"
 	      y1 n-y1
 	      y2 n-y2)))))
 
-
-
-(defun get-position (rectangle-name)
-  (slot-value (get-rectangle rectangle-name) 'x1))
-
-(defun scale (name factor)
-  (let ((rectangle (get-rectangle name)))
+(defun scale (name factor &optional (seq-hash-table *dynamic-rectangles*))
+  (let ((rectangle (get-rectangle name seq-hash-table)))
     (with-slots (x1 x2 y1 y2 radius center-point) rectangle
       (setf radius (vec3* radius factor))
       (let ((rx (aref radius 0))
