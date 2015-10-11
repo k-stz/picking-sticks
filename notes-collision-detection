@@ -1,5 +1,10 @@
 Notes on: "real-time collision detection" by Christer Ericson
 
+
+-- MATH PRIMMER --
+
+
+
 explicit representation,
 objects represented by polygons, through their points, edges and faces
 
@@ -1321,3 +1326,47 @@ simply computing the distance between (A ⊖ B) and the origin!!
 TCSO,
 Minkowski difference is also referred to as TCSO: /translational configuration space
 obstacle/. "Queries on TCSO are said to be performed in configuration space"
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- BOUNDING VOLUMES --
+
+Bounding volumes (BV) are usually specified in the local model space which may also be the
+world space.  Regardless for collision to work the test must of course be performed in a
+common coordinate system.
+
+local space transformations,
+a solution is to transform one of the BV into the local space of another.
+Advantage:
+- a world space is big, rounding imprecisions can occur
+- tighter BV (thing AABB, at least the local space of one rectangle will have a convex hull
+  as the BV
+
+world space transformation,
+This is important: We can _cache the updated BV (!) in world space _for the duration of
+the time step_!! This makes sense in world space because repeated overlap test with
+multiple objects can all use the same cached future BV's. In contrast the local space
+transformation caching doesn't make sense for muliple overlap tests!
+Disadvantage:
+- double storage usage
+
+
+/nonaligned, or, freely, oriented BVs/,
+spheres and CH (convex hulls) can be transformed into any coordinate system. In contrast
+
+/aligned BVs/,
+such as AABBs imagine you AABB rectangle (CH) by 45-degree. You need to realign them
+after rotations. There are four common strategies:
+- fixed-size loose AABB that regardless of rotation always encloses the object (you can
+  imagine it being particuallarly large to fit all the orientations of the object).
+  Given a center point and the furthest vertex from it we shape a sphere(!), then we draw
+  a boundign box around it and we get the fixed-size AABB.
+  It is the simplest solution at the expense of accuracy due to being a loose BV.
+  The advantage: rotations can be ignored, all we have to do is translate the BV upon
+  object movement.
+  Finally: The sphere formed from the center point (the pivot) and the furthest point
+  forms a better BV. The collision test is also efficient and it clearly is a tighter,
+  more accurate BV!
+
+
