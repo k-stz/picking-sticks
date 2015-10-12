@@ -1368,5 +1368,7 @@ after rotations. There are four common strategies:
   Finally: The sphere formed from the center point (the pivot) and the furthest point
   forms a better BV. The collision test is also efficient and it clearly is a tighter,
   more accurate BV!
-
+the other three involve dynamically resizing the AABB:
+- find the extreme points in all directions. For a triangle it is simply projecting the
+  points along the (cardinal) direction vectors and finding the outer most
 

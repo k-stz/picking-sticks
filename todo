@@ -13,3 +13,11 @@ ideas---------------------------------------------------------------------------
 
 rubber like rectangle, can stretch along base axis at first, shouldn't be too hard
 for a collision test
+
+
+collision-----------------------------------------------------------------------
+Have game-object transformation functions (move, scale, rotate) cache the new bounding
+volume and or position. This allows for the main loop to perform collision tests with the
+cached position and in the case of a collision to either not allow it (ai dodging bullets)
+or calculate the penetration depth and point of collision and calculate a new position
+where the two objects are merely touching (so game-objects don't penetrate walls but hug)!
