@@ -232,8 +232,17 @@
   (with-slots (center-point) collision-rectangle
     (setf center-point (vec3+ center-point direction-vec3))))
 
-;; (defmethod scale-bounding-volume ((rectangle rectangle) scale-vec3)
-;;   (with-slots (radius) (bounding-volume rectangle)))
+(defmethod scale-bounding-volume ((collision-rectangle collision-rectangle) scale-vec3)
+  (with-slots (radius) collision-rectangle
+    (macrolet ((r (subscript)
+		 `(aref radius ,subscript))
+	       (s (subscript)
+		 `(aref scale-vec3 ,subscript)))
+      ;; TODO: hm (vec3* ) allocates a fresh vector, while this directly changes radius'
+      ;; subscripts.
+      (setf (r 0) (* (r 0) (s 0)))
+      (setf (r 1) (* (r 1) (s 1)))
+      (setf (r 2) (* (r 2) (s 2))))))
 
 
 (defun center-radius->vertices (center-point-vec3 radius-vec3)
@@ -529,10 +538,14 @@ is more efficient in aabb collision tests!"
       (let ((rx (aref radius 0))
 	    (ry (aref radius 1))
 	    (rz (aref radius 2)))
+	;; TODO: scaling with rz meaningful?
 	(setf x1 (vec3+ center-point (vec3 (- rx) (- ry) 0.0)))
 	(setf x2 (vec3+ center-point (vec3 rx (- ry) 0.0)))
 	(setf y1 (vec3+ center-point (vec3 (- rx) ry 0.0)))
-	(setf y2 (vec3+ center-point (vec3 rx ry 0.0)))))))
+	(setf y2 (vec3+ center-point (vec3 rx ry 0.0))))
+      ;; update Bounding Volume:
+      (scale-bounding-volume (bounding-volume rectangle)
+			     (vec3 factor factor factor)))))
 
 ;;;Animation
 
