@@ -495,17 +495,21 @@ is more efficient in aabb collision tests!"
 (defun move-to (name point &optional (seq-hash-table *dynamic-rectangles*))
   (let ((rectangle (get-rectangle name seq-hash-table)))
     (with-slots (x1 x2 y1 y2 radius center-point) rectangle
-      	;; this provides the following convenience:
-	;; vec2 input -> default z value to current depth
-	;; vec3 input -> new center-point of rectangle
-	(setf point
-	      (cond ((typep point 'vec2)
-		     (vec3 (aref point 0)
-			   (aref point 1)
-			   ;; depth value, the default 3 component if vec2 is provided
-			   (aref radius 2)))
-		    ((typep point 'vec3)
-		     point)))
+      ;; this provides the following convenience:
+      ;; vec2 input -> default z value to current depth
+      ;; vec3 input -> new center-point of rectangle
+      (setf point
+	    (cond ((typep point 'vec2)
+		   (vec3 (aref point 0)
+			 (aref point 1)
+			 ;; depth value, the default 3 component if vec2 is provided
+			 (aref radius 2)))
+		  ((typep point 'vec3)
+		   point)))
+      ;; translate bounding volume:
+      (translate-bounding-volume rectangle
+				 (vec3- point center-point))
+      ;; update rendering data:
       (multiple-value-bind (n-x1 n-x2 n-y1 n-y2)
 	  (center-radius->vertices point radius)
 	(setf center-point point
