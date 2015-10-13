@@ -226,10 +226,14 @@
 
 
 (defgeneric translate-bounding-volume (bounding-volume vec3))
+(defgeneric scale-bounding-volume (bounding-volume vec3))
 
-(defmethod translate-bounding-volume ((rectangle rectangle) direction-vec3)
-  (with-slots (center-point) (bounding-volume rectangle)
+(defmethod translate-bounding-volume ((collision-rectangle collision-rectangle) direction-vec3)
+  (with-slots (center-point) collision-rectangle
     (setf center-point (vec3+ center-point direction-vec3))))
+
+;; (defmethod scale-bounding-volume ((rectangle rectangle) scale-vec3)
+;;   (with-slots (radius) (bounding-volume rectangle)))
 
 
 (defun center-radius->vertices (center-point-vec3 radius-vec3)
@@ -484,7 +488,7 @@ is more efficient in aabb collision tests!"
       (setf y2 (vec3+ y2 direction-vec3))
       ;; central-radius representation
       (setf center-point (vec3+ center-point direction-vec3)))
-    (translate-bounding-volume rectangle direction-vec3)))
+    (translate-bounding-volume (bounding-volume rectangle) direction-vec3)))
 
 (defun move (name direction-vec2 &optional (seq-hash-table *dynamic-rectangles*))
   ;; for now we assume only *dynamic-rectangles* can be moved
@@ -507,7 +511,7 @@ is more efficient in aabb collision tests!"
 		  ((typep point 'vec3)
 		   point)))
       ;; translate bounding volume:
-      (translate-bounding-volume rectangle
+      (translate-bounding-volume (bounding-volume rectangle)
 				 (vec3- point center-point))
       ;; update rendering data:
       (multiple-value-bind (n-x1 n-x2 n-y1 n-y2)
