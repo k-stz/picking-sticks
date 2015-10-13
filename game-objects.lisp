@@ -182,10 +182,17 @@
   )
 
 
+(defclass collision-rectangle ()
+  ((center-point :initarg :center-point :type vec3)
+   (radius :initarg :radius :type vec3)))
+
 ;; TODO: give nice print representation
 ;; TODO: make super-class rectangle and sub-class game-object. Seperating rendering
 ;;       representation from interior representation and proxy geometry for collision
 ;;       tests
+;; UPDATE: maybe go with the superclass: rectangle, subclass: game-object which will contain
+;;         a representation point (e.g. filled with sphere, rectangle), an <animation> slot
+;;         a proxy geometry, a cached geometry (past timesteam when no collision orientation)
 (defclass rectangle ()
   ;; TODO: instead of vec2 provide as seperate x1-x x1-y ? So that
   ;;       transforming into 1d-array is easier (to pass into foreign-array)
@@ -209,8 +216,9 @@
    (tex-y1 :initarg :tex-y1 :type vec2 :initform (vec2 0.0 1.0))
    (tex-y2 :initarg :tex-y2 :type vec2 :initform (vec2 1.0 1.0))
 
-   ;; proxy geometry used for collision tests
-   (proxy-geometry :type rectangle)
+   ;; Bounding Volume used for collision test - the proxy geometry
+   ;; Now all transformation functions must also update this one
+   (bounding-volume :initarg :bounding-volume :type collision-rectangle)
 
    ;; for now we directly couple animation with the rectangle
    (animation-state :type animation :initform (make-animation) :reader animation-state)))
@@ -231,6 +239,9 @@ Note the z-component of the radius-vec3 will decide the depth of all the points 
 
 ;; TODO: add texture coordinate to initilizations, providing a texture.png
 ;; and a fixed texture coordinate with texatl:with-sprite ?
+;; UPDATE: maybe go with the superclass: rectangle, subclass: game-object which will contain
+;;         a representation point (e.g. filled with sphere, rectangle), an <animation> slot
+;;         a proxy geometry, a cached geometry (past timesteam when no collision orientation)
 (defun make-rectangle-c (&optional
 			   (center-point (vec3 0.0 0.0 0.0))
 			   (radius (vec3 50.0 50.0 0.0)))
@@ -244,7 +255,12 @@ is more efficient in aabb collision tests!"
 		   :x1 x1
 		   :x2 x2
 		   :y1 y1
-		   :y2 y2)))
+		   :y2 y2
+		   ;; default bounding volume is an AABB rectangle provide with
+		   ;; the center-radius representation
+		   :bounding-volume (make-instance 'collision-rectangle
+						   :radius radius
+						   :center-point center-point))))
 
 (defun make-rectangle (&optional
 			 (x 0.0)
