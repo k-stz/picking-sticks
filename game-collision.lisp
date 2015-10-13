@@ -20,7 +20,7 @@
   "Perform AABB collision test."
   (macrolet ((v (vec3 subscript)
 	       `(aref ,vec3 ,subscript)))
-    (with-slots ((a.c center-point) (a.r radius)) r1
+    (with-slots ((a.c center-point) (a.r radius)) (bounding-volume r1)
       (with-slots ((b.c center-point) (b.r radius)) r2
 	(cond ((> (abs (- (v a.c 0) (v b.c 0)))
 		  (abs (+ (v a.r 0) (v b.r 0))))

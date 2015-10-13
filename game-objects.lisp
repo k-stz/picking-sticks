@@ -28,7 +28,7 @@
   (:export :rectangle
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
-	   :x1 :x2 :y1 :y2 :center-point :radius
+	   :x1 :x2 :y1 :y2 :center-point :radius :bounding-volume
 	   :make-rectangle
 	   :make-rectangle-c
 	   :add-rectangle-as
@@ -203,7 +203,7 @@
    (y1 :initarg :y1 :type vec3)
    (y2 :initarg :y2 :type vec3)
 
-   ;; trying center-radius representation
+   ;; center-radius representation
    (center-point :initarg :center-point :type vec3)
    ;; {rx, ry, rz} rz is meaningless for 2d-rectangles, the "depth" attribute
    ;; is the z-component of the center-point
@@ -218,13 +218,20 @@
 
    ;; Bounding Volume used for collision test - the proxy geometry
    ;; Now all transformation functions must also update this one
-   (bounding-volume :initarg :bounding-volume :type collision-rectangle)
+   (bounding-volume :initarg :bounding-volume :type collision-rectangle
+		    :accessor bounding-volume)
 
    ;; for now we directly couple animation with the rectangle
    (animation-state :type animation :initform (make-animation) :reader animation-state)))
 
 
-;; NEXT-TODO: Use to write MOVE-TO
+(defgeneric translate-bounding-volume (bounding-volume vec3))
+
+(defmethod translate-bounding-volume ((rectangle rectangle) direction-vec3)
+  (with-slots (center-point) (bounding-volume rectangle)
+    (setf center-point (vec3+ center-point direction-vec3))))
+
+
 (defun center-radius->vertices (center-point-vec3 radius-vec3)
   "Returns the points of the 2d-rectangle of the center-radius representation given.
 Note the z-component of the radius-vec3 will decide the depth of all the points (along the z-axis)!"
@@ -476,7 +483,8 @@ is more efficient in aabb collision tests!"
       (setf y1 (vec3+ y1 direction-vec3))
       (setf y2 (vec3+ y2 direction-vec3))
       ;; central-radius representation
-      (setf center-point (vec3+ center-point direction-vec3)))))
+      (setf center-point (vec3+ center-point direction-vec3)))
+    (translate-bounding-volume rectangle direction-vec3)))
 
 (defun move (name direction-vec2 &optional (seq-hash-table *dynamic-rectangles*))
   ;; for now we assume only *dynamic-rectangles* can be moved
