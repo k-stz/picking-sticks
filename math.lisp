@@ -55,15 +55,15 @@
 	(aref vec4 1)
 	(aref vec4 2)))
 
-(defun vec3->vec4 (vec3)
+(defun vec3->vec4 (vec3 &optional (w 0.0))
   "Adding a 0.0 w component yields a vec4."
   (vec4 (aref vec3 0)
 	(aref vec3 1)
 	(aref vec3 2)
-	0.0))
+	w))
 
 
 (defun mat4*vec3 (mat4 vec3)
   (vec4->vec3
    (matrix*vec4 mat4
-		(vec3->vec4 vec3))))
+		(vec3->vec4 vec3 1.0))))

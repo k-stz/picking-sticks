@@ -547,21 +547,25 @@ is more efficient in aabb collision tests!"
       (scale-bounding-volume (bounding-volume rectangle)
 			     (vec3 factor factor factor)))))
 
-;; (defun rotate-rectangle (rectangle rotation-vec3 &optional around-vec3)
-;;   (with-slots (x1 x2 y1 y2 center-point) rectangle
-;;     (let* ((origin (if around-vec3
-;; 		       around-vec3
-;; 		       center-point))
-;; 	   (into-origin-translation (sb-cga:translate (vec3- origin)))
-;; 	   (from-origin-translation (sb-cga:translate origin))
-;; 	   (rotation-matrix (sb-cga:rotate rotation-vec3))
-;; 	   (transformation-matrix rotation-matrix))
 
-;;       (setf x1 (mat4*vec3 transformation-matrix x1))
-;;       (setf x2 (mat4*vec3 transformation-matrix x2))
-;;       (setf y1 (mat4*vec3 transformation-matrix y1))
-;;       (setf y2 (mat4*vec3 transformation-matrix y2)))
-;;     ))
+;; NEXT-TODO: update Bounding Volume!
+(defun rotate-rectangle (rectangle rotation-vec3 &optional around-vec3)
+  (with-slots (x1 x2 y1 y2 center-point) rectangle
+    (let* ((origin (if around-vec3
+		       around-vec3
+		       center-point))
+	   (into-origin-translation (sb-cga:translate (vec3- origin)))
+	   (from-origin-translation (sb-cga:translate origin))
+	   (rotation-matrix (sb-cga:rotate rotation-vec3))
+	   (transformation-matrix
+	    (sb-cga:matrix*
+	     from-origin-translation
+	     rotation-matrix
+	     into-origin-translation)))
+      (setf x1 (mat4*vec3 transformation-matrix x1))
+      (setf x2 (mat4*vec3 transformation-matrix x2))
+      (setf y1 (mat4*vec3 transformation-matrix y1))
+      (setf y2 (mat4*vec3 transformation-matrix y2)))))
 
 ;;;Animation
 
