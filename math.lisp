@@ -7,7 +7,8 @@
 	   :vec2*
 	   :vec3+
 	   :vec3-
-	   :vec3*))
+	   :vec3*
+	   :mat4*vec3))
 
 (in-package :math)
 
@@ -48,3 +49,21 @@
 	(* (aref v1 1) scalar)
 	(* (aref v1 2) scalar)))
 
+(defun vec4->vec3 (vec4)
+  "Discard the w component and return a vec3."
+  (vec3 (aref vec4 0)
+	(aref vec4 1)
+	(aref vec4 2)))
+
+(defun vec3->vec4 (vec3)
+  "Adding a 0.0 w component yields a vec4."
+  (vec4 (aref vec3 0)
+	(aref vec3 1)
+	(aref vec3 2)
+	0.0))
+
+
+(defun mat4*vec3 (mat4 vec3)
+  (vec4->vec3
+   (matrix*vec4 mat4
+		(vec3->vec4 vec3))))
