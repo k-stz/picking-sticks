@@ -35,6 +35,8 @@
 	   :remove-rectangle
 	   :get-rectangle
 	   :move
+	   :scale
+	   :rotate
 	   ;;utils
 	   :do-seq-hash
 	   ;;animation
@@ -566,6 +568,12 @@ is more efficient in aabb collision tests!"
       (setf x2 (mat4*vec3 transformation-matrix x2))
       (setf y1 (mat4*vec3 transformation-matrix y1))
       (setf y2 (mat4*vec3 transformation-matrix y2)))))
+
+
+(defun rotate (name degree &optional (seq-hash-table *dynamic-rectangles*))
+  (let ((radians (deg-to-rad degree))
+	(rectangle (get-rectangle name seq-hash-table)))
+    (rotate-rectangle rectangle (vec3 0.0 0.0 radians))))
 
 ;;;Animation
 

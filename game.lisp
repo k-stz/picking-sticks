@@ -652,27 +652,42 @@
   ;; this ensures that we move the same distance regardless of fps (dos err-a feature)
   ;; TODO: move to its own module
   (with-slots (last-frame-ticks) window
-    (let ((elapsed-ticks (- (sdl2:get-ticks) last-frame-ticks)))
+    (let ((elapsed-ticks (- (sdl2:get-ticks) last-frame-ticks))
+	  ;; when pushing muliple inputs (next-frame) would be called muliple times
+	  ;; resulting in a speed-up, glitchy, animation. Hence we only call (next-frame)
+	  ;; when a movement is issued, signaled by this flagg:
+	  (next-frame-p nil))
 
       (when (>= elapsed-ticks 30)
       	(setf last-frame-ticks (sdl2:get-ticks))
-      	
+      	;; translation movement
 	(when (key-down-p (keystate-tracker window) :scancode-d)
 	  (game-objects:set-animation :nyo :walk :right)
-	  (next-frame)
+	  (setf next-frame-p t)
 	  (game-objects:move :nyo (math:vec2* (vec2 5.0 0.0) (/ elapsed-ticks 50.0))))
 	(when (key-down-p (keystate-tracker window) :scancode-a)
 	  (game-objects:set-animation :nyo :walk :left)
-	  (next-frame)
+	  (setf next-frame-p t)
 	  (game-objects:move :nyo (math:vec2* (vec2 -5.0 0.0) (/ elapsed-ticks 50.0))))
 	(when (key-down-p (keystate-tracker window) :scancode-w)
 	  (game-objects:set-animation :nyo :walk :up)
-	  (next-frame)
+	  (setf next-frame-p t)
 	  (game-objects:move :nyo (math:vec2* (vec2 0.0 5.0) (/ elapsed-ticks 50.0))))
 	(when (key-down-p (keystate-tracker window) :scancode-s)
 	  (game-objects:set-animation :nyo :walk :down)
-	  (next-frame)
-	  (game-objects:move :nyo (math:vec2* (vec2 0.0 -5.0) (/ elapsed-ticks 50.0)))))
+	  (setf next-frame-p t)
+	  (game-objects:move :nyo (math:vec2* (vec2 0.0 -5.0) (/ elapsed-ticks 50.0))))
+	;; rotation movement
+	(when (key-down-p (keystate-tracker window) :scancode-q)
+	  ;;(game-objects:set-animation :nyo :walk :right)
+	  (setf next-frame-p t)
+	  (game-objects:rotate :nyo 1.0))
+	(when (key-down-p (keystate-tracker window) :scancode-e)
+	  ;;(game-objects:set-animation :nyo :walk :right)
+	  (setf next-frame-p t)
+	  (game-objects:rotate :nyo -1.0))
+	(when next-frame-p
+	  (next-frame)))
 
       (when (key-down-p (keystate-tracker window) :scancode-n)
 	(print "Nyo!")
