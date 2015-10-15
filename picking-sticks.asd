@@ -15,6 +15,7 @@
   :serial t
   :components ((:file "tex")
 	       (:file "math")
+	       (:file "collision")
 	       (:file "gl-utils")
 	       (:file "opticl-utils")
 	       (:file "game-objects")

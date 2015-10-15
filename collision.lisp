@@ -191,7 +191,7 @@ radius and direction given. f(d)=O+rd/||d|| where d = direction,  O=origin, r=ra
   (+ (* (aref a 0) (aref b 0))
      (* (aref a 1) (aref b 1))))
 
-;; the Quickhull algorithm needs a procedure calculating the furthes point from an edge
+;; the Quickhull algorithm needs a procedure calculating the furthest point from an edge
 (defun point-farthest-from-edge (A B points-list)
   "Use 2d-vectors A and B to form an edge and return point furthest from said edge (CCW
 perpedicular)"
@@ -213,3 +213,19 @@ perpedicular)"
 	       max-value d
 	       right-most-value r)
 	 :finally (return return-value))))
+
+(defun extreme-points-along-direction (dir-vec3 points-list)
+  (let ((min-proj +9999.0)
+	(max-proj -9999.0)
+	minimum
+	maximum)
+    (loop for point in points-list
+       for projection = (dot-product point dir-vec3)
+       :do ;; implicit progn:
+	 (when (< projection min-proj)
+	   (setf min-proj projection)
+	   (setf minimum point))
+	 (when (> projection max-proj)
+	   (setf max-proj projection)
+	   (setf maximum point)))
+    (values minimum maximum)))
