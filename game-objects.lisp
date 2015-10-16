@@ -227,6 +227,19 @@
    (animation-state :type animation :initform (make-animation) :reader animation-state)))
 
 
+;; rectangle print representation
+(defmethod print-object ((rectangle rectangle) stream)
+  (declare (type stream stream))
+  (with-slots (center-point radius) rectangle
+    (when (or (not *print-readably*) (not *read-eval*))
+      (print-unreadable-object (rectangle stream :type t :identity t)
+	(format stream
+		"center-point:~S radius:~S"
+		center-point radius)))))
+
+
+;;
+
 (defgeneric translate-bounding-volume (bounding-volume vec3))
 (defgeneric scale-bounding-volume (bounding-volume vec3))
 
