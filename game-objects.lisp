@@ -546,6 +546,8 @@ is more efficient in aabb collision tests!"
 	      y1 n-y1
 	      y2 n-y2)))))
 
+
+;; TODO: scaling cancels rotation rendering orientatio
 (defun scale-rectangle (rectangle scale-vec3)
   (with-slots (x1 x2 y1 y2 radius center-point) rectangle
     (setf radius (vec3* radius scale-vec3))
@@ -558,11 +560,11 @@ is more efficient in aabb collision tests!"
 	(setf y1 (vec3+ center-point (vec3 (- rx) ry 0.0)))
 	(setf y2 (vec3+ center-point (vec3 rx ry 0.0))))
     (scale-bounding-volume (bounding-volume rectangle)
-			   scale-vec3))))
+			   scale-vec3)))
 
 (defun scale (name factor &optional (seq-hash-table *dynamic-rectangles*))
   (let ((rectangle (get-rectangle name seq-hash-table)))
-    (scale-rectangle rectangle (vec3 factor factor factor)))))
+    (scale-rectangle rectangle (vec3 factor factor factor))))
 
 
 ;; NEXT-TODO: update Bounding Volume!
