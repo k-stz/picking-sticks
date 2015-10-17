@@ -8,6 +8,7 @@
 	   :vec3+
 	   :vec3-
 	   :vec3*
+	   :vec3*vec3
 	   :mat4*vec3))
 
 (in-package :math)
@@ -44,10 +45,14 @@
 	    (- (aref v1 1) (aref v2 1))
 	    (- (aref v1 2) (aref v2 2)))))
 
-(defun vec3* (v1 scalar)
-  (vec3 (* (aref v1 0) scalar)
-	(* (aref v1 1) scalar)
-	(* (aref v1 2) scalar)))
+(defun vec3* (v1 scalar-or-v2)
+  (if (typep scalar-or-v2 'vec3)
+      (vec3 (* (aref v1 0) (aref scalar-or-v2 0))
+	    (* (aref v1 1) (aref scalar-or-v2 1))
+	    (* (aref v1 2) (aref scalar-or-v2 2)))
+      (vec3 (* (aref v1 0) scalar-or-v2)
+	    (* (aref v1 1) scalar-or-v2)
+	    (* (aref v1 2) scalar-or-v2))))
 
 (defun vec4->vec3 (vec4)
   "Discard the w component and return a vec3."
