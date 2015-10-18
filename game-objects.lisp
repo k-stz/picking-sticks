@@ -586,31 +586,40 @@ is more efficient in aabb collision tests!"
 	      y2 n-y2)))))
 
 
-;; TODO: scaling cancels rotation rendering orientation.
-;; UPDATE: scaling happens along axis vectors
 (defun scale-rectangle (rectangle scale-vec3)
+  ;; TODO: handle 0.0-factor scaling
   (with-slots (x1 x2 y1 y2 radius center-point) rectangle
-    (setf radius (vec3* radius scale-vec3))
-      (let ((rx (aref radius 0))
-	    (ry (aref radius 1))
-	    (rz (aref radius 2)))
-	;; TODO: meaningful use for rz
-	;; TODO: use points to establish establish rotation orientation
-	;;       and find the direction vectors along which to scale!
-	;; NEXT-TODO: x1->y1 points "up" etc...
-	(setf x1 (vec3+ center-point (vec3 (- rx) (- ry) 0.0)))
-	(setf x2 (vec3+ center-point (vec3 rx (- ry) 0.0)))
-	(setf y1 (vec3+ center-point (vec3 (- rx) ry 0.0)))
-	(setf y2 (vec3+ center-point (vec3 rx ry 0.0))))
-    (scale-bounding-volume (bounding-volume rectangle)
-			   scale-vec3)))
+    (let* ((x1->y1 (vec3- y1 x1))	   
+	   (up-dir (sb-cga:normalize x1->y1))
+	   (z-axis-rotation (acos (round-dot
+				   (sb-cga:dot-product (vec3 0.0 1.0 0.0)
+						       up-dir))))
+	   (into-origin-translation (sb-cga:translate (vec3- center-point)))
+	   (from-origin-translation (sb-cga:translate center-point))
+	   (scale-matrix (sb-cga:scale scale-vec3))
+	   (rotation-matrix (sb-cga:rotate (vec3 0.0 0.0 z-axis-rotation)))
+	   (rotation-matrix-1 (sb-cga:rotate (vec3 0.0 0.0 (- z-axis-rotation))))
+	   ;; (rotation-matrix-1 (sb-cga:inverse-matrix rotation-matrix))
+	   (transformation-matrix
+	    (sb-cga:matrix*
+	     from-origin-translation
+	     rotation-matrix
+	     scale-matrix
+	     rotation-matrix-1
+	     into-origin-translation)))
+      (print z-axis-rotation)
+      ;; (print rotation-matrix)
+      (setf x1 (mat4*vec3 transformation-matrix x1))
+      (setf x2 (mat4*vec3 transformation-matrix x2))
+      (setf y1 (mat4*vec3 transformation-matrix y1))
+      (setf y2 (mat4*vec3 transformation-matrix y2)))
+    (recalculate-aabb-radius rectangle)))
 
 (defun scale (name factor &optional (seq-hash-table *dynamic-rectangles*))
   (let ((rectangle (get-rectangle name seq-hash-table)))
     (scale-rectangle rectangle (vec3 factor factor factor))))
 
 
-;; NEXT-TODO: update Bounding Volume!
 (defun rotate-rectangle (rectangle rotation-vec3 &optional around-vec3)
   (with-slots (x1 x2 y1 y2 center-point) rectangle
     (let* ((origin (if around-vec3

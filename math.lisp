@@ -9,7 +9,10 @@
 	   :vec3-
 	   :vec3*
 	   :vec3*vec3
-	   :mat4*vec3))
+	   :mat4*vec3
+	   ;;
+	   :round-dot
+	   ))
 
 (in-package :math)
 
@@ -72,3 +75,10 @@
   (vec4->vec3
    (matrix*vec4 mat4
 		(vec3->vec4 vec3 1.0))))
+
+(defun round-dot (dot)
+  (let ((next-int (round dot)))
+    (if (< (abs (- dot next-int)) 0.001)
+	(coerce next-int 'single-float)
+	dot)))
+

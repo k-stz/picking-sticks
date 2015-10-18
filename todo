@@ -15,6 +15,11 @@ rubber like rectangle, can stretch along base axis at first, shouldn't be too ha
 for a collision test
 
 
+scaling,
+experimenting with rotation dependent scaling showed some neat effect when scaling individual
+points of a rectangle. Make this an eye-candy feature.
+
+
 collision-----------------------------------------------------------------------
 Have game-object transformation functions (move, scale, rotate) cache the new bounding
 volume and or position. This allows for the main loop to perform collision tests with the
