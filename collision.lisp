@@ -1,6 +1,7 @@
 (defpackage :collision
   (:use :cl
-	:kit.glm))
+	:kit.glm)
+  (:export :extreme-points-along-direction))
 
 (in-package :collision)
 

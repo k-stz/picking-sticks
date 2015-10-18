@@ -238,10 +238,11 @@
 		center-point radius)))))
 
 
-;;
+;; Bounding Volume calculation
 
 (defgeneric translate-bounding-volume (bounding-volume vec3))
 (defgeneric scale-bounding-volume (bounding-volume vec3))
+
 
 (defmethod translate-bounding-volume ((collision-rectangle collision-rectangle) direction-vec3)
   (with-slots (center-point) collision-rectangle
@@ -259,6 +260,44 @@
       (setf (r 1) (* (r 1) (s 1)))
       (setf (r 2) (* (r 2) (s 2))))))
 
+
+(defgeneric recalculate-aabb-radius (game-object))
+
+;; this assumes that the CENTER-POINT is correct
+;; example use: new aabb after rotation
+(defmethod recalculate-aabb-radius ((rectangle rectangle))
+  (with-slots (x1 x2 y1 y2 radius center-point) rectangle
+    (macrolet ((r (subscript)
+		 `(aref radius ,subscript)))
+      ;; x-axis radius
+      (multiple-value-bind (min-along-x max-along-x)
+	  (collision:extreme-points-along-direction
+	   (vec3 1.0 0.0 0.0)
+	   (list x1 x2 y1 y2))
+	;; max-min = bv-x-diameter
+	;; (/ bv-diameter 2.0) = bv-x-radius
+	(setf
+	 (r 0)
+	 (/
+	  (aref (vec3- max-along-x min-along-x) 0)
+	  2.0)))
+      ;; y-axis radius
+      (multiple-value-bind (min-along-y max-along-y)
+	  (collision:extreme-points-along-direction
+	   (vec3 0.0 1.0 0.0)
+	   (list x1 x2 y1 y2))
+	;; max-min = bv-y-diameter
+	;; (/ bv-diameter 2.0) = bv-y-radius
+	(setf
+	 (r 1)
+	 (/
+	  (aref (vec3- max-along-y min-along-y) 1)
+	  2.0))))
+    (with-slots ((bv-center-point center-point)) (bounding-volume rectangle)
+      (setf bv-center-point center-point))))
+
+
+;;
 
 (defun center-radius->vertices (center-point-vec3 radius-vec3)
   "Returns the points of the 2d-rectangle of the center-radius representation given.
@@ -547,7 +586,8 @@ is more efficient in aabb collision tests!"
 	      y2 n-y2)))))
 
 
-;; TODO: scaling cancels rotation rendering orientatio
+;; TODO: scaling cancels rotation rendering orientation.
+;; UPDATE: scaling happens along axis vectors
 (defun scale-rectangle (rectangle scale-vec3)
   (with-slots (x1 x2 y1 y2 radius center-point) rectangle
     (setf radius (vec3* radius scale-vec3))
@@ -555,6 +595,9 @@ is more efficient in aabb collision tests!"
 	    (ry (aref radius 1))
 	    (rz (aref radius 2)))
 	;; TODO: meaningful use for rz
+	;; TODO: use points to establish establish rotation orientation
+	;;       and find the direction vectors along which to scale!
+	;; NEXT-TODO: x1->y1 points "up" etc...
 	(setf x1 (vec3+ center-point (vec3 (- rx) (- ry) 0.0)))
 	(setf x2 (vec3+ center-point (vec3 rx (- ry) 0.0)))
 	(setf y1 (vec3+ center-point (vec3 (- rx) ry 0.0)))
@@ -584,7 +627,10 @@ is more efficient in aabb collision tests!"
       (setf x1 (mat4*vec3 transformation-matrix x1))
       (setf x2 (mat4*vec3 transformation-matrix x2))
       (setf y1 (mat4*vec3 transformation-matrix y1))
-      (setf y2 (mat4*vec3 transformation-matrix y2)))))
+      (setf y2 (mat4*vec3 transformation-matrix y2))
+      (when around-vec3
+	(setf center-point (mat4*vec3 transformation-matrix center-point)))
+      (recalculate-aabb-radius rectangle))))
 
 
 (defun rotate (name degree &optional (seq-hash-table *dynamic-rectangles*))
