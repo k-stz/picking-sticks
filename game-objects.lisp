@@ -586,12 +586,25 @@ is more efficient in aabb collision tests!"
 	      y2 n-y2)))))
 
 
+;; TODO: remove after tests:
+(defun matrix->translate-vec3 (matrix)
+  (vec3 (aref matrix 12)
+	(aref matrix 13)
+	(aref matrix 14)))
+;; /TESTs
+
 (defun scale-rectangle (rectangle scale-vec3)
   ;; TODO: handle 0.0-factor scaling
   (with-slots (x1 x2 y1 y2 radius center-point) rectangle
     (let* ((x1->y1 (vec3- y1 x1))	   
 	   (up-dir (sb-cga:normalize x1->y1))
 	   (z-axis-rotation (acos (round-dot
+				   ;; NEXT-TODO DOT-PRODUCT is the culprit!
+				   ;; rotation beyond 180-degree doesn't work
+				   ;; with this properly!
+				   ;; SOLUTION: (IF (CROSS-PRODCUCT ...)
+				                    ;; <this was around>
+						    ;; <other way around>)
 				   (sb-cga:dot-product (vec3 0.0 1.0 0.0)
 						       up-dir))))
 	   (into-origin-translation (sb-cga:translate (vec3- center-point)))
@@ -600,6 +613,7 @@ is more efficient in aabb collision tests!"
 	   (rotation-matrix (sb-cga:rotate (vec3 0.0 0.0 z-axis-rotation)))
 	   (rotation-matrix-1 (sb-cga:rotate (vec3 0.0 0.0 (- z-axis-rotation))))
 	   ;; (rotation-matrix-1 (sb-cga:inverse-matrix rotation-matrix))
+	   
 	   (transformation-matrix
 	    (sb-cga:matrix*
 	     from-origin-translation
@@ -609,10 +623,17 @@ is more efficient in aabb collision tests!"
 	     into-origin-translation)))
       (print z-axis-rotation)
       ;; (print rotation-matrix)
-      (setf x1 (mat4*vec3 transformation-matrix x1))
-      (setf x2 (mat4*vec3 transformation-matrix x2))
-      (setf y1 (mat4*vec3 transformation-matrix y1))
-      (setf y2 (mat4*vec3 transformation-matrix y2)))
+      ;; TODO: non-uniform scaling fails because of mat4*vec3 ??
+      (setf x1 (matrix->translate-vec3 (sb-cga:matrix* transformation-matrix (sb-cga:translate x1))))
+      (setf x2 (matrix->translate-vec3 (sb-cga:matrix* transformation-matrix (sb-cga:translate x2))))
+      (setf y1 (matrix->translate-vec3 (sb-cga:matrix* transformation-matrix (sb-cga:translate y1))))
+      (setf y2 (matrix->translate-vec3 (sb-cga:matrix* transformation-matrix (sb-cga:translate y2))))
+
+      ;; (setf x1 (mat4*vec3 transformation-matrix x1))
+      ;; (setf x2 (mat4*vec3 transformation-matrix x2))
+      ;; (setf y1 (mat4*vec3 transformation-matrix y1))
+      ;; (setf y2 (mat4*vec3 transformation-matrix y2))
+      )
     (recalculate-aabb-radius rectangle)))
 
 (defun scale (name factor &optional (seq-hash-table *dynamic-rectangles*))
