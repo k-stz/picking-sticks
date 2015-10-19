@@ -29,6 +29,9 @@
 	   ;; wow, else we can't access the unqualified from other
 	   ;; packages like so (slot-value *rectangle* 'x1) ...
 	   :x1 :x2 :y1 :y2 :center-point :radius :bounding-volume
+	   ;; BV
+	   :set-radius
+	   ;; rectangle
 	   :make-rectangle
 	   :make-rectangle-c
 	   :add-rectangle-as
@@ -187,6 +190,12 @@
 (defclass collision-rectangle ()
   ((center-point :initarg :center-point :type vec3)
    (radius :initarg :radius :type vec3)))
+
+
+(defgeneric set-radius (collision-rectangle radius)
+  (:method ((rectangle collision-rectangle) radius-vec3)
+    (setf (slot-value rectangle 'radius)
+    	  radius-vec3)))
 
 ;; TODO: give nice print representation
 ;; TODO: make super-class rectangle and sub-class game-object. Seperating rendering
@@ -605,6 +614,8 @@ is more efficient in aabb collision tests!"
 				   ;; SOLUTION: (IF (CROSS-PRODCUCT ...)
 				                    ;; <this was around>
 						    ;; <other way around>)
+				   ;; add tighter BV to nyo initialization for
+				   ;; more intuitive collision testing
 				   (sb-cga:dot-product (vec3 0.0 1.0 0.0)
 						       up-dir))))
 	   (into-origin-translation (sb-cga:translate (vec3- center-point)))

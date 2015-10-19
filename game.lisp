@@ -585,9 +585,10 @@
 (defun init-nyo-rectangle ()
   (let ((nyo-rectangle ;(game-objects:make-rectangle 100.0 100.0 64.0 96.0)
 	 (game-objects:make-rectangle-c (vec3 100.0 100.0 0.0)
-					(vec3 32.0 48.0 0.0))
-	 ))
+					(vec3 32.0 48.0 0.0))))
+    (print (bounding-volume nyo-rectangle))
     (game-objects:add-rectangle-as :nyo nyo-rectangle)
+    (set-radius (bounding-volume nyo-rectangle) (vec3 20.0 42.0 0.0))
     (game-objects:set-animation :nyo :walk :down 0 :nyo)))
 
 (defparameter *nyo-rectangle* (init-nyo-rectangle))
