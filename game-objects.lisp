@@ -117,10 +117,8 @@
 
 
 (defun call-do-seq-hash (seq-hash function result)
-  (progn (loop for key across (keys-in-order seq-hash) 
-	     for value = (gethash key (the-table seq-hash)) do
-	       (funcall function key value))
-	  result))
+  (progn (maphash function (the-table seq-hash))
+	 result))
 
 ;; hash so we can querry (gethash :hero *dynamic-rectangles)
 ;; TODO: downside transition from hashtable to ffi-array
@@ -139,10 +137,6 @@
 (defun print-rectangles (rectangle-hash-map)
   (do-seq-hash (key value rectangle-hash-map)
     (format t "~&key:~a value:~a~%" key value)))
-
-(defun new-print-rectangles (rectangle-hash-map)
-  (do-seq-hash (rectangle key rectangle-hash-map)
-    (format t "~&key:~a value:~a~%" key rectangle)))
 
 (defun add-rectangle-as (name rectangle &key (as :dynamic) to)
   (let* ((seq-hash-table
