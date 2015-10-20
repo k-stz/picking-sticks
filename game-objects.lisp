@@ -191,13 +191,14 @@
     (setf (slot-value rectangle 'radius)
     	  radius-vec3)))
 
-;; TODO: give nice print representation
+;; TODO: give useful print representation
 ;; TODO: make super-class rectangle and sub-class game-object. Seperating rendering
 ;;       representation from interior representation and proxy geometry for collision
 ;;       tests
-;; UPDATE: maybe go with the superclass: rectangle, subclass: game-object which will contain
-;;         a representation point (e.g. filled with sphere, rectangle), an <animation> slot
-;;         a proxy geometry, a cached geometry (past timesteam when no collision orientation)
+;; UPDATE: maybe go with the superclass: rectangle, subclass: game-object approach, which
+;;         will contain a representation slot (e.g. filled with sphere, rectangle), an
+;;         <animation> slot a proxy geometry, a cached geometry (past timesteam when no
+;;         collision orientation)
 (defclass rectangle ()
   ;; TODO: instead of vec2 provide as seperate x1-x x1-y ? So that
   ;;       transforming into 1d-array is easier (to pass into foreign-array)
@@ -270,6 +271,7 @@
 ;; example use: new aabb after rotation
 (defmethod recalculate-aabb-radius ((rectangle rectangle))
   (with-slots (x1 x2 y1 y2 radius center-point) rectangle
+    (print radius)
     (macrolet ((r (subscript)
 		 `(aref radius ,subscript)))
       ;; x-axis radius
@@ -626,7 +628,8 @@ is more efficient in aabb collision tests!"
 	     scale-matrix
 	     rotation-matrix-1
 	     into-origin-translation)))
-      (print z-axis-rotation)
+;      (print z-axis-rotation)
+      (print radius)
       ;; (print rotation-matrix)
       ;; TODO: non-uniform scaling fails because of mat4*vec3 ??
       (setf x1 (matrix->translate-vec3 (sb-cga:matrix* transformation-matrix (sb-cga:translate x1))))
