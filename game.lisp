@@ -588,6 +588,7 @@
 					(vec3 32.0 48.0 0.0))))
     (print (bounding-volume nyo-rectangle))
     (game-objects:add-rectangle-as :nyo nyo-rectangle)
+    ;; NEXT-TODO:
     ;; Problem with this: some BV transformation and creation function use the rendering coordinates
     ;; :x1 :x2 :y1 :y2. Either create, (CH?), point set as part of the representation stored in
     ;; :bounding-volume slot of Rectangle or derive point set from rectangle/radius etc.
@@ -699,7 +700,7 @@
 	(when (key-down-p (keystate-tracker window) :scancode-f)
 	  ;;(game-objects:set-animation :nyo :walk :right)
 	  (setf next-frame-p t)
-	  (game-objects:scale :nyo 0.95))
+	  (game-objects:scale :nyo (/ 1.02)))
 	
 	(when next-frame-p
 	  (next-frame)))

@@ -12,6 +12,8 @@
 	   :mat4*vec3
 	   ;;
 	   :round-dot
+	   ;;
+	   :mat4-place
 	   ))
 
 (in-package :math)
@@ -82,3 +84,7 @@
 	(coerce next-int 'single-float)
 	dot)))
 
+;; takes sb-cga:matrix and returns value at col row
+(defmacro mat4-place (mat4 col row)
+  "SETFable intuitive sb-cga:matrix getter."
+  `(aref ,mat4 (+ ,row (* 4 ,col))))

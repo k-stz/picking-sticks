@@ -243,7 +243,6 @@
 
 
 ;; Bounding Volume calculation
-
 (defgeneric translate-bounding-volume (bounding-volume vec3))
 (defgeneric scale-bounding-volume (bounding-volume vec3))
 
@@ -265,6 +264,36 @@
       (setf (r 2) (* (r 2) (s 2))))))
 
 
+(defgeneric update-aabb (game-object transformation-matrix translation-vector))
+
+;; TODO: test
+(defmethod update-aabb ((collision-rectangle collision-rectangle) mat4 translation-vec3)
+  (let ((new-center-point (vec3 0.0))
+	(new-radius (vec3 0.0)))
+    (with-slots (center-point radius) collision-rectangle
+      (macrolet ((c (subscript) `(aref new-center-point ,subscript))
+		 (r (subscript) `(aref new-radius ,subscript))
+		 (t (subscript) `(aref translation-vec3 ,subscript)))
+	(loop for i from 0 below 3 do
+	     (setf (c i) (t i))
+	     (setf (r i) 0.0)
+	     (loop for j from 0 below 3 do
+	     	  (incf (c i) (* (mat4-place mat4 i j) (aref center-point j)))
+		  (incf (r i) (* (abs (mat4-place mat4 i j)) (aref radius j))))))
+      (print center-point)
+      (print new-center-point)
+      (print radius)
+      (print new-radius))))
+
+
+;; TODO: REMOVE
+(defun test ()
+  (update-aabb (bounding-volume (get-rectangle :nyo))
+	       (sb-cga:rotate (vec3 0.0 0.0 (coerce (/ pi 2) 'single-float)))
+	       (vec3 0.0 0.0 0.0)))
+
+
+;; TODO: obsolete, remove!
 (defgeneric recalculate-aabb-radius (game-object))
 
 ;; this assumes that the CENTER-POINT is correct
