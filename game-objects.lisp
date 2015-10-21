@@ -245,6 +245,7 @@
 ;; Bounding Volume calculation
 (defgeneric translate-bounding-volume (bounding-volume vec3))
 (defgeneric scale-bounding-volume (bounding-volume vec3))
+(defgeneric rotate-bounding-volume (bounding-volume vec3))
 
 
 (defmethod translate-bounding-volume ((collision-rectangle collision-rectangle) direction-vec3)
@@ -264,6 +265,7 @@
       (setf (r 2) (* (r 2) (s 2))))))
 
 
+
 (defgeneric update-aabb (game-object transformation-matrix translation-vector))
 
 ;; TODO: test
@@ -280,17 +282,48 @@
 	     (loop for j from 0 below 3 do
 	     	  (incf (c i) (* (mat4-place mat4 i j) (aref center-point j)))
 		  (incf (r i) (* (abs (mat4-place mat4 i j)) (aref radius j))))))
-      (print center-point)
-      (print new-center-point)
-      (print radius)
-      (print new-radius))))
+      (values new-center-point
+	      new-radius))))
 
+
+;; TODO: rename, see UPDATE-AABB
+;; UPDATE: should be called "update" as it doesn't transform the aabb
+;;         the radius and center-point doesn't ignores the vertex order of
+;;         transformed objects
+;; (defun transform-aabb (rectangle mat4 translation-vec3)
+;;   (let ((new-center-point (vec3 0.0))
+;; 	(new-radius (vec3 0.0)))
+;;     (with-slots (center-point radius) rectangle
+;;       (macrolet ((c (subscript) `(aref new-center-point ,subscript))
+;; 		 (r (subscript) `(aref new-radius ,subscript))
+;; 		 (t (subscript) `(aref translation-vec3 ,subscript)))
+;; 	(loop for i from 0 below 3 do
+;; 	     (setf (c i) (t i))
+;; 	     (setf (r i) 0.0)
+;; 	     (loop for j from 0 below 3 do
+;; 	     	  (incf (c i) (* (mat4-place mat4 i j) (aref center-point j)))
+;; 		  (incf (r i) (* (abs (mat4-place mat4 i j)) (aref radius j))))))
+;;       (values new-center-point
+;; 	      new-radius))))
 
 ;; TODO: REMOVE
 (defun test ()
   (update-aabb (bounding-volume (get-rectangle :nyo))
 	       (sb-cga:rotate (vec3 0.0 0.0 (coerce (/ pi 2) 'single-float)))
 	       (vec3 0.0 0.0 0.0)))
+
+;; NEXT-TODO:
+(defmethod rotate-bounding-volume ((collision-rectangle collision-rectangle) rotation-vec3)
+  (multiple-value-bind (new-center-point new-radius)
+	(update-aabb collision-rectangle (sb-cga:rotate rotation-vec3) (vec3 0.0 0.0 0.0))
+    (with-slots (center-point radius) collision-rectangle
+      ;; keeps growing, just as the caveat mentioned 
+      ;; (setf center-point new-center-point)
+      ;; (setf radius new-radius)
+      )))
+
+
+
 
 
 ;; TODO: obsolete, remove!
@@ -695,9 +728,11 @@ is more efficient in aabb collision tests!"
       (setf x2 (mat4*vec3 transformation-matrix x2))
       (setf y1 (mat4*vec3 transformation-matrix y1))
       (setf y2 (mat4*vec3 transformation-matrix y2))
+
       (when around-vec3
 	(setf center-point (mat4*vec3 transformation-matrix center-point)))
-      (recalculate-aabb-radius rectangle))))
+      (rotate-bounding-volume (bounding-volume rectangle)
+      			      rotation-vec3))))
 
 
 (defun rotate (name degree &optional (seq-hash-table *dynamic-rectangles*))
