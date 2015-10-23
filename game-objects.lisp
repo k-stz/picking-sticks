@@ -183,7 +183,27 @@
 
 (defclass collision-rectangle ()
   ((center-point :initarg :center-point :type vec3)
-   (radius :initarg :radius :type vec3)))
+   (radius :initarg :radius :type vec3)
+   ;; stores current rotation. Used for quick
+   ;; AABB recalculation after rotation
+   (radians :initform (vec3 0.0 0.0 0.0) :type vec3)))
+
+(defgeneric incf-radians (rectangle delta))
+(defmethod incf-radians ((rectangle collision-rectangle) delta-vec3)
+  (with-slots (radians) rectangle
+    ;; "keeping the hands of the clock inside the clock" -- Mod
+    (macrolet ((r (subscript)
+		 `(aref radians ,subscript)))
+      (macrolet ((force-inside-clock (delta-subscript)
+		   `(setf (r ,delta-subscript)
+			  (coerce (mod (+ (r ,delta-subscript)
+					  (aref delta-vec3 ,delta-subscript))
+				       (* 2 pi))
+				  'single-float))))
+	(force-inside-clock 0)
+	(force-inside-clock 1)
+	(force-inside-clock 2)
+	radians))))
 
 
 (defgeneric set-radius (collision-rectangle radius)
@@ -272,7 +292,7 @@
 (defmethod update-aabb ((collision-rectangle collision-rectangle) mat4 translation-vec3)
   (let ((new-center-point (vec3 0.0))
 	(new-radius (vec3 0.0)))
-    (with-slots (center-point radius) collision-rectangle
+    (with-slots (center-point radius radians) collision-rectangle
       (macrolet ((c (subscript) `(aref new-center-point ,subscript))
 		 (r (subscript) `(aref new-radius ,subscript))
 		 (t (subscript) `(aref translation-vec3 ,subscript)))
@@ -285,41 +305,15 @@
       (values new-center-point
 	      new-radius))))
 
-
-;; TODO: rename, see UPDATE-AABB
-;; UPDATE: should be called "update" as it doesn't transform the aabb
-;;         the radius and center-point doesn't ignores the vertex order of
-;;         transformed objects
-;; (defun transform-aabb (rectangle mat4 translation-vec3)
-;;   (let ((new-center-point (vec3 0.0))
-;; 	(new-radius (vec3 0.0)))
-;;     (with-slots (center-point radius) rectangle
-;;       (macrolet ((c (subscript) `(aref new-center-point ,subscript))
-;; 		 (r (subscript) `(aref new-radius ,subscript))
-;; 		 (t (subscript) `(aref translation-vec3 ,subscript)))
-;; 	(loop for i from 0 below 3 do
-;; 	     (setf (c i) (t i))
-;; 	     (setf (r i) 0.0)
-;; 	     (loop for j from 0 below 3 do
-;; 	     	  (incf (c i) (* (mat4-place mat4 i j) (aref center-point j)))
-;; 		  (incf (r i) (* (abs (mat4-place mat4 i j)) (aref radius j))))))
-;;       (values new-center-point
-;; 	      new-radius))))
-
-;; TODO: REMOVE
-(defun test ()
-  (update-aabb (bounding-volume (get-rectangle :nyo))
-	       (sb-cga:rotate (vec3 0.0 0.0 (coerce (/ pi 2) 'single-float)))
-	       (vec3 0.0 0.0 0.0)))
-
 ;; NEXT-TODO:
 (defmethod rotate-bounding-volume ((collision-rectangle collision-rectangle) rotation-vec3)
-  (multiple-value-bind (new-center-point new-radius)
+  (with-slots (center-point radius radians) collision-rectangle
+    (incf-radians radians (aref rotation-vec3 2)) ;; get the z-value (we assume we only ever rotate
+                                                  ;; about the z-axis ..
+    (multiple-value-bind (new-center-point new-radius)
 	(update-aabb collision-rectangle (sb-cga:rotate rotation-vec3) (vec3 0.0 0.0 0.0))
-    (with-slots (center-point radius) collision-rectangle
-      ;; keeps growing, just as the caveat mentioned 
-      ;; (setf center-point new-center-point)
-      ;; (setf radius new-radius)
+      ;; keeps growing, just as the caveat mentioned
+      (setf radius new-radius)
       )))
 
 
