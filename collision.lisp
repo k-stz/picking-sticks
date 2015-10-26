@@ -1,6 +1,7 @@
 (defpackage :collision
   (:use :cl
-	:kit.glm)
+	:kit.glm
+	:math)
   (:export :extreme-points-along-direction))
 
 (in-package :collision)
@@ -181,12 +182,6 @@ radius and direction given. f(d)=O+rd/||d|| where d = direction,  O=origin, r=ra
 	(aref 2d-vector 0)))
 
 
-(defun vec2- (a b)
-  (macrolet ((v (array subscript)
-	       `(aref ,array ,subscript)))
-    (vec2 (- (v a 0) (v b 0))
-	  (- (v a 1) (v b 1)))))
-
 (defun dot2d (a b)
   "Calculates 2d dot product"
   (+ (* (aref a 0) (aref b 0))
@@ -230,3 +225,25 @@ perpedicular)"
 	   (setf max-proj projection)
 	   (setf maximum point)))
     (values minimum maximum)))
+
+
+;; sphere collision test
+(defclass collision-sphere ()
+  ((center-point :type vec3 :initarg :center-point)
+   (radius :type single-float :initarg :radius)))
+
+(defun test-sphere-sphere (sphere-1 sphere-2)
+  "Sphere x Sphere collision test."
+  (with-slots ((s1-center center-point) (s1-radius radius)) sphere-1
+    (with-slots ((s2-center center-point) (s2-radius radius)) sphere-2
+      (let* ((distance (vec3- s1-center s2-center))
+	     ;; (dot-product x x) is usually an efficient way
+	     ;; to double the distance of a vector, we need double
+	     ;; the distance because
+	     (2xdistance (dot-product distance distance))
+	     (radius-sum (+ s1-radius s2-radius)))
+	;; then we don't need to calculate the square-root to compare
+	;; the distance!
+	(print (list s1-center s2-radius))
+	(print (list s2-center s2-radius))
+	(<= 2xdistance (* radius-sum radius-sum))))))

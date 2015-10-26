@@ -186,24 +186,25 @@
    (radius :initarg :radius :type vec3)
    ;; stores current rotation. Used for quick
    ;; AABB recalculation after rotation
-   (radians :initform (vec3 0.0 0.0 0.0) :type vec3)))
+   (radians-vec3 :initform (vec3 0.0 0.0 0.0) :type vec3)))
 
-(defgeneric incf-radians (rectangle delta))
-(defmethod incf-radians ((rectangle collision-rectangle) delta-vec3)
-  (with-slots (radians) rectangle
-    ;; "keeping the hands of the clock inside the clock" -- Mod
-    (macrolet ((r (subscript)
-		 `(aref radians ,subscript)))
-      (macrolet ((force-inside-clock (delta-subscript)
-		   `(setf (r ,delta-subscript)
-			  (coerce (mod (+ (r ,delta-subscript)
-					  (aref delta-vec3 ,delta-subscript))
-				       (* 2 pi))
-				  'single-float))))
-	(force-inside-clock 0)
-	(force-inside-clock 1)
-	(force-inside-clock 2)
-	radians))))
+;; TODO: should be useless now
+;; (defgeneric incf-radians (rectangle delta))
+;; (defmethod incf-radians ((rectangle collision-rectangle) delta-vec3)
+;;   (with-slots (radians-vec3) rectangle
+;;     ;; "keeping the hands of the clock inside the clock" -- Mod
+;;     (macrolet ((r (subscript)
+;; 		 `(aref radians-vec3 ,subscript)))
+;;       (macrolet ((force-inside-clock (delta-subscript)
+;; 		   `(setf (r ,delta-subscript)
+;; 			  (coerce (mod (+ (r ,delta-subscript)
+;; 					  (aref delta-vec3 ,delta-subscript))
+;; 				       (* 2 pi))
+;; 				  'single-float))))
+;; 	(force-inside-clock 0)
+;; 	(force-inside-clock 1)
+;; 	(force-inside-clock 2)
+;; 	radians-vec3))))
 
 
 (defgeneric set-radius (collision-rectangle radius)
@@ -288,11 +289,15 @@
 
 (defgeneric update-aabb (game-object transformation-matrix translation-vector))
 
-;; TODO: test
+;; ugh, this only works if we assume a base radius, because it draws a fresh aabb around
+;; it, drawing a aabb around the old grows the aabb to infinity. But we can't have
+;; a base radius since we want to do arbitrary scaling as well. Rather, we will
+;; go straight for OBB (oriented bounding boxes) which probably use a rotation matrix
+;; and a translation
 (defmethod update-aabb ((collision-rectangle collision-rectangle) mat4 translation-vec3)
   (let ((new-center-point (vec3 0.0))
 	(new-radius (vec3 0.0)))
-    (with-slots (center-point radius radians) collision-rectangle
+    (with-slots (center-point radius radians-vec3) collision-rectangle
       (macrolet ((c (subscript) `(aref new-center-point ,subscript))
 		 (r (subscript) `(aref new-radius ,subscript))
 		 (t (subscript) `(aref translation-vec3 ,subscript)))
@@ -302,19 +307,20 @@
 	     (loop for j from 0 below 3 do
 	     	  (incf (c i) (* (mat4-place mat4 i j) (aref center-point j)))
 		  (incf (r i) (* (abs (mat4-place mat4 i j)) (aref radius j))))))
-      (values new-center-point
-	      new-radius))))
+      (format t "~%")
+      (print radius)
+      (print new-radius)
+      collision-rectangle)))
 
-;; NEXT-TODO:
+
+;; TODO: doesn't work properly, needs base rectangle data or it keeps on adding a bigger
+;;       AABB around the old smaller one growing it indefinetely. You get the idea, just
+;;       abandon this and move on to OBB?
 (defmethod rotate-bounding-volume ((collision-rectangle collision-rectangle) rotation-vec3)
-  (with-slots (center-point radius radians) collision-rectangle
-    (incf-radians radians (aref rotation-vec3 2)) ;; get the z-value (we assume we only ever rotate
-                                                  ;; about the z-axis ..
-    (multiple-value-bind (new-center-point new-radius)
-	(update-aabb collision-rectangle (sb-cga:rotate rotation-vec3) (vec3 0.0 0.0 0.0))
-      ;; keeps growing, just as the caveat mentioned
-      (setf radius new-radius)
-      )))
+  (with-slots (radius radians-vec3) collision-rectangle
+    
+    (update-aabb collision-rectangle (sb-cga:rotate radians-vec3)
+		 (vec3 0.0 0.0 0.0))))
 
 
 
@@ -327,7 +333,6 @@
 ;; example use: new aabb after rotation
 (defmethod recalculate-aabb-radius ((rectangle rectangle))
   (with-slots (x1 x2 y1 y2 radius center-point) rectangle
-    (print radius)
     (macrolet ((r (subscript)
 		 `(aref radius ,subscript)))
       ;; x-axis radius
