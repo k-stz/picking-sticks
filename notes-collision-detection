@@ -1372,3 +1372,21 @@ the other three involve dynamically resizing the AABB:
 - find the extreme points in all directions. For a triangle it is simply projecting the
   points along the (cardinal) direction vectors and finding the outer most
 
+--------------------------------------------------------------------------------
+
+Spheres,
+center-point + radius = sphere representation.
+
+Sphere collision test,
+is just the distance between the center-points being smaller then the sum of the
+radii. (For efficiency we square the distance using the Dot- Product. As computing the
+distance involves pythagoras a²+b²=c² √c² = c, so we simply use c² in its square form
+saving the expensive square root computation. Squaring the distance with the dot-product
+is very efficient on current hardware.
+
+
+"Ritter's Sphere",
+computes an approximative sphere BV from a point set. First we find extreme points
+in the 6 3d-axis direction, then we use the furthest two along a common axis. Then
+we pivot the center point at its middle and cast a sphere around it, encompassing
+the extreme points.

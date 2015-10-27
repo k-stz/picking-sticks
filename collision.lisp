@@ -247,3 +247,46 @@ perpedicular)"
 	(print (list s1-center s2-radius))
 	(print (list s2-center s2-radius))
 	(<= 2xdistance (* radius-sum radius-sum))))))
+
+
+;; approximative BV-Sphere, using Ritter's algorithm.
+
+;; straight translation
+(defun most-separated-points-on-AABB (points-array)
+  "Expects an array of vec3 vectors. Returns the points most separated along a principal
+axis (as implied by AABB) in order (values min max) where \"min\" is towards the negative portion
+of the axis and \"max\" conversely."
+  (let ((minx 0) (maxx 0) (miny 0) (maxy 0) (minz 0) (maxz 0))
+    (macrolet ((pt. (points-array-index element-vector-index)
+		 `(aref (aref points-array ,points-array-index)
+			,element-vector-index))
+	       (pt (index)
+		 `(aref points-array ,index)))
+      ;; Find most extreme points along principal axes
+      (loop for i from 1 below (length points-array) :do
+	   (when (<  (pt. i 0) (pt. minx 0)) (setf minx i))
+	   (when (>  (pt. i 0) (pt. maxx 0)) (setf maxx i))
+	   (when (<  (pt. i 1) (pt. miny 1)) (setf miny i))
+	   (when (>  (pt. i 1) (pt. maxy 1)) (setf maxy i))
+	   (when (>  (pt. i 2) (pt. minz 2)) (setf minz i))
+	   (when (<  (pt. i 2) (pt. maxz 2)) (setf maxz i)))
+
+      (format t "x:~a ~a ~%y:~a ~a ~%z:~a ~a ~%" (pt minx) (pt maxx) (pt miny) (pt maxy) (pt minz) (pt maxz))
+      (let* ((x-principal (vec3- (pt maxx) (pt minx)))
+	     (y-principal (vec3- (pt maxy) (pt miny)))
+	     (z-principal (vec3- (pt maxz) (pt minz)))
+	     ;; square distances of principal axes distances..
+	     (dist2x (dot-product x-principal x-principal))
+	     (dist2y (dot-product y-principal y-principal))
+	     (dist2z (dot-product z-principal z-principal))
+
+	     ;; to find the most distanct "principal" points
+	     (min minx)
+	     (max maxx))
+	(when (and (> dist2y dist2x) (> dist2y dist2z))
+	  (setf max maxy
+		min miny))
+	(when (and (> dist2z dist2x) (> dist2z dist2y))
+	  (setf max maxz)
+	  (setf min minz))
+	(values (pt max) (pt min))))))
