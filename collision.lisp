@@ -290,3 +290,19 @@ of the axis and \"max\" conversely."
 	  (setf max maxz)
 	  (setf min minz))
 	(values (pt max) (pt min))))))
+
+(defun sphere-from-distant-points (points-array)
+  "COLLISION-SPHERE from array of vec3 points"
+  (let ((sphere (make-instance 'collision-sphere)))
+    (multiple-value-bind (min max)
+	(most-separated-points-on-aabb points-array)
+      (with-slots (center-point radius) sphere
+	(setf center-point (vec3* (vec3+ min max)
+				  0.5))
+	(setf radius
+	      (sqrt (dot-product
+		     (vec3- max center-point)
+		     (vec3- max center-point))))))
+    sphere))
+
+
