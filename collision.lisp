@@ -232,6 +232,15 @@ perpedicular)"
   ((center-point :type vec3 :initarg :center-point)
    (radius :type single-float :initarg :radius)))
 
+(defmethod print-object ((sphere collision-sphere) stream)
+  (declare (type stream stream))
+  (with-slots (center-point radius) sphere
+    (when (or (not *print-readably*) (not *read-eval*))
+      (print-unreadable-object (sphere stream :type t :identity t)
+	(format stream
+		"~S : ~S"
+		center-point radius)))))
+
 (defun test-sphere-sphere (sphere-1 sphere-2)
   "Sphere x Sphere collision test."
   (with-slots ((s1-center center-point) (s1-radius radius)) sphere-1
@@ -306,3 +315,17 @@ of the axis and \"max\" conversely."
     sphere))
 
 
+(defun sphere-of-sphere-and-pt (sphere point-vec3)
+  (with-slots (center-point radius) sphere
+    (let* ((d (vec3- point-vec3 center-point))
+	  ;; again efficiently dealing with distances by
+	  ;; only considering the square distances
+	  (dist2 (dot-product d d)))
+      ;; when point outside sphere?
+      (when (> dist2 (* radius radius))
+	(let* ((dist (sqrt dist2))
+	       (new-radius (* (+ radius dist) 0.5))
+	       (k (/ (- new-radius radius) dist)))
+	  (setf radius new-radius)
+	  (setf center-point (vec3* d k))))))
+  sphere)
