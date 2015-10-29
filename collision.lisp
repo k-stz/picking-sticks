@@ -329,3 +329,15 @@ of the axis and \"max\" conversely."
 	  (setf radius new-radius)
 	  (setf center-point (vec3* d k))))))
   sphere)
+
+
+(defun ritter-sphere (points-array)
+  "Computes an approximate BV sphere (as COLLISION-SPHERE) from a point set using Ritter's
+algorithm."
+  (let ((sphere
+	 (sphere-from-distant-points points-array)))
+    (loop for i below (length points-array) do
+	 (setf sphere
+	       (sphere-of-sphere-and-pt sphere
+					(aref points-array i))))
+    sphere))
