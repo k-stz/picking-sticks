@@ -341,3 +341,26 @@ algorithm."
 	       (sphere-of-sphere-and-pt sphere
 					(aref points-array i))))
     sphere))
+
+
+(defun mean (number-list)
+  "Return the mean of the point set (expects a list of numbers)"
+  (/ (loop for i in number-list sum i)
+     (length number-list)))
+
+(defun variance (number-list)
+  "Computes the Variance of the point set (expects a list of numbers)"
+  ;; "The average of the square of deviations from the mean"
+  ;; (/ ((apply #'+ (mapcar #'square <deviations-from-the-mean)) numbers)
+  (let ((u 0.0)
+	(s2 0.0)
+	(n (length number-list)))
+    (setf u
+	  (mean number-list))
+    (values
+     (setf s2
+	   (/
+	    (loop for i in number-list
+	       :summing (* (- i u) (- i u)))
+	    n))
+     u)))

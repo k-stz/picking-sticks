@@ -1393,9 +1393,11 @@ the extreme points.
 
 
 direction of maximum spread,
-instead of using the AABB of a point cloud and find the most distant points along each
-of its axis to calculate the approximate sphere, we can use the power of statistics.
-By finding the direction of maximum spread: that is that the ponts projected on this
-directional-axis would have the maximum spread as opposed to some other axis.
-The points on the two ends of this projection would be the used to define the surface
-of the sphere, its mean the center.
+instead of using the AABB of a point cloud and find the most distant points along each of
+its axis to calculate the approximate sphere, we can use the power of statistics.  By
+finding the direction of maximum spread: that is that the ponts projected on this
+directional-axis would have the maximum spread as opposed to some other axis.  The points
+on the two ends of this projection would be used to define the surface of the sphere, its
+mean the center.
+
+
