@@ -349,7 +349,8 @@ algorithm."
      (length number-list)))
 
 (defun variance (number-list)
-  "Computes the Variance of the point set (expects a list of numbers)"
+  "Computes the Variance of the point set (expects a list of numbers).
+Variance is the average of deviation from the MEAN of a set of points."
   ;; "The average of the square of deviations from the mean"
   ;; (/ ((apply #'+ (mapcar #'square <deviations-from-the-mean)) numbers)
   (let ((u 0.0)
@@ -364,3 +365,8 @@ algorithm."
 	       :summing (* (- i u) (- i u)))
 	    n))
      u)))
+
+(defun standard-deviation (number-list)
+  (multiple-value-bind (variance mean) (variance number-list)
+    (values (sqrt variance)
+	    mean)))

@@ -1394,10 +1394,31 @@ the extreme points.
 
 direction of maximum spread,
 instead of using the AABB of a point cloud and find the most distant points along each of
-its axis to calculate the approximate sphere, we can use the power of statistics.  By
-finding the direction of maximum spread: that is that the ponts projected on this
-directional-axis would have the maximum spread as opposed to some other axis.  The points
-on the two ends of this projection would be used to define the surface of the sphere, its
-mean the center.
+its axis to calculate the approximate sphere (Ritter Sphere), we can use the power of
+statistics.  By finding the direction of maximum spread: that is that the ponts projected
+on this directional-axis would have the maximum spread as opposed to some other axis.  The
+points on the two ends of this projection would be used to define the surface of the
+sphere, its mean the center.
 
+How do we find the direction of maximum spread? 
 
+Variance & standard deviation,
+The mean is a center of some set of numbers that comperatively for each number
+shows how much it deviates from all other numbers, where bigger means it usually
+bigger than most numbers...
+Usually...?
+
+Imagine you get 80 out of 100 points on the test, you also find out that the average score
+is 70, so you feel pretty content being above average. But the tricky part is: there was a
+person missing and he got a grade 0 why two others got a score of 100. Now the average is
+70 but most people have a perfect score!
+This is where variance can come in handy, especially standard deviation:
+standard-deviation: 41.23 which tells us, using the mean=70 that values in the interval
+70±41.23 are pretty average. Which means that your score and the two aces are no big deal
+but that one guy missing is a standard deviation indeed.
+
+Finally _Variance_ is the "mean of squares of the deviation from the mean", why do we
+square the values and then harvest the sqrt to get the standard deviation?
+The answer is if the number set invoves negative values, they can nullify their
+positive brethren, this is where squaring moves everyone to the positive realm (* -1 -1) ==> 1
+and distributes them meaningfully.
