@@ -968,7 +968,7 @@ P(u,v) = A + u(B-A)+v(C-A)            (parametric representation)
 
 remember the non-intuitive order of vector subtraction "B-A" indicates a vector
 from _A_ to _B_, then, the above equation represents a flow from A into B and C
-spanning a plane, and triangle with parametrized B-A C-A sides by "u" and "v".
+spanning a plane, and triangle with parameterized B-A C-A sides by "u" and "v".
 
 
 /in front the plane/,
@@ -1141,7 +1141,7 @@ dimension is directly linked to the magnitude of the point set:
 d-points are contained by a (d-1)-simplex, e.g. 2 points are contained by a 1-dimensional
 convex hull -- the 1-simplex: "a line".
 3-points are contained by a 2-simplex.
-Conversly this means that adding points to the set in question, or taking points from
+Conversely this means that adding points to the set in question, or taking points from
 the set changes the dimensional of the simplex, and the shape of the simplex.
 Finally given 5-points who would have 3d affine hull would have a 4-simplex.
 
@@ -1159,7 +1159,7 @@ convex polygon with the furthest point lying on a edge 90-degrees to the given d
 then all the points on the edge would be supporting points.
 If a supporting point happens to be vector, it is aptly called a /supporting vertex/.
 
-A supporting point can be understood as the first point to make contact with a force comming
+A supporting point can be understood as the first point to make contact with a force coming
 from the opposite direction (think: analogous to TOI - space of first impact).
 
 /support, mapping/ or /support function/,
@@ -1206,10 +1206,10 @@ the surface of a polyhedron is often referred to as a /2-manifold/! "This topolo
 implies that the neighborhood of each point of the surface is (...) [homeomorphic] to a
 disk.
 From the perspective of a being living on the 2-manifold, on our polyhedron surface,
-everything around it would look flat. Furthemore wherever it would go everything would
+everything around it would look flat. Furthermore wherever it would go everything would
 look flat and, this is important, it would never run into a wall (unbounded)!
-This is very similar to us living on earth: it looks flat most the time, and whereever we
-go we won't find a an edge to fall of the earth (no boundry). Another thing is also true:
+This is very similar to us living on earth: it looks flat most the time, and wherever we
+go we won't find a an edge to fall of the earth (no boundary). Another thing is also true:
 when we walk long enough in one direction, we end up in the same place.
 
 
@@ -1228,14 +1228,14 @@ when we test N faces against N points.
 
 O(n):
 Compute the centroid of a face (the mean of all position vectors), then take a neighboring
-face and compute its supporting plane. Now test if the cetroid is behind the supporting
+face and compute its supporting plane. Now test if the centroid is behind the supporting
 plane. If the test fails = concave, else = convex!
 I.e. we only need to test linearly through the faces
 
 --------------------------------------------------------------------------------
 /Computing Convex Hulls/,
 the convex hull can be used as a tight bounding volume -- when precise collision
-test are needed, instead of a more inacurrate but more efficient proxy shape (like
+test are needed, instead of a more inaccurate but more efficient proxy shape (like
 a sphere). The following algorithms compute them:
 
 Andrew's algorithm,
@@ -1251,7 +1251,7 @@ Quickhull algorithm,
 works in 2d and 3d. 2d explanation: first we use the 4 cardinal directions and choose
 extreme points of each drawing a quadrilateral. Then we recursively add points furthest
 from each of the quadrilaterals edges until every point is enclosed by the convex hull.
-This can be extended to 3D (also even higher dimensions) by simply finding 6-extremepoints
+This can be extended to 3D (also even higher dimensions) by simply finding 6-extreme-points
 for the 3 perpendicular lines times its 2 directions. Now instead of edges we deal with
 polygon faces, hence adding points that are furthest from a given face adds 2 or more
 faces.
@@ -1262,7 +1262,7 @@ faces.
 given a set S of points P: the Voronoi region _of a particular point in S_ is the
 set of points closest to P THAN any OTHER point in S (P1, P2, ..., Pn).
 That means that if you take any point in the voronoi region, the distance to it
-from the Point P (the point the voronoi region is definined by) is always shorter
+from the Point P (the point the voronoi region is defined by) is always shorter
 than any other point Ps in S.
 /Voronoi feature regions/,
 will be used interchangeably with the above. It is important to note that a /feature/ of P
@@ -1271,13 +1271,13 @@ will be used interchangeably with the above. It is important to note that a /fea
 /Voronoi diagrams/,
 these are the set of points who are equidistant to two or more points. Visually
 speaking the boarders of the Voronoi regions are voronoi diagrams, if they're
-surrounded by voronoi regions for other ponits and partially if they're on the
+surrounded by voronoi regions for other points and partially if they're on the
 fringe of voronoi region field (Since it only partially boarders to other regions
-and can hence not have _atleast two_ points equidistantly to it.
+and can hence not have _at least two_ points equidistantly to it.
 
 --------------------------------------------------------------------------------
 /Minkowski Sum/,
-A, B ⊂ V where A and B are subelements of the Vector space V. Then the minkowski
+A, B ⊂ V where A and B are sub elements of the Vector space V. Then the minkowski
 sum A+B or
 
   A ⊕ B := {a+b : a ∈ A, b ∈ B}
@@ -1291,13 +1291,13 @@ translation of points A you get a bunch of new points. The swept region
 by the translation is the Minkowski sum!
 
 
-/Minkowski differece/,
+/Minkowski difference/,
 analogously:
 
   A ⊖ B := {a+b : a ∈ A, b ∈ B}
 
 Geometrically we add A to -B, i.e. A ⊕ -B = A ⊖ B. Visually we sweep the
-region of a B relfected about the origin (-B) with the figure A.
+region of a B reflected about the origin (-B) with the figure A.
 
 
 Because both the Minkowski difference can be interpreted as a sum they are often
@@ -1347,7 +1347,7 @@ world space transformation,
 This is important: We can _cache the updated BV (!) in world space _for the duration of
 the time step_!! This makes sense in world space because repeated overlap test with
 multiple objects can all use the same cached future BV's. In contrast the local space
-transformation caching doesn't make sense for muliple overlap tests!
+transformation caching doesn't make sense for multiple overlap tests!
 Disadvantage:
 - double storage usage
 
@@ -1359,9 +1359,9 @@ spheres and CH (convex hulls) can be transformed into any coordinate system. In 
 such as AABBs imagine you AABB rectangle (CH) by 45-degree. You need to realign them
 after rotations. There are four common strategies:
 - fixed-size loose AABB that regardless of rotation always encloses the object (you can
-  imagine it being particuallarly large to fit all the orientations of the object).
+  imagine it being particularly large to fit all the orientations of the object).
   Given a center point and the furthest vertex from it we shape a sphere(!), then we draw
-  a boundign box around it and we get the fixed-size AABB.
+  a bounding box around it and we get the fixed-size AABB.
   It is the simplest solution at the expense of accuracy due to being a loose BV.
   The advantage: rotations can be ignored, all we have to do is translate the BV upon
   object movement.
@@ -1380,13 +1380,13 @@ center-point + radius = sphere representation.
 Sphere collision test,
 is just the distance between the center-points being smaller then the sum of the
 radii. (For efficiency we square the distance using the Dot- Product. As computing the
-distance involves pythagoras a²+b²=c² √c² = c, so we simply use c² in its square form
+distance involves Pythagoras a²+b²=c² √c² = c, so we simply use c² in its square form
 saving the expensive square root computation. Squaring the distance with the dot-product
 is very efficient on current hardware.
 
 
 "Ritter's Sphere",
-computes an approximative sphere BV from a point set. First we find extreme points
+computes an approximate sphere BV from a point set. First we find extreme points
 in the 6 3d-axis direction, then we use the furthest two along a common axis. Then
 we pivot the center point at its middle and cast a sphere around it, encompassing
 the extreme points.
@@ -1395,7 +1395,7 @@ the extreme points.
 direction of maximum spread,
 instead of using the AABB of a point cloud and find the most distant points along each of
 its axis to calculate the approximate sphere (Ritter Sphere), we can use the power of
-statistics.  By finding the direction of maximum spread: that is that the ponts projected
+statistics.  By finding the direction of maximum spread: that is that the points projected
 on this directional-axis would have the maximum spread as opposed to some other axis.  The
 points on the two ends of this projection would be used to define the surface of the
 sphere, its mean the center.
@@ -1403,7 +1403,7 @@ sphere, its mean the center.
 How do we find the direction of maximum spread? 
 
 Variance & standard deviation,
-The mean is a center of some set of numbers that comperatively for each number
+The mean is a center of some set of numbers that comparatively for each number
 shows how much it deviates from all other numbers, where bigger means it usually
 bigger than most numbers...
 Usually...?
@@ -1419,6 +1419,6 @@ but that one guy missing is a standard deviation indeed.
 
 Finally _Variance_ is the "mean of squares of the deviation from the mean", why do we
 square the values and then harvest the sqrt to get the standard deviation?
-The answer is if the number set invoves negative values, they can nullify their
+The answer is if the number set involves negative values, they can nullify their
 positive brethren, this is where squaring moves everyone to the positive realm (* -1 -1) ==> 1
 and distributes them meaningfully.
