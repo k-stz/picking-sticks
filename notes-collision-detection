@@ -1429,11 +1429,11 @@ We will be using variance and standard deviation for comparative measures.
 covariance,
 measures the "tendency of two variables to vary together". It is the product of the deviation
 the common point set average, the two results are then averaged.
-We can do this for muliple points P so we'd express it as PxP, in other words a:
+We can do this for multiple points P so we'd express it as PxP, in other words a:
 
 covariance matrix (also called variance-covariance or dispersion matrix),
-which is the sum of all the deviations from the mean muliplied with every other point, including itself.
+which is the sum of all the deviations from the mean multiplied with every other point, including itself.
 
 If two variables (points) vary in the same direction from the mean, their covariance will be positive
 because (plus*plus and minus*minus is positive), while if they vary in different directions the
-result will be negative (plus*minus and mins*plus is negative).
+result will be negative (plus*minus and minus*plus is negative).
