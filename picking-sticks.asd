@@ -9,7 +9,12 @@
   :description "Picking sticks - 'Hello world' of game programming"
   :version "0.0.1"
   ;; system-name != package-name   i.e. :sdl2kit != sdl2.kit !
-  :depends-on (:cl-opengl :sdl2kit :glkit :cepl :sdl2-image :opticl :texatl)
+  :depends-on (:cl-opengl  ;; (ql:quickload "cl-opengl")
+	       :sdl2kit    ;; (ql:quickload "sdl2kit")
+	       :glkit      ;; (ql:quickload "glkit")
+	       :opticl     ;; (ql:quickload "opticl")
+	       :texatl     ;; https://github.com/rpav/texatl + https://github.com/rpav/laconic
+	       )
   :author "k-stz"
   :license "MIT"
   :serial t
