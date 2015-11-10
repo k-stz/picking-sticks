@@ -1427,13 +1427,22 @@ We will be using variance and standard deviation for comparative measures.
 
 
 covariance,
-measures the "tendency of two variables to vary together". It is the product of the deviation
-the common point set average, the two results are then averaged.
-We can do this for multiple points P so we'd express it as PxP, in other words a:
+measures the "tendency of two variables to vary together". It is the product of each of
+the points deviation from their common point set mean.  We can do this for multiple points
+P so we'd express it as PxP, in other words a:
 
 covariance matrix (also called variance-covariance or dispersion matrix),
-which is the sum of all the deviations from the mean multiplied with every other point, including itself.
+which is the sum of all the deviations from the mean multiplied with every other point,
+including itself.
 
-If two variables (points) vary in the same direction from the mean, their covariance will be positive
-because (plus*plus and minus*minus is positive), while if they vary in different directions the
-result will be negative (plus*minus and minus*plus is negative).
+If two variables (points) vary in the same direction from the mean, their covariance will
+be positive because (plus*plus and minus*minus is positive), while if they vary in
+different directions the result will be negative (plus*minus and minus*plus is negative).
+
+Now things get complicated to follow intuitively:
+Of this covariance matrix we calculate the _eigenvalues_ and _eigenvectors_.
+These have a special relationship:
+
+- The eigenvector + largest eigenvalue = axis along which point data has largest variance!
+
+- conversely eigenvector + smallest eigenvalue = axis of least point data variance
