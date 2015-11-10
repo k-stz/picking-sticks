@@ -4,8 +4,8 @@
   ;; :use inherits all the exported symbols from the package given
   (:use :cl
 	;; this one's important, as all the defclass lambda lists
-	;; and the the implicitly created generic functions
-	;; appear in the example unqualified, as they're interned
+	;; and the implicitly created generic functions appear in
+	;; the example unqualified, as they're interned
 	:sdl2.kit
 	:kit.gl.shader
 	:kit.math
@@ -72,7 +72,7 @@
 (defvar *game-window*)
 
 (defun main ()
-  ;; TODO: intefers with other sdl2 using applications once executed!
+  ;; TODO: interferes with other sdl2 using applications once executed!
   (sdl2.kit:start)
   (setf *game-window* (make-instance 'game-window)))
 
@@ -181,9 +181,6 @@
 ;; to be understood while reading the LOAD-SHADER function
 ;; example: (uniform :vec :<name-of-uniform> <new-value>)
 (defgeneric uniform (type key value)
-  (:method ((type (eql :vec)) key value)
-    (uniformfv *programs-dict* key value))
-
   (:method ((type (eql :vec)) key value)
     (uniformfv *programs-dict* key value))
 

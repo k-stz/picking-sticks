@@ -26,3 +26,17 @@ volume and or position. This allows for the main loop to perform collision tests
 cached position and in the case of a collision to either not allow it (ai dodging bullets)
 or calculate the penetration depth and point of collision and calculate a new position
 where the two objects are merely touching (so game-objects don't penetrate walls but hug)!
+
+
+Problems bulding the system on osx----------------------------------------------
+
+;; quotes from users struggling to run on osx:
+;; assumed problem with: cl-freetype
+
+"using macports (...) it fails at "compiling cl-freetype""
+
+;;compiled cl error: it can't find file ftsystem.h
+
+(...) "do a global find for ftsystem.h? maybe it is not in 
+	   /opt/local/include or /opt/local/include/freetype2?"
+(...) "Those appears to be the places your compiler is checking"
