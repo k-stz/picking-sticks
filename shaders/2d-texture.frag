@@ -1,7 +1,10 @@
 
 #version 330
 
-in vec4 interp_color;
+// Interesting: on some machines if the vertex shaders out variable explicitly
+//              uses the "smooth" qualifier and the fragment shader's same in variable
+//              doesn't an error is signaled explaining just that quite precisely
+smooth in vec4 interp_color;
 
 // test window space interpolation qualifier
 in vec2 colorCoord;

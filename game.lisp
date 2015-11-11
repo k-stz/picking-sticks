@@ -75,6 +75,8 @@
   ;; TODO: interferes with other sdl2 using applications once executed!
   (sdl2.kit:start)
   (sdl2:in-main-thread ()
+    ;; some drivers may, by default, choose a different core profile, this ensures the
+    ;; right one is used:
     (sdl2:gl-set-attr :context-major-version 3)
     (sdl2:gl-set-attr :context-minor-version 3))
   (setf *game-window* (make-instance 'game-window)))
