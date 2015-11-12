@@ -370,3 +370,50 @@ Variance is the average of deviation from the MEAN of a set of points."
   (multiple-value-bind (variance mean) (variance number-list)
     (values (sqrt variance)
 	    mean)))
+
+
+;; covariance matrix constructor, straight translation:
+(defun covariance-matrix (points-list)
+  (let ((1/length (/ (length points-list)))
+	(centroid (vec3 0.0))
+	(cov (make-array '(3 3)))
+	e00 e11 e22 e01 e02 e12)
+
+
+    ;; calculate centroid
+    (loop for i in points-list do
+	 (setf centroid (vec3+ centroid i)))
+    (setf centroid (vec3* centroid 1/length))
+
+    (print centroid)
+
+    (loop for i in points-list
+	 ;; p are the points with the centroid at origin!
+       for p = (vec3- i centroid) do
+	 (macrolet ((p (subscript subscript-2)
+		      `(* (aref p ,subscript)
+			  (aref p ,subscript-2))))
+	   (setf e00 (p 0 0))
+	   (setf e11 (p 1 1))
+	   (setf e22 (p 2 2))
+	   (setf e00 (p 0 1))
+	   (setf e01 (p 0 0))
+	   (setf e02 (p 0 2))
+	   (setf e12 (p 1 2))))
+
+    ;; "fill in the covariance matrix"
+    (setf (aref cov 0 0) (* e00 1/length))
+    (setf (aref cov 1 1) (* e11 1/length))
+    (setf (aref cov 2 2) (* e22 1/length))
+    (setf (aref cov 0 1) (* e01 1/length)) (setf (aref cov 1 0) (* e01 1/length))
+    (setf (aref cov 0 2) (* e02 1/length)) (setf (aref cov 2 0) (* e02 1/length))
+    (setf (aref cov 1 2) (* e12 1/length)) (setf (aref cov 2 1) (* e12 1/length))
+
+
+    ;; TODO: remove after debugging
+    (macrolet ((a (sub1 sub2)
+		  `(aref cov ,sub1 ,sub2)))
+      (format t "~&~,3f ~,3f ~,3f~%" (a 0 0) (a 0 1) (a 0 2))
+      (format t "~&~,3f ~,3f ~,3f~%" (a 1 0) (a 1 1) (a 1 2))
+      (format t "~&~,3f ~,3f ~,3f~%" (a 2 0) (a 2 1) (a 2 2)))
+    cov))
