@@ -392,10 +392,7 @@ Variance is the average of deviation from the MEAN of a set of points."
 	 (macrolet ((p (subscript subscript-2)
 		      `(* (aref p ,subscript)
 			  (aref p ,subscript-2))))
-	   (setf e00 (+ e00 (p 0 0)))
-  	   ;; (setf e00 (print (* (aref p 0)
-	   ;; 		       (aref p 0))))
-
+	   (incf e00 (p 0 0))
 	   (incf e11 (p 1 1))
 	   (incf e22 (p 2 2))
 	   (incf e00 (p 0 1))
