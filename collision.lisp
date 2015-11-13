@@ -377,7 +377,8 @@ Variance is the average of deviation from the MEAN of a set of points."
   (let ((1/length (/ (length points-list)))
 	(centroid (vec3 0.0))
 	(cov (make-array '(3 3)))
-	e00 e11 e22 e01 e02 e12)
+	(e00 0.0) (e11 0.0) (e22 0.0)
+	(e01 0.0) (e02 0.0) (e12 0.0))
 
 
     ;; calculate centroid
@@ -385,21 +386,22 @@ Variance is the average of deviation from the MEAN of a set of points."
 	 (setf centroid (vec3+ centroid i)))
     (setf centroid (vec3* centroid 1/length))
 
-    (print centroid)
-
     (loop for i in points-list
 	 ;; p are the points with the centroid at origin!
        for p = (vec3- i centroid) do
 	 (macrolet ((p (subscript subscript-2)
 		      `(* (aref p ,subscript)
 			  (aref p ,subscript-2))))
-	   (setf e00 (p 0 0))
-	   (setf e11 (p 1 1))
-	   (setf e22 (p 2 2))
-	   (setf e00 (p 0 1))
-	   (setf e01 (p 0 0))
-	   (setf e02 (p 0 2))
-	   (setf e12 (p 1 2))))
+	   (setf e00 (+ e00 (p 0 0)))
+  	   ;; (setf e00 (print (* (aref p 0)
+	   ;; 		       (aref p 0))))
+
+	   (incf e11 (p 1 1))
+	   (incf e22 (p 2 2))
+	   (incf e00 (p 0 1))
+	   (incf e01 (p 0 0))
+	   (incf e02 (p 0 2))
+	   (incf e12 (p 1 2))))
 
     ;; "fill in the covariance matrix"
     (setf (aref cov 0 0) (* e00 1/length))
