@@ -1,7 +1,7 @@
 
 #version 330
 
-in vec4 interp_color;
+smooth in vec4 interp_color;
 
 out vec4 outputColor;
 
