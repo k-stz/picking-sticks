@@ -1,3 +1,9 @@
+;; After sufficient collision detection study you must move on to:
+;; "Collision response" which:
+;; "with models and algorithms for simulating the changes in the motion of two solid
+;;  bodies following collision and other forms of contact."!!!
+
+
 ;; cpu text rendering approach utilizing:
 https://github.com/rpav/texatl
 author: "will let you make an easy font atlas and extract the necessary metrics (…) not GPU"
