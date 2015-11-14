@@ -1446,3 +1446,16 @@ These have a special relationship:
 - The eigenvector + largest eigenvalue = axis along which point data has largest variance!
 
 - conversely eigenvector + smallest eigenvalue = axis of least point data variance
+
+
+eigenvector,
+a vector that doesn't change its direction, and is non-zero, under a transformation
+matrix. This is can be expressed as the equation:
+
+  Mv = λv  ;; M = transformation matrix, v = eigenvector, λ=eigenvalue (!)
+
+i.e. the transformation matrix only changes the length of the eigenvector
+
+This is most notably used with the covariance matrix where the eigenvector associated
+with the largest magnitue eigenvalue corresponds to the direction of maximum spread,
+for a point set used to build the convariance matrix.
