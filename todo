@@ -25,6 +25,11 @@ scaling,
 experimenting with rotation dependent scaling showed some neat effect when scaling individual
 points of a rectangle. Make this an eye-candy feature.
 
+frame freeze on collision,
+"Whenever you hit a zombie the frame freezes for a short time, there is something
+weirdly satifying about that" Test this mechanics once the rubber like collision 
+works.
+
 
 collision-----------------------------------------------------------------------
 Have game-object transformation functions (move, scale, rotate) cache the new bounding
