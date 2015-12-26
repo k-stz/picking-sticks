@@ -161,9 +161,9 @@
    ;; used to determine how many times the animation state has been querried for
    ;; an animation frame, to determine how to change the state. This effectively
    ;; in what order the animation going to be showsn
-   (animation-querries  :type integer :initform 0)
-   ;; this determines how many aimation-querries are needed
-   (querries-per-frame :type integer)
+   (animation-queries  :type integer :initform 0)
+   ;; this determines how many aimation-queries are needed
+   (queries-per-frame :type integer)
    ;; hm this is the global-texture, so there should also be a global sprite sheet
    ;; (spritesheet :type TEXATL.CL:TEXATL-SPRITESHEET :initarg :spritesheet)
    (frame :type integer :initform 0)
@@ -821,6 +821,11 @@ animation state of the object."
 (defun tex (rectangle)
   (with-slots (tex-x1 tex-x2 tex-y1 tex-y2) rectangle
     (list tex-x1 tex-x2 tex-y1 tex-y2)))
+
+;; Experimental, drawing lines
+
+
+
 
 ;;Test data---------------------------------------------------------------------
 
