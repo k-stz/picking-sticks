@@ -68,8 +68,8 @@ Animation,
 
 changing the pixels displayed on the rectangle. 
 
-The animation state is stored in each game-object as a slot containing an animation class
-object.
+The animation state is stored in each game-object::RECTANGLE as a slot containing an
+animation class object.
 
 The implementation uses a big texture and all we do is change which region of the texture
 will be read by a game-object rectangle. Check out an actual use case in the file
@@ -93,5 +93,5 @@ The file "note-collision-detection" is following the, so far, excellent book: "r
 collision detection" by Christer Ericson.
 
 The project has a fork working on a smaller, quick and dirty, core
-picture-language-package that will be used to implement SICP's picture-language. A DSL for
+picture-language-package that is used to implement SICP's picture-language. A DSL for
 creating sub pictures in patterns inside a general parallelogram.

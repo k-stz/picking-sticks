@@ -31,6 +31,12 @@ weirdly satifying about that" Test this mechanics once the rubber like collision
 works.
 
 
+text rendering, chat, usocket,
+once a solution has been found and integreted in the rectangle paradigm (draw text
+on a MAKE-RECTANGLE). Build a chat system with two lisp systems running picking-sticks
+and connecting to each other? This way usocket, tcp/ip can be explored or even a 
+multiplayer test
+
 collision-----------------------------------------------------------------------
 Have game-object transformation functions (move, scale, rotate) cache the new bounding
 volume and or position. This allows for the main loop to perform collision tests with the
