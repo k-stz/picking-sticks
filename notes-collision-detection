@@ -284,7 +284,7 @@ Math and geometry primer
 
 transpose matrix of A: A^t
 
-/skew symmetric/ or /antisemitic/ matrix,
+/skew symmetric/ or /antisymmetric/ matrix,
 when A^t = -A. For example rotation about the x-axis, then the antisemitic matrix
 would be a 180-degree turn around the x-axis
 
@@ -348,8 +348,8 @@ We will mainly need to calculate the determinant of 2 x 2 and 3 x 3 matrices
 2 x 2: simply multiplying the values in the diagonals and subtracting them.
 
 |A| = |u1 u2| = u1*v2 - u2*v1   (imagine how you take out the values diagonally squish
-      |v1 v2|                    them in your palm, finally you make them fight subtracting
-                                 each others troops)
+      |v1 v2|                    them in your palm (multiplication), finally you make 
+                                 them fight subtracting each others troops)
 
 before the awesome 3 x 2, check out the single element matrix:
 
@@ -376,7 +376,7 @@ yeah.. never mind that, check this out this is an identity of the above:
 
 v x w returns a vector perpendicular to the plane that v and w span. Now the dot-product
 of this perpendicular vector with u determines the cos angle between the two. Remember how
-a determinant of (0.0, 1.0] means the the matrix equations are solvable? Well guess what,
+a determinant of (0.0, 1.0] means that the matrix equations are solvable? Well guess what,
 this is the case when u and the plane-normal (from v x w) are perpendicular!  And this is
 exactly the case if u lies in the same plane as v and w! Visually this is simply the case
 when all three vectors share the same plane - or - if we _lose a degree of freedom (make
@@ -576,7 +576,7 @@ y=xm+b  ;; where m is the slope and b the intercept (the point where the line cr
         ;; note: the slope-intercept form _can't represent vertical lines!_ 
 
 Real example m=0 and b=1
-y=1 which is a line parallel parallel to the coordinate x axis and offset by one, and it can
+y=1 which is a line parallel to the x axis and offset by one, and it can
 be easily formulated into a function f(x)=1
 But how do we use this representation with a form like:
 
@@ -586,18 +586,20 @@ First of what's up with the a, b and e? Well that's what you get when you algebr
 our fine slope-intercept form:
 
 ax+by=c ;-ax
-by = -ax + c  ;; and there is out "y=mx+b"
+by = -ax + c  ;; and there is our "y=mx+b"
 
 Now lets try to transform these slope-intercept form into general linear equations
 
-(1) y=2     ->   0*x+1*y=2
-(2) y=x ;;-x -> -1*x+1*y=0
+(1) y=2      ->   0*x+1*y=2
+(2) y=x ;;-x ->  -1*x+1*y=0
 which have a point in common at P(2,2), so let's see if we can find a solution using the matrix
 form
 
  0*x+1*y=2 into matrix-form->  [ 0 1  x  [x    = [2
 -1*x+1*y=0                      -1 1]     y]      0]
+
                                  A    *   X    =  B
+
 So lets see if A is invertible, so we can solve for X:
 |A| = | 0 1| = -1 invertible!!
       |-1 1|
@@ -606,7 +608,11 @@ well lets cheat here and get inverse matrix without a formal way:
 A⁻¹= [1.0 -1.0
       1.0 0.0]
 
-Now we plug this into the equation X =A⁻¹B
+Now we plug this into the equation X = A⁻¹B  ;; remember, we multiply the matrix equation with
+                                                A⁻¹ from the _left_ on each side. On the left
+                                                side A x X we take A to the land of identity
+                                                A⁻¹ x A x X -> X, and on the right side we get
+                                                A⁻¹B. The equation: X = A⁻¹B follows
 [1.0 -1.0 x [2  = [2
  1.0 0.0]    0]    2]   and indeed X = [2
                                         2]
