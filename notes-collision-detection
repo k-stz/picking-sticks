@@ -580,9 +580,9 @@ y=1 which is a line parallel to the x axis and offset by one, and it can
 be easily formulated into a function f(x)=1
 But how do we use this representation with a form like:
 
-  ax+by=e
+  ax+by=c
 
-First of what's up with the a, b and e? Well that's what you get when you algebraically manipulate
+First of what's up with the a, b and c? Well that's what you get when you algebraically manipulate
 our fine slope-intercept form:
 
 ax+by=c ;-ax
@@ -625,7 +625,7 @@ has, thank goodness, a visual and intuitive explanation!
 
 Consider the line
 y=x+2  and its linear equation representation:
--2+y=2
+-2x+y=2
 
 What we first want to do is get the matrix row out of there
    a b c into
@@ -647,25 +647,25 @@ the form can be extended to three unknown, but this is _not a 3d line_ it is a p
 here the vector [A,B,C] is perpendicular to the plane, like the normal of a surface. To
 get a line, we need to intersect two planes, for which we need two equations:
 
-aka two planes make a line. A plane can be represented by 3 non-collinear points, but we
-the method above, where we take a vector (x,y,z) and the normal to of the plane (A,B,C)
-and this also is enough to represent a plane. The vector (x,y,z) is on the plane if the
-dot-product, which is implied being calculated in Ax+By+Cz, between (A,B,C) and it
-equals 0 (d = 0). So now if we plug in values for x,y,z we can test if they're on the plane
-if the equation equals 0. Now to get a line we want to plug in the same values into another
-plane definition of the form Ax+By+Cz=d if they're also equal d=0 for the same values
-then we'd have found a point in common on both planes. Good, good. Now to get a line of
-points in common is also the definition of a plane.
+aka two planes make a line. A plane can be represented by 3 non-collinear points, but with
+the method above, where we take a vector (x,y,z) and the normal of the plane (A,B,C) is also
+enough to represent a plane. The vector (x,y,z) is on the plane if the dot-product, which
+is implied being calculated in Ax+By+Cz, between (A,B,C) and it equals 0 (d = 0). So now
+if we plug in values for x,y,z we can test if they're on the plane if the equation equals
+0. Now to get a line we want to plug in the same values into another plane definition of
+the form Ax+By+Cz=d if they're also equal d=0 for the same values then we'd have found a
+point in common on both planes. Good, good. Now to get a line of points in common is also
+the definition of a plane.
 
 (1) A1x+B1y+C1z=d1
 (2) A2x+B2y+C2z=d2    How do we solve this _linear equation system_? Well forget that for
                       now. We have the normals for both planes readily available all
 we need to do is just calculate the cross-product of the two [A1..]x[A2..] and we get
-a vector that is collinear with our line!! Now we just need to put this line somewhere,
-a point to center it on. This can be calculated by solving for a point they have in common.
-A solution involves just taking in one of the summands and set its coefficient x,y or z
-to 0, and solve the equation such that we get a point to center our cross-product line
-on it.
+a vector that is collinear with our line!! Now we just need to put this line somewhere on
+a point to place it on the plane. This can be calculated by solving for a point they have 
+in common.  A solution involves just taking in one of the summands and set its coefficient 
+x,y or z to 0, and solve the equation such that we get a point to center our cross-product 
+line on it.
 
 See below why a point and the collinear line suffices for the representation.
 
@@ -705,7 +705,7 @@ x =  2-2     / 0  ;;<- boom division by zero!! In this case, geometrically,
 		  ;;   line is common with the other line
                  
 --------------------------------------------------------------------------------
-Now the two parallel, non coinciding lines
+Now the two parallel, non-coinciding lines
 (1) y=2 (2) y=3
 
 (1) 0*x+1*y=2
@@ -728,7 +728,7 @@ The If: when the coefficient matrix determinant is non-zero
 
 The where:
 
-given an linear equation system,
+given a linear equation system,
 a1x+b1x+c1x=d1
 a2x+b2x+c2x=d2
 a3x+b3x+c3x=d3
@@ -742,7 +742,7 @@ represented as a matrix, and in determinant form:
 |c1 c2 c3|
 
 In the above examples we solved this with X=A⁻¹*B where B would be the vector
-[d1,d2,d3]. We need to keep this in mind as for performance reasons. But Cramer's rule
+[d1,d2,d3]. We need to keep this in mind for performance reasons. But Cramer's rule
 allows us to get the individual elements of the unique point P(x,y,z), the point that
 solves all equations, by providing equations that solve for each of the points.
 
@@ -760,8 +760,8 @@ and 115 additions are necessary.
 
 --------------------------------------------------------------------------------
 cross-product:
-
-[4      [12     \       ;; where i is repeating {1,2,3}      /
+                        ;; where i is repeating {1,2,3}
+[4      [12     \       ;; that means if i=3 then i+1 = 1!   /
  3   x    6      \                                          /
  2]       9]      *---> v1.i * v2.i+1  - v2.i * v1.i+1 <---*
                       = v1⨯v2.i+2
