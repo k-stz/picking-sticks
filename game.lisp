@@ -64,8 +64,8 @@
    ;; in USING-KEYBOARD-STATE
    (last-frame-ticks :initform (sdl2:get-ticks))
    (frames :initform 0)
-   (width :accessor window-width)
-   (height :accessor window-height)
+   (width :accessor game-window-width)
+   (height :accessor game-window-height)
    (keystate-tracker :initform (make-instance 'keystate-tracker)
 		     :reader keystate-tracker)))
 
@@ -282,15 +282,15 @@
   ;; here we pass the window width and height to the shader, so it has
   ;; all the data needed to translate the pixel rectangle properly
   (use-program *programs-dict* :pixel-orthogonal)
-  (uniform :int :window-width (window-width game-window))
-  (uniform :int :window-height (window-height game-window))
+  (uniform :int :window-width (game-window-width game-window))
+  (uniform :int :window-height (game-window-height game-window))
   (use-program *programs-dict* 0))
 
 
 (defmethod initialize-instance :after ((w game-window) &key &allow-other-keys)
   (multiple-value-bind (width height) (window-size w)
-    (setf (window-width w) width
-	  (window-height w) height))
+    (setf (game-window-width w) width
+	  (game-window-height w) height))
 
   
   ;; GL setup can go here; your GL context is automatically active,
@@ -301,7 +301,7 @@
   (setf (idle-render w) t)
   (gl:clear-color 0 0 0.5 1)
   (gl:clear :color-buffer-bit)
-  (gl:viewport 0 0 (window-width w) (window-height w))
+  (gl:viewport 0 0 (game-window-width w) (game-window-height w))
 
   ;; with culling
   (gl:enable :cull-face)
@@ -715,7 +715,7 @@
   (format t "~A button: ~A at ~A, ~A~%" state b x y)
   (when (eq state :mousebuttondown)
 
-    (let* ((x (float x)) (y  (- (window-height window) (float y))))
+    (let* ((x (float x)) (y  (- (game-window-height window) (float y))))
       (game-objects::add-rectangle-as (gentemp) (make-rectangle-c (vec3 x y 0.0)
 								  (vec3 (* *width-height* 0.5)
 									(* *width-height* 0.5)
@@ -737,7 +737,7 @@
     (when (left-mouse-button-clicked-p)
       (incf *rotate-y* (/ xr 100.0))
       (incf *rotate-x* (/ yr 100.0))
-      (let* ((x (float x)) (y  (- (window-height window) (float y))))
+      (let* ((x (float x)) (y  (- (game-window-height window) (float y))))
 	;; GENTEMP uses interned symbols, so you can actually (get-rectangle ..) them!
       	(game-objects::add-rectangle-as (gentemp) (make-rectangle-c (vec3 x y 0.0)
 								 (vec3 (* *width-height* 0.5)
