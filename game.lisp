@@ -327,7 +327,7 @@
   (uniform :int :rectangle-texture game-objects::*tex-unit*) ; = glUniform1i(<location>, <texture-image-unit>);
   (use-program *programs-dict* 0)
   
-  ;; /EXPERIMETNS
+  ;; /EXPERIMENTS
 
   
   ;;texture
@@ -370,7 +370,7 @@
 		      ;; 1d-array by making it arbitrarily 2d (gl:tex-image-2d ... <width> <height> .#|<-here|#.)
 		      ;; and we read the value using tex-coordinate, where, with the current representation below
 		      ;; [0,0] represents top-left, [1,0] top-righ, [1,1]. If we imagine the texture coordinates
-		      ;; following a coordinate system sceme this "asci-art" below is upside-down. Positive
+		      ;; following a coordinate system scheme this "asci-art" below is upside-down. Positive
   		      ;; y is down, negative up. But x is right.
   		      :initial-contents
  ;;    	 -------+------------------------------------------------------------------------------> +x
@@ -438,9 +438,11 @@
 (defun create-texture ()
   (let ((m-texture (first (gl:gen-textures 1)))
 	;;(width 256) ; length of the look-up table
-	(texture-data *arrow-lambda-data*))
+	(texture-data *arrow-lambda-data*)
+	;; (texture-data *rgba-texture-data*)
+	)
 
-    (setf *texture* m-texture)
+	(setf *texture* m-texture)
 
     ;; :texture-2d the texture contains 2d-image_s_. Peculiariy: once you bind the
     ;; texture with a certain type, here :texture-2d, you always need to bind it
@@ -671,19 +673,19 @@
 	(when (key-down-p (keystate-tracker window) :scancode-d)
 	  (game-objects:set-animation :nyo :walk :right)
 	  (setf next-frame-p t)
-	  (game-objects:move :nyo (math:vec2* (vec2 5.0 0.0) (/ elapsed-ticks 50.0))))
+	  (game-objects:move :nyo (math:vec2* (vec2 5.0 0.0) (/ elapsed-ticks 30.0))))
 	(when (key-down-p (keystate-tracker window) :scancode-a)
 	  (game-objects:set-animation :nyo :walk :left)
 	  (setf next-frame-p t)
-	  (game-objects:move :nyo (math:vec2* (vec2 -5.0 0.0) (/ elapsed-ticks 50.0))))
+	  (game-objects:move :nyo (math:vec2* (vec2 -5.0 0.0) (/ elapsed-ticks 30.0))))
 	(when (key-down-p (keystate-tracker window) :scancode-w)
 	  (game-objects:set-animation :nyo :walk :up)
 	  (setf next-frame-p t)
-	  (game-objects:move :nyo (math:vec2* (vec2 0.0 5.0) (/ elapsed-ticks 50.0))))
+	  (game-objects:move :nyo (math:vec2* (vec2 0.0 5.0) (/ elapsed-ticks 30.0))))
 	(when (key-down-p (keystate-tracker window) :scancode-s)
 	  (game-objects:set-animation :nyo :walk :down)
 	  (setf next-frame-p t)
-	  (game-objects:move :nyo (math:vec2* (vec2 0.0 -5.0) (/ elapsed-ticks 50.0))))
+	  (game-objects:move :nyo (math:vec2* (vec2 0.0 -5.0) (/ elapsed-ticks 30.0))))
 	;; rotation movement
 	(when (key-down-p (keystate-tracker window) :scancode-q)
 	  ;;(game-objects:set-animation :nyo :walk :right)
@@ -816,7 +818,8 @@
 	    (sb-cga:matrix*
 	     (sb-cga:translate (vec3 0.0 0.0 *zoom-z*))
 	     (sb-cga:rotate (vec3 *rotate-x* *rotate-y* 0.0))
-	     ;;(sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0))
+	     ;; pretty cool, makes it automatically rotate on its own!
+	     (sb-cga:rotate (vec3 0.0 (mod (/ (sdl2:get-ticks) 5000.0) (* 2 3.14159)) 0.0))
 	     )))
   ;; projection matrix
   (uniform :mat :perspective-matrix
@@ -866,8 +869,9 @@
   ;; Your GL context is automatically active.  FLUSH and
   ;; SDL2:GL-SWAP-WINDOW are done implicitly by GL-WINDOW  (!!)
   ;; after RENDER.
-  (gl:clear :color-buffer :depth-buffer-bit)
-  
+  (gl:clear :color-buffer)
+  (gl:clear :depth-buffer-bit)
+
   (using-keyboard-state window)
 
   (collision-test) ;; test if this is bottleneck UPDATE: rendering seems to hog CPU time
